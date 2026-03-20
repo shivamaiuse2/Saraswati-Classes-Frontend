@@ -1,21 +1,28 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, {
+  AxiosInstance,
+  InternalAxiosRequestConfig,
+  AxiosResponse,
+  AxiosError,
+} from "axios";
 
 // Base API configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://saraswati-classes-backend.vercel.app";
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000, // 30 seconds timeout
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,7 +30,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Queue for requests while refreshing
@@ -46,26 +53,30 @@ apiClient.interceptors.response.use(
   },
   async (error: AxiosError) => {
     const originalRequest = error.config;
-    
+
     // If token expired and not already refreshing, try to refresh
-    if (error.response?.status === 401 && !originalRequest?.url?.includes('/auth/refresh')) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest?.url?.includes("/auth/refresh")
+    ) {
       if (!isRefreshing) {
         isRefreshing = true;
         try {
-          const refreshToken = localStorage.getItem('refreshToken');
+          const refreshToken = localStorage.getItem("refreshToken");
           if (refreshToken) {
             const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-              refreshToken
+              refreshToken,
             });
-            
+
             if (response.data.success) {
-              const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-              localStorage.setItem('accessToken', accessToken);
-              localStorage.setItem('refreshToken', newRefreshToken);
-              
+              const { accessToken, refreshToken: newRefreshToken } =
+                response.data.data;
+              localStorage.setItem("accessToken", accessToken);
+              localStorage.setItem("refreshToken", newRefreshToken);
+
               isRefreshing = false;
               onRefreshed(accessToken);
-              
+
               // Retry original request
               if (originalRequest?.headers) {
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -76,11 +87,14 @@ apiClient.interceptors.response.use(
         } catch (refreshError) {
           isRefreshing = false;
           // If refresh fails, redirect to login
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('sc_role');
-          if (!window.location.pathname.includes('/login') && window.location.pathname !== '/') {
-            window.location.href = '/login';
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("sc_role");
+          if (
+            !window.location.pathname.includes("/login") &&
+            window.location.pathname !== "/"
+          ) {
+            window.location.href = "/login";
           }
           return Promise.reject(error);
         }
@@ -97,9 +111,9 @@ apiClient.interceptors.response.use(
       });
       return retryOriginalRequest;
     }
-    
+
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

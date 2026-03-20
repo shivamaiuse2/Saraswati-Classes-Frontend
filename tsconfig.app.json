@@ -21,6 +21,7 @@
     "noUnusedParameters": false,
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
+    "forceConsistentCasingInFileNames": true,
 
     "baseUrl": ".",
     "paths": {
