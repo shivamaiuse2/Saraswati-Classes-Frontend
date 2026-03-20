@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------- BASE VARIABLES ---------------- */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 20% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 20% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 20% 12%;
+
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 199 80% 95%;
+    --secondary-foreground: 199 89% 30%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 210 10% 45%;
+
+    --accent: 199 80% 92%;
+    --accent-foreground: 199 89% 25%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 90%;
+    --input: 210 20% 90%;
+    --ring: 199 89% 48%;
+
+    --radius: 0.75rem;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 210 10% 25%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 199 80% 95%;
+    --sidebar-accent-foreground: 199 89% 25%;
+    --sidebar-border: 210 20% 90%;
+    --sidebar-ring: 199 89% 48%;
+  }
+}
+
+/* ---------------- BASE STYLES ---------------- */
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+
+  body {
+    @apply bg-white text-gray-900 font-sans;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+/* ---------------- UTILITIES ---------------- */
+
+@layer utilities {
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-sky-700;
+  }
+
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+
+  .card-hover {
+    @apply rounded-xl shadow-sm transition-shadow duration-200 hover:shadow-md;
+  }
+
+}
+
+/* ---------------- HERO FLOATING BADGES ---------------- */
+
+/* HERO FLOAT ANIMATION */
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-float-delay {
+  animation: float 5s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+/* ---------------- STUDENT SLIDER ---------------- */
+
+@keyframes sliderScroll {
+
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+
+}
+
+.slider-track {
+  display: flex;
+  width: max-content;
+  animation: sliderScroll 22s linear infinite;
+}
+
+/* Pause animation on hover */
+
+.group:hover .slider-track {
+  animation-play-state: paused;
+}

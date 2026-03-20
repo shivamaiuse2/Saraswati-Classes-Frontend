@@ -1,0 +1,60 @@
+import { useParams } from "react-router-dom";
+import Layout from "@/components/Layout";
+import { useApp } from "@/context/AppContext";
+
+const BlogDetailPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const { blogs } = useApp();
+
+  const blog = blogs.find(b => b.id === id);
+
+  if (!blog) {
+    return (
+      <Layout>
+        <div className="py-16 md:py-20 bg-background">
+          <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 text-center">
+            <h1 className="text-3xl font-semibold text-[#0F172A]">Blog not found</h1>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <section className="py-16 md:py-20 bg-background">
+        <div className="max-w-[800px] mx-auto px-4 md:px-6 lg:px-8">
+
+          {/* Blog Image */}
+          <img
+            src={blog.image}
+            alt={blog.title}
+            className="w-full h-64 md:h-80 object-cover rounded-xl mb-8"
+          />
+
+          {/* Blog Title */}
+          <h1 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
+            {blog.title}
+          </h1>
+
+          {/* Blog Date */}
+          <p className="text-muted-foreground mb-8">
+            {blog.date}
+          </p>
+
+          {/* Blog Content */}
+          <div className="prose prose-lg max-w-none">
+            {blog.content.split('\n').map((paragraph, index) => (
+              <p key={index} className="mb-4 text-gray-700 leading-relaxed">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+
+        </div>
+      </section>
+    </Layout>
+  );
+};
+
+export default BlogDetailPage;

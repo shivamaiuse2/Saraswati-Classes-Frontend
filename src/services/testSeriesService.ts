@@ -1,0 +1,134 @@
+import apiClient from '@/lib/api';
+import type { TestSeries } from '@/data/mockData'; // Using mockData types
+
+interface PaginatedResponse<T> {
+  success: boolean;
+  message: string;
+  data: T[];
+  meta?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+interface SingleTestSeriesResponse {
+  success: boolean;
+  message: string;
+  data: any; // Raw API response
+}
+
+interface CreateTestSeriesData {
+  title: string;
+  overview: string;
+  features: string[];
+  testPattern: string;
+  benefits: string[];
+  image: string;
+  ctaLabel: string;
+  demoTestLink: string;
+  heroPosterThumbnail: string;
+  showInHeroPoster: boolean;
+  testsCount: number;
+  mode: string;
+  price: string;
+}
+
+interface UpdateTestSeriesData extends Partial<CreateTestSeriesData> {}
+
+// Convert API response to frontend TestSeries type
+const convertApiToTestSeries = (apiTestSeries: any): TestSeries => {
+  return {
+    id: apiTestSeries.id,
+    title: apiTestSeries.title,
+    overview: apiTestSeries.overview,
+    features: apiTestSeries.features || [],
+    testPattern: apiTestSeries.testPattern,
+    benefits: apiTestSeries.benefits || [],
+    image: apiTestSeries.image,
+    ctaLabel: apiTestSeries.ctaLabel || 'Enroll Now',
+    demoTestLink: apiTestSeries.demoTestLink || '',
+    heroPosterThumbnail: apiTestSeries.heroPosterThumbnail || '',
+    showInHeroPoster: apiTestSeries.showInHeroPoster || false,
+    testsCount: apiTestSeries.testsCount || 0,
+    mode: apiTestSeries.mode || 'Online',
+    price: apiTestSeries.price || '0',
+  };
+};
+
+const testSeriesService = {
+  // Get all test series
+  getTestSeries: async (page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResponse<TestSeries>> => {
+    let url = `/test-series?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    
+    const response = await apiClient.get(url);
+    const apiResponse = response.data;
+    
+    // Convert API response to frontend format
+    const convertedItems = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToTestSeries);
+    
+    return {
+      ...apiResponse,
+      data: convertedItems
+    };
+  },
+
+  // Get all test series (Admin)
+  getAdminTestSeries: async (page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResponse<TestSeries>> => {
+    let url = `/test-series/admin?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    
+    const response = await apiClient.get(url);
+    const apiResponse = response.data;
+    
+    const convertedItems = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToTestSeries);
+    
+    return {
+      ...apiResponse,
+      data: convertedItems
+    };
+  },
+
+  // Get test series by ID
+  getTestSeriesById: async (id: string): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.get(`/test-series/${id}`);
+    const apiResponse = response.data;
+    
+    return {
+      ...apiResponse,
+      data: convertApiToTestSeries(apiResponse.data)
+    };
+  },
+
+  // Create a new test series
+  createTestSeries: async (testSeriesData: CreateTestSeriesData): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.post('/test-series', testSeriesData);
+    const apiResponse = response.data;
+    
+    return {
+      ...apiResponse,
+      data: convertApiToTestSeries(apiResponse.data)
+    };
+  },
+
+  // Update a test series
+  updateTestSeries: async (id: string, testSeriesData: UpdateTestSeriesData): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.put(`/test-series/${id}`, testSeriesData);
+    const apiResponse = response.data;
+    
+    return {
+      ...apiResponse,
+      data: convertApiToTestSeries(apiResponse.data)
+    };
+  },
+
+  // Delete a test series
+  deleteTestSeries: async (id: string): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.delete(`/test-series/${id}`);
+    return response.data;
+  },
+};
+
+export default testSeriesService;

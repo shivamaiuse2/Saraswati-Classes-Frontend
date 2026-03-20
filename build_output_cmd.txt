@@ -1,0 +1,29 @@
+
+> vite_react_shadcn_ts@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 2248 modules transformed.
+[31m✗[39m Build failed in 2.33s
+[31merror during build:
+[31msrc/components/admin/AdminCourseManagement.tsx (32:2): "fetchCourses" is not exported by "src/services/courseService.ts", imported by "src/components/admin/AdminCourseManagement.tsx".[31m
+file: [36mS:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/src/components/admin/AdminCourseManagement.tsx:32:2[31m
+[33m
+30: import type { Chapter } from "@/types/chapter";
+31: import {
+32:   fetchCourses,
+      ^
+33:   createCourse,
+34:   updateCourse,
+[31m
+    at getRollupError (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at error (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/parseAst.js:398:42)
+    at Module.error (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/node-entry.js:17040:16)
+    at Module.traceVariable (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/node-entry.js:17452:29)
+    at ModuleScope.findVariable (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/node-entry.js:15070:39)
+    at ReturnValueScope.findVariable (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at FunctionBodyScope.findVariable (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at ReturnValueScope.findVariable (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at FunctionBodyScope.findVariable (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at Identifier.bind (file:///S:/External-Projects/SinerjexAI/Saraswati-Classes-Combined/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5447:40)[39m

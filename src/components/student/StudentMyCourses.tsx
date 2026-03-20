@@ -1,0 +1,137 @@
+import { motion } from "framer-motion";
+import { ExternalLink } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useApp } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
+
+const StudentMyCourses = () => {
+  const { courses } = useApp();
+  const { currentStudent } = useAuth();
+
+  const approvedCourses = courses.filter((c) =>
+    currentStudent?.approvedCourses.includes(c.id)
+  );
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl md:text-2xl font-semibold mb-1">
+          My Courses
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          View your assigned courses and directly access their chapter videos and
+          chapter tests.
+        </p>
+      </div>
+
+      {approvedCourses.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center text-muted-foreground text-sm">
+            No courses assigned yet. Once the admin approves your enrollment,
+            your courses and modules will appear here.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-6">
+          {approvedCourses.map((course) => (
+            <motion.div
+              key={course.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <Card>
+                <CardContent className="p-5 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="secondary">{course.category}</Badge>
+                        <Badge variant="outline">{course.mode}</Badge>
+                      </div>
+                      <h2 className="font-semibold text-base md:text-lg">
+                        {course.title}
+                      </h2>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {course.timing} • {course.days}
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {course.chapters.length} modules
+                    </p>
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    {course.chapters.map((ch: any, idx: number) => {
+                      const chapterNumber =
+                        typeof ch.chapterNumber === "number"
+                          ? ch.chapterNumber
+                          : idx + 1;
+                      const chapterDescription =
+                        ch.chapterDescription ?? ch.description ?? "";
+                      const youtubeLink = ch.youtubeLink ?? ch.videoUrl ?? "";
+                      const testLink = ch.testLink ?? "";
+
+                      return (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-3 rounded-lg border border-dashed bg-muted/60 px-3 py-2"
+                      >
+                        <span className="text-xs font-semibold text-primary mt-0.5">
+                          {chapterNumber}.
+                        </span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{`Chapter ${chapterNumber}`}</p>
+                          {chapterDescription && (
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {chapterDescription}
+                            </p>
+                          )}
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {youtubeLink && (
+                              <a
+                                href={youtubeLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
+                              >
+                                Watch on YouTube
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                            {testLink && (
+                              <a
+                                href={testLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
+                              >
+                                Open Chapter Test
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      );
+                    })}
+
+                    {course.chapters.length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        Modules will be configured for this course by the
+                        admin. You’ll see topic-wise videos here once they are
+                        added.
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default StudentMyCourses;
+
