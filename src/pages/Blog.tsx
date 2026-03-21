@@ -3,7 +3,7 @@ import { useApp } from "@/context/AppContext";
 import { Link } from "react-router-dom";
 
 const Blog = () => {
-  const { blogs } = useApp();
+  const { blogs, loadingBlogs } = useApp();
 
   return (
     <Layout>
@@ -24,42 +24,36 @@ const Blog = () => {
 
           {/* Blog Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            {blogs.map((post) => (
-              <Link
-                key={post.id}
-                to={`/blog/${post.id}`}
-                className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-lg transition overflow-hidden flex flex-col"
-              >
-
-                {/* Blog Image */}
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="h-40 w-full object-cover"
-                />
-
-                <div className="p-6 flex flex-col flex-grow">
-
-                  {/* Title */}
-                  <h3 className="font-semibold text-lg text-[#0F172A] mb-2">
-                    {post.title}
-                  </h3>
-
-                  {/* Date */}
-                  <p className="text-sm text-muted-foreground flex-grow">
-                    {post.date}
-                  </p>
-
-                  {/* Read More */}
-                  <div className="mt-4 text-sm font-medium text-blue-600 hover:underline">
-                    Read Article →
+            {loadingBlogs ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-[300px] bg-slate-100 animate-pulse rounded-xl" />
+              ))
+            ) : blogs.length > 0 ? (
+              blogs.map((post) => (
+                <Link
+                  key={post.id}
+                  to={`/blog/${post.id}`}
+                  className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-lg transition overflow-hidden flex flex-col"
+                >
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="h-40 w-full object-cover"
+                  />
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="font-semibold text-lg text-[#0F172A] mb-2">{post.title}</h3>
+                    <p className="text-sm text-muted-foreground flex-grow">{post.date}</p>
+                    <div className="mt-4 text-sm font-medium text-blue-600 hover:underline">
+                      Read Article →
+                    </div>
                   </div>
-
+                </Link>
+              ))
+            ) : (
+                <div className="col-span-full py-12 text-center text-muted-foreground">
+                  No blog posts available at the moment.
                 </div>
-              </Link>
-            ))}
-
+            )}
           </div>
         </div>
       </section>

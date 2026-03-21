@@ -12,7 +12,7 @@ const cardColors = [
 ];
 
 const ResultsPage = () => {
-  const { results } = useApp();
+  const { results, loadingResults } = useApp();
 
   return (
     <Layout>
@@ -33,40 +33,48 @@ const ResultsPage = () => {
 
           {/* Cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loadingResults ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-48 bg-slate-100 animate-pulse rounded-xl" />
+              ))
+            ) : results.length > 0 ? (
+              results.map((t, idx) => (
+                <Card
+                  key={idx}
+                  className={`${
+                    cardColors[idx % cardColors.length]
+                  } rounded-xl border-none shadow-sm hover:shadow-lg transition flex flex-col items-center text-center p-6`}
+                >
 
-            {results.map((t, idx) => (
-              <Card
-                key={idx}
-                className={`${
-                  cardColors[idx % cardColors.length]
-                } rounded-xl border-none shadow-sm hover:shadow-lg transition flex flex-col items-center text-center p-6`}
-              >
+                  {/* Image */}
+                  <img
+                    src={t.image}
+                    alt={t.name}
+                    className="w-24 h-24 rounded-full mb-4 object-cover border-4 border-white shadow"
+                  />
 
-                {/* Image */}
-                <img
-                  src={t.image}
-                  alt={t.name}
-                  className="w-24 h-24 rounded-full mb-4 object-cover border-4 border-white shadow"
-                />
+                  {/* Name */}
+                  <h3 className="font-semibold text-lg text-[#0F172A]">
+                    {t.name}
+                  </h3>
 
-                {/* Name */}
-                <h3 className="font-semibold text-lg text-[#0F172A]">
-                  {t.name}
-                </h3>
+                  {/* Exam */}
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t.exam}
+                  </p>
 
-                {/* Exam */}
-                <p className="text-sm text-muted-foreground mt-1">
-                  {t.exam}
-                </p>
+                  {/* Marks */}
+                  <div className="mt-3 text-lg font-semibold text-blue-600">
+                    {t.marks}
+                  </div>
 
-                {/* Marks */}
-                <div className="mt-3 text-lg font-semibold text-blue-600">
-                  {t.marks}
-                </div>
-
-              </Card>
-            ))}
-
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-full py-12 text-center text-muted-foreground">
+                No results published yet.
+              </div>
+            )}
           </div>
         </div>
       </section>

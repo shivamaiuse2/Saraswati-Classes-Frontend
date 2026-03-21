@@ -4,9 +4,20 @@ import { useApp } from "@/context/AppContext";
 
 const BlogDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { blogs } = useApp();
+  const { blogs, loadingBlogs } = useApp();
 
   const blog = blogs.find(b => b.id === id);
+
+  if (loadingBlogs) {
+    return (
+      <Layout>
+        <div className="py-20 text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+          <p className="text-muted-foreground italic">Loading blog post...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!blog) {
     return (

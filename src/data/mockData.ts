@@ -37,6 +37,7 @@ export interface TestSeries {
   testsCount: number;
   mode: string;
   price: string;
+  tests?: any[];
 }
 
 export interface EnrollmentRequest {

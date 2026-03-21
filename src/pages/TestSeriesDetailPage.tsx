@@ -19,14 +19,22 @@ import { useAuth } from "@/context/AuthContext";
 
 const TestSeriesDetailPage = () => {
   const { id } = useParams();
-  const { testSeries } = useApp();
+  const { testSeries, loadingTestSeries } = useApp();
   const { currentStudent } = useAuth();
 
   const ts = testSeries.find((t) => t.id === id);
   const [enrollOpen, setEnrollOpen] = useState(false);
 
-  const isApproved =
-    !!(currentStudent && ts && currentStudent.approvedTestSeries.includes(ts.id));
+  if (loadingTestSeries) {
+    return (
+      <Layout>
+        <div className="py-20 text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+          <p className="text-muted-foreground italic">Loading test series details...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!ts)
     return (
@@ -39,6 +47,9 @@ const TestSeriesDetailPage = () => {
         </div>
       </Layout>
     );
+
+  const isApproved =
+    !!(currentStudent && ts && currentStudent.approvedTestSeries.includes(ts.id));
 
   return (
     <Layout>

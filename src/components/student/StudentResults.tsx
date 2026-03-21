@@ -4,8 +4,9 @@ import { BarChart2, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const StudentResults = () => {
-  const { currentStudent } = useAuth();
+  const { currentStudent, loading } = useAuth();
   const results = currentStudent?.testResults || [];
+  const isLoading = loading;
 
   return (
     <div className="space-y-6">
@@ -16,7 +17,16 @@ const StudentResults = () => {
         </p>
       </div>
 
-      {results.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-6">
+          <Card className="animate-pulse">
+            <CardContent className="p-8">
+              <div className="h-4 w-32 bg-muted rounded mb-4" />
+              <div className="h-6 w-full bg-muted rounded" />
+            </CardContent>
+          </Card>
+        </div>
+      ) : results.length === 0 ? (
         <Card className="bg-amber-50/50 border-amber-200">
           <CardContent className="p-5 flex items-center gap-3">
             <ShieldAlert className="h-5 w-5 text-amber-500" />

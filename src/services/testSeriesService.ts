@@ -54,6 +54,7 @@ const convertApiToTestSeries = (apiTestSeries: any): TestSeries => {
     testsCount: apiTestSeries.testsCount || 0,
     mode: apiTestSeries.mode || 'Online',
     price: apiTestSeries.price || '0',
+    tests: apiTestSeries.tests || [],
   };
 };
 
@@ -127,6 +128,28 @@ const testSeriesService = {
   // Delete a test series
   deleteTestSeries: async (id: string): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.delete(`/test-series/${id}`);
+    return response.data;
+  },
+
+  // Test management
+  addTest: async (seriesId: string, testData: any): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.post(`/test-series/${seriesId}/tests`, testData);
+    return response.data;
+  },
+
+  updateTest: async (testId: string, testData: any): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.put(`/test-series/tests/${testId}`, testData);
+    return response.data;
+  },
+
+  deleteTest: async (testId: string): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.delete(`/test-series/tests/${testId}`);
+    return response.data;
+  },
+
+  // Test Results management
+  recordTestResult: async (resultData: any): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.post('/test-series/results', resultData);
     return response.data;
   },
 };

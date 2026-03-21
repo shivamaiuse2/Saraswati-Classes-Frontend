@@ -8,7 +8,7 @@ import axios, {
 // Base API configuration
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  "https://saraswati-classes-backend.vercel.app";
+  'https://saraswati-classes-backend.vercel.app/api/v1';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({

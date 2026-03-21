@@ -6,6 +6,7 @@ import bannerService from "@/services/bannerService";
 import contentService from "@/services/contentService";
 import enrollmentService from "@/services/enrollmentService";
 import contactService from "@/services/contactService";
+import { useAuth } from "@/context/AuthContext";
 
 // Import mock data (only for default values, not for actual app functionality)
 import {
@@ -87,6 +88,7 @@ const convertApiToTestSeries = (apiTestSeries: any): TestSeries => ({
   testsCount: apiTestSeries.testsCount || 0,
   mode: apiTestSeries.mode || 'Online',
   price: apiTestSeries.price || '0',
+  tests: apiTestSeries.tests || [],
 });
 
 const convertApiToHeroPoster = (apiBanner: any): HeroPoster => ({
@@ -196,6 +198,7 @@ interface AppContextType {
   loadingTestSeries: boolean;
 
   heroPosters: HeroPoster[];
+  loadingHeroPosters: boolean;
   addHeroPoster: (p: Omit<HeroPoster, "id" | "createdAt">) => void;
   updateHeroPoster: (id: string, updates: Partial<HeroPoster>) => void;
   removeHeroPoster: (id: string) => void;
@@ -218,15 +221,20 @@ interface AppContextType {
 
   results: Result[];
   addResult: (result: Result) => void;
+  loadingResults: boolean;
 
   blogs: Blog[];
   addBlog: (blog: Blog) => void;
+  loadingBlogs: boolean;
 
   resources: Resource[];
   addResource: (resource: Resource) => void;
-
+  loadingResources: boolean;
+ 
   loadCourses: () => Promise<void>;
   loadTestSeries: () => Promise<void>;
+  testimonials: any[];
+  loadingTestimonials: boolean;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -252,6 +260,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [results, setResults] = useState<Result[]>([]);
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
+  const [loadingHeroPosters, setLoadingHeroPosters] = useState(true);
+  const [loadingResources, setLoadingResources] = useState(true);
+  const [loadingBlogs, setLoadingBlogs] = useState(true);
+  const [loadingResults, setLoadingResults] = useState(true);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
 
   // Load courses from API
   const loadCourses = async () => {
@@ -289,69 +303,102 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Initialize data on mount
+  const { role, loading: authLoading } = useAuth();
+
+  // Initialize data on mount and role/auth state change
   useEffect(() => {
-    loadCourses();
-    loadTestSeries();
+    // Wait for auth to initialize before making calls (prevents missing tokens)
+    if (authLoading) return;
 
-    bannerService.getBanners().then(res => {
-      if (res.success && res.data) setHeroPosters(res.data.map(convertApiToHeroPoster));
-      else setHeroPosters([]);
-    }).catch(error => {
-      console.error('Error loading banners:', error);
-      setHeroPosters([]);
-    });
+    // PUBLIC DATA (In parallel for ultra-low latency)
+    const loadPublicData = async () => {
+      try {
+        const [
+          coursesRes,
+          testRes,
+          bannersRes,
+          resultsRes,
+          blogsRes,
+          resourcesRes,
+          testimonialsRes
+        ] = await Promise.allSettled([
+          courseService.getCourses(1, 100),
+          testSeriesService.getTestSeries(1, 100),
+          bannerService.getBanners(),
+          contentService.getResults(1, 100),
+          contentService.getBlogs(1, 100),
+          contentService.getResources(1, 100),
+          contentService.getGalleryItems(1, 10, "Testimonials")
+        ]);
 
-    contentService.getResults(1, 100).then(res => {
-      if (res.success && res.data) setResults(res.data.map(convertApiToResult));
-      else setResults([]);
-    }).catch(error => {
-      console.error('Error loading results:', error);
-      setResults([]);
-    });
+        if (coursesRes.status === 'fulfilled' && coursesRes.value.success) {
+          setCourses(coursesRes.value.data.map(convertApiToCourse));
+        }
+        if (testRes.status === 'fulfilled' && testRes.value.success) {
+          setTestSeries(testRes.value.data.map(convertApiToTestSeries));
+        }
+        if (bannersRes.status === 'fulfilled' && bannersRes.value.success) {
+          setHeroPosters(bannersRes.value.data.map(convertApiToHeroPoster));
+        }
+        if (resultsRes.status === 'fulfilled' && resultsRes.value.success) {
+          setResults(resultsRes.value.data.map(convertApiToResult));
+        }
+        if (blogsRes.status === 'fulfilled' && blogsRes.value.success) {
+          setBlogs(blogsRes.value.data.map(convertApiToBlog));
+        }
+        if (resourcesRes.status === 'fulfilled' && resourcesRes.value.success) {
+          setResources(resourcesRes.value.data.map(convertApiToResource));
+        }
+        if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.success) {
+          const mapped = testimonialsRes.value.data.map(item => ({
+            id: item.id,
+            name: item.title,
+            text: item.image, 
+            avatar: item.image 
+          }));
+          setTestimonials(mapped);
+        }
+      } catch (error) {
+        console.error('Error loading public data:', error);
+      } finally {
+        setLoadingCourses(false);
+        setLoadingTestSeries(false);
+        setLoadingTestimonials(false);
+        setLoadingHeroPosters(false);
+        setLoadingBlogs(false);
+        setLoadingResults(false);
+        setLoadingResources(false);
+      }
+    };
 
-    contentService.getBlogs(1, 100).then(res => {
-      if (res.success && res.data) setBlogs(res.data.map(convertApiToBlog));
-      else setBlogs([]);
-    }).catch(error => {
-      console.error('Error loading blogs:', error);
-      setBlogs([]);
-    });
+    // ADMIN DATA
+    const loadAdminData = async () => {
+      if (role === "admin") {
+        try {
+          const [studentsRes, enrollRes, inquiriesRes] = await Promise.allSettled([
+            studentService.getStudents(1, 100),
+            enrollmentService.getEnrollments(1, 100),
+            contactService.getAllInquiries(1, 100)
+          ]);
 
-    contentService.getResources(1, 100).then(res => {
-      if (res.success && res.data) setResources(res.data.map(convertApiToResource));
-      else setResources([]);
-    }).catch(error => {
-      console.error('Error loading resources:', error);
-      setResources([]);
-    });
+          if (studentsRes.status === 'fulfilled' && studentsRes.value.success) {
+            setStudents(studentsRes.value.data.map(convertApiToStudent));
+          }
+          if (enrollRes.status === 'fulfilled' && enrollRes.value.success) {
+            setEnrollments(enrollRes.value.data.map(convertApiToEnrollment));
+          }
+          if (inquiriesRes.status === 'fulfilled' && inquiriesRes.value.success) {
+            setContactMessages(inquiriesRes.value.data.map(convertApiToContactMessage));
+          }
+        } catch (error) {
+          console.error('Error loading admin data:', error);
+        }
+      }
+    };
 
-    if (localStorage.getItem("sc_role") === "admin") {
-      studentService.getStudents(1, 100).then(res => {
-        if (res.success && res.data) setStudents(res.data.map(convertApiToStudent));
-        else setStudents([]);
-      }).catch(error => {
-        console.error('Error loading students:', error);
-        setStudents([]);
-      });
-
-      enrollmentService.getEnrollments(1, 100).then(res => {
-        if (res.success && res.data) setEnrollments(res.data.map(convertApiToEnrollment));
-        else setEnrollments([]);
-      }).catch(error => {
-        console.error('Error loading enrollments:', error);
-        setEnrollments([]);
-      });
-
-      contactService.getAllInquiries(1, 100).then(res => {
-        if (res.success && res.data) setContactMessages(res.data.map(convertApiToContactMessage));
-        else setContactMessages([]);
-      }).catch(error => {
-        console.error('Error loading contact messages:', error);
-        setContactMessages([]);
-      });
-    }
-  }, []);
+    loadPublicData();
+    loadAdminData();
+  }, [role, authLoading]);
 
   const addContactMessage = (msg: ContactMessage) => setContactMessages((prev) => [msg, ...prev]);
   const addResult = (result: Result) => setResults((prev) => [result, ...prev]);
@@ -489,14 +536,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     <AppContext.Provider value={{
       courses, addCourse, deleteCourse, loadingCourses,
       testSeries, addTestSeries, updateTestSeries, deleteTestSeries, loadingTestSeries,
-      heroPosters, addHeroPoster, updateHeroPoster, removeHeroPoster,
+      heroPosters, addHeroPoster, updateHeroPoster, removeHeroPoster, loadingHeroPosters,
       enrollments, addEnrollment, updateEnrollmentStatus, updateEnrollment,
       popup, updatePopup,
       students, addStudent, updateStudent, refreshStudentData,
       contactMessages, addContactMessage,
-      results, addResult,
-      blogs, addBlog,
-      resources, addResource,
+      results, addResult, loadingResults,
+      blogs, addBlog, loadingBlogs,
+      resources, addResource, loadingResources,
+      testimonials, loadingTestimonials,
       loadCourses, loadTestSeries,
     }}>
       {children}

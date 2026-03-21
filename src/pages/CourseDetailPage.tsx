@@ -18,18 +18,22 @@ import { useAuth } from "@/context/AuthContext";
 
 const CourseDetailPage = () => {
   const { id } = useParams();
-  const { courses } = useApp();
+  const { courses, loadingCourses } = useApp();
   const { currentStudent } = useAuth();
 
   const course = courses.find((c) => c.id === id);
   const [enrollOpen, setEnrollOpen] = useState(false);
 
-  const isApproved =
-    !!(
-      currentStudent &&
-      course &&
-      currentStudent.approvedCourses.includes(course.id)
+  if (loadingCourses) {
+    return (
+      <Layout>
+        <div className="py-20 text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+          <p className="text-muted-foreground italic">Loading course details...</p>
+        </div>
+      </Layout>
     );
+  }
 
   if (!course)
     return (
@@ -41,6 +45,13 @@ const CourseDetailPage = () => {
           </Link>
         </div>
       </Layout>
+    );
+
+  const isApproved =
+    !!(
+      currentStudent &&
+      course &&
+      currentStudent.approvedCourses.includes(course.id)
     );
 
   return (

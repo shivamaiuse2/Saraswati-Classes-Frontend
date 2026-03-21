@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Plus, Loader2, ClipboardList } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +55,11 @@ const AdminTestSeriesManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [manageTestsOpen, setManageTestsOpen] = useState(false);
+  const [selectedSeriesForTests, setSelectedSeriesForTests] = useState<any | null>(null);
+  const [seriesTests, setSeriesTests] = useState<any[]>([]);
+  const [isLoadingTests, setIsLoadingTests] = useState(false);
+  const [newTest, setNewTest] = useState({ testNumber: "", title: "", description: "", testLink: "" });
 
   useEffect(() => {
     const fetchTestSeries = async () => {
@@ -150,6 +155,53 @@ const AdminTestSeriesManagement = () => {
     setEditingSeries(null);
   };
 
+  const openManageTests = async (ts: any) => {
+    setSelectedSeriesForTests(ts);
+    setManageTestsOpen(true);
+    setIsLoadingTests(true);
+    try {
+      const resp = await testSeriesService.getTestSeriesById(ts.id);
+      if (resp.success && resp.data) {
+        setSeriesTests(resp.data.tests || []);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoadingTests(false);
+    }
+  };
+
+  const currentTestsCount = seriesTests.length;
+  // Use as total count target
+  const targetTestsCount = selectedSeriesForTests?.testsCount || 0;
+
+  const handleAddTest = async () => {
+    if (!selectedSeriesForTests || !newTest.title || !newTest.testLink) return;
+    try {
+      const resp = await testSeriesService.addTest(selectedSeriesForTests.id, {
+        ...newTest,
+        testNumber: newTest.testNumber || (seriesTests.length + 1).toString()
+      });
+      if (resp.success && resp.data) {
+        setSeriesTests(prev => [...prev, resp.data]);
+        setNewTest({ testNumber: "", title: "", description: "", testLink: "" });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteTest = async (testId: string) => {
+    try {
+      const resp = await testSeriesService.deleteTest(testId);
+      if (resp.success) {
+        setSeriesTests(prev => prev.filter(t => t.id !== testId));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
@@ -211,6 +263,15 @@ const AdminTestSeriesManagement = () => {
                     ₹{parseInt(ts.price || "0").toLocaleString("en-IN")}
                   </TableCell>
                   <TableCell className="text-right space-x-2">
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="h-7 w-7 text-primary"
+                      title="Manage Tests"
+                      onClick={() => openManageTests(ts)}
+                    >
+                      <ClipboardList className="h-3 w-3" />
+                    </Button>
                     <Button
                       size="icon"
                       variant="outline"
@@ -417,6 +478,104 @@ const AdminTestSeriesManagement = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* MANAGE TESTS DIALOG */}
+      <Dialog open={manageTestsOpen} onOpenChange={setManageTestsOpen}>
+        <DialogContent className="max-h-[90vh] overflow-hidden flex flex-col max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Tests in: {selectedSeriesForTests?.title}</DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+            <div className="space-y-4 rounded-lg bg-muted/40 p-4 border border-dashed">
+              <h4 className="text-sm font-semibold">Add New Test</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>Test Title</Label>
+                  <Input 
+                    placeholder="e.g. Chapter 1 Quiz" 
+                    value={newTest.title} 
+                    onChange={e => setNewTest(p => ({ ...p, title: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Sequence No.</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="e.g. 1" 
+                    value={newTest.testNumber} 
+                    onChange={e => setNewTest(p => ({ ...p, testNumber: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1 col-span-2">
+                  <Label>Description</Label>
+                  <Input 
+                    placeholder="Optional details" 
+                    value={newTest.description} 
+                    onChange={e => setNewTest(p => ({ ...p, description: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1 col-span-2">
+                  <Label>Google Form / Test Link</Label>
+                  <Input 
+                    placeholder="https://forms.gle/..." 
+                    value={newTest.testLink} 
+                    onChange={e => setNewTest(p => ({ ...p, testLink: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <Button onClick={handleAddTest} className="w-full mt-2" size="sm">
+                Add Test to Series
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold">Existing Tests ({currentTestsCount} / {targetTestsCount})</h4>
+                {currentTestsCount < targetTestsCount && (
+                  <span className="text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                    Remaining: {targetTestsCount - currentTestsCount}
+                  </span>
+                )}
+              </div>
+              
+              {isLoadingTests ? (
+                <div className="flex justify-center py-4"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : seriesTests.length === 0 ? (
+                <p className="text-xs text-center text-muted-foreground py-6 border border-dashed rounded-md">
+                  No tests added yet. Use the form above to add your first test.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {seriesTests.map((t) => (
+                    <div key={t.id} className="flex items-center justify-between p-3 rounded-lg border bg-background group">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-primary bg-primary/5 h-5 w-5 rounded flex items-center justify-center border border-primary/20">{t.testNumber}</span>
+                          <span className="text-sm font-medium">{t.title}</span>
+                        </div>
+                        {t.description && <p className="text-xs text-muted-foreground mt-0.5">{t.description}</p>}
+                        <p className="text-[10px] text-primary truncate max-w-xs mt-1">{t.testLink}</p>
+                      </div>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleDeleteTest(t.id)}
+                      >
+                        <Trash2 className="h-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="pt-4 border-t flex justify-end">
+            <Button onClick={() => setManageTestsOpen(false)}>Done</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

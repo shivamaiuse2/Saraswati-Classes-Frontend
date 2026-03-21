@@ -1,29 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import type { Banner } from "@/types/banner";
-import bannerService from "@/services/bannerService";
+import { useApp } from "@/context/AppContext";
 
 const ROTATION_INTERVAL_MS = 5000;
 
 const HomeBannerCarousel = () => {
-  const [banners, setBanners] = useState<Banner[]>([]);
+  const { heroPosters: banners } = useApp();
   const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const loadBanners = async () => {
-      try {
-        const response = await bannerService.getBanners();
-        if (response.success && response.data) {
-          // Handle both cases where data might be the array or nested
-          const bannersData = Array.isArray(response.data) ? response.data : (response.data as any).banners || [];
-          setBanners(bannersData);
-        }
-      } catch (error) {
-        console.error('Failed to load banners:', error);
-      }
-    };
-    loadBanners();
-  }, []);
 
   useEffect(() => {
     if (!banners.length) return;
@@ -39,7 +22,7 @@ const HomeBannerCarousel = () => {
     <section className="py-8">
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8">
         <Link
-          to={`/test-series/${banners[index].linkedTestSeriesId}`}
+          to={`/test-series/${banners[index].testSeriesId}`}
           className="block rounded-3xl overflow-hidden"
         >
           <div

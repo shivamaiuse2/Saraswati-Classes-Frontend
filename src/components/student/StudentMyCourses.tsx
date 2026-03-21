@@ -6,11 +6,13 @@ import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 
 const StudentMyCourses = () => {
-  const { courses } = useApp();
-  const { currentStudent } = useAuth();
+  const { courses, loadingCourses } = useApp();
+  const { currentStudent, loading: authLoading } = useAuth();
+
+  const isLoading = authLoading || loadingCourses;
 
   const approvedCourses = courses.filter((c) =>
-    currentStudent?.approvedCourses.includes(c.id)
+    currentStudent?.approvedCourses?.includes(c.id)
   );
 
   return (
@@ -25,7 +27,27 @@ const StudentMyCourses = () => {
         </p>
       </div>
 
-      {approvedCourses.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-6">
+          {[1, 2].map(i => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex justify-between">
+                  <div className="space-y-2">
+                    <div className="h-4 w-20 bg-muted rounded" />
+                    <div className="h-6 w-48 bg-muted rounded" />
+                  </div>
+                  <div className="h-4 w-16 bg-muted rounded" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-10 w-full bg-muted rounded" />
+                  <div className="h-10 w-full bg-muted rounded" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : approvedCourses.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center text-muted-foreground text-sm">
             No courses assigned yet. Once the admin approves your enrollment,

@@ -7,6 +7,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { AppProvider } from "@/context/AppContext";
 import Index from "./pages/Index";
 import Blog from "@/pages/Blog";
+import BlogDetailPage from "@/pages/BlogDetailPage";
 import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
 import TestSeriesPage from "./pages/TestSeriesPage";
@@ -94,6 +95,7 @@ const App = () => (
               />
 
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogDetailPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/gallery" element={<GalleryPage />} />
               <Route path="/resources" element={<ResourcesPage />} />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, Plus, Ban, CheckCircle2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Plus, Ban, CheckCircle2, Loader2, Search, X, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +47,9 @@ const AdminStudentManagement = () => {
   const [editing, setEditing] = useState<Student | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isBlocking, setIsBlocking] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
   const [selectedSeriesIds, setSelectedSeriesIds] = useState<string[]>([]);
@@ -166,6 +168,12 @@ const AdminStudentManagement = () => {
     setEditing(null);
   };
 
+  const filteredRows = rows.filter(r =>
+    r.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.username?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
@@ -182,6 +190,27 @@ const AdminStudentManagement = () => {
         </Button>
       </div>
 
+      <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-lg border border-dashed">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search students by name, email or username..."
+            className="pl-9 bg-background"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <X
+              className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer"
+              onClick={() => setSearchQuery("")}
+            />
+          )}
+        </div>
+        <div className="text-sm font-medium text-muted-foreground">
+          Showing {filteredRows.length} students
+        </div>
+      </div>
+
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -191,7 +220,6 @@ const AdminStudentManagement = () => {
                 <TableHead>Email</TableHead>
                 <TableHead>Enrolled Courses / Tests</TableHead>
                 <TableHead>Username</TableHead>
-                <TableHead>Password</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -205,98 +233,106 @@ const AdminStudentManagement = () => {
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : rows.length === 0 ? (
+              ) : filteredRows.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
-                    className="py-6 text-center text-xs text-muted-foreground"
+                    colSpan={6}
+                    className="py-12 text-center text-xs text-muted-foreground"
                   >
-                    No students configured in this view. Use &quot;Add
-                    Student&quot; to create placeholder rows.
+                    <div className="flex flex-col items-center gap-2">
+                      <Search className="h-8 w-8 opacity-20" />
+                      <p>No students found matching &quot;{searchQuery}&quot;</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className="text-xs">{row.fullName}</TableCell>
-                  <TableCell className="text-xs">{row.email}</TableCell>
-                  <TableCell className="text-xs">
-                    <div className="flex flex-col gap-1">
-                      {row.enrolledCourses.length > 0 && (
-                        <span>
-                          Courses:{" "}
-                          {row.enrolledCourses
-                            .map((id) => courses.find((c) => c.id === id)?.title)
-                            .filter(Boolean)
-                            .join(", ")}
-                        </span>
-                      )}
-                      {row.enrolledTestSeries.length > 0 && (
-                        <span>
-                          Tests:{" "}
-                          {row.enrolledTestSeries
-                            .map((id) =>
-                              testSeries.find((t) => t.id === id)?.title
-                            )
-                            .filter(Boolean)
-                            .join(", ")}
-                        </span>
-                      )}
-                      {row.enrolledCourses.length === 0 &&
-                        row.enrolledTestSeries.length === 0 && (
-                          <span className="text-muted-foreground">
-                            Not enrolled yet
+                filteredRows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell className="text-xs font-medium">
+                      <div className="flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User className="h-4 w-4 text-primary" />
+                        </div>
+                        {row.fullName}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs">{row.email}</TableCell>
+                    <TableCell className="text-xs">
+                      <div className="flex flex-col gap-1">
+                        {row.enrolledCourses.length > 0 && (
+                          <span>
+                            <Badge variant="secondary" className="mr-1 h-4 text-[10px]">Courses</Badge>
+                            {row.enrolledCourses
+                              .map((id) => courses.find((c) => c.id === id)?.title)
+                              .filter(Boolean)
+                              .join(", ")}
                           </span>
                         )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-xs">{row.username}</TableCell>
-                  <TableCell className="text-xs">{row.password}</TableCell>
-                  <TableCell className="text-xs">
-                    <Badge
-                      variant={row.status === "blocked" ? "destructive" : "outline"}
-                      className="gap-1"
-                    >
-                      {row.status === "blocked" ? (
-                        <Ban className="h-3 w-3" />
-                      ) : (
-                        <CheckCircle2 className="h-3 w-3" />
-                      )}
-                      {row.status === "blocked" ? "Blocked" : "Active"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-7 w-7"
-                      onClick={() => openEdit(row)}
-                    >
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-7 w-7"
-                      onClick={() => handleDelete(row.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-7 w-7"
-                      onClick={() => handleToggleBlock(row.id)}
-                    >
-                      {row.status === "blocked" ? (
-                        <CheckCircle2 className="h-3 w-3" />
-                      ) : (
-                        <Ban className="h-3 w-3" />
-                      )}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+                        {row.enrolledTestSeries.length > 0 && (
+                          <span>
+                            <Badge variant="secondary" className="mr-1 h-4 text-[10px]">Tests</Badge>
+                            {row.enrolledTestSeries
+                              .map((id) =>
+                                testSeries.find((t) => t.id === id)?.title
+                              )
+                              .filter(Boolean)
+                              .join(", ")}
+                          </span>
+                        )}
+                        {row.enrolledCourses.length === 0 &&
+                          row.enrolledTestSeries.length === 0 && (
+                            <span className="text-muted-foreground italic">
+                              Not enrolled yet
+                            </span>
+                          )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs font-mono text-muted-foreground">{row.username}</TableCell>
+                    <TableCell className="text-xs">
+                      <Badge
+                        variant={row.status === "blocked" ? "destructive" : "outline"}
+                        className="gap-1 h-5 text-[10px]"
+                      >
+                        {row.status === "blocked" ? (
+                          <Ban className="h-3 w-3" />
+                        ) : (
+                          <CheckCircle2 className="h-3 w-3" />
+                        )}
+                        {row.status === "blocked" ? "Blocked" : "Active"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right space-x-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        onClick={() => openEdit(row)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-destructive"
+                        onClick={() => handleDelete(row.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        onClick={() => handleToggleBlock(row.id)}
+                      >
+                        {row.status === "blocked" ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
+                        ) : (
+                          <Ban className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>

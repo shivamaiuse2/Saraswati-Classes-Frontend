@@ -37,48 +37,22 @@ const fadeUp = {
 };
 
 const Index = () => {
-  const { testSeries, courses } = useApp();
+  const { testSeries, courses, testimonials, loadingTestimonials, loadingCourses, loadingTestSeries } = useApp();
   const [enrollOpen, setEnrollOpen] = useState(false);
   const [enrollTarget, setEnrollTarget] = useState("");
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
 
-  // Fetch testimonials from backend
-  useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        setLoadingTestimonials(true);
-        // Assuming testimonials are stored as gallery items with category "Testimonials"
-        const response = await contentService.getGalleryItems(1, 10, "Testimonials");
-        const testimonialItems = response.data.map(item => ({
-          id: item.id,
-          name: item.title,
-          text: item.image, // Using image field to store testimonial text (as gallery items might store text differently)
-          avatar: item.image // Using image as avatar if it's an actual image URL
-        }));
-        setTestimonials(testimonialItems);
-      } catch (error) {
-        console.error("Error fetching testimonials:", error);
-        // Fallback to a few default testimonials if API fails
-        setTestimonials([
-          {
-            id: "1",
-            name: "Kalyani Inamdar",
-            text: "Best place to learn at, got immense support and guidance from all the teachers. Thank you so much.",
-          },
-          {
-            id: "2",
-            name: "Vaishnavi Rangade",
-            text: "After joining Saraswati coaching classes my study level changed. Teachers motivate students and guide them properly.",
-          },
-        ]);
-      } finally {
-        setLoadingTestimonials(false);
-      }
-    };
-
-    fetchTestimonials();
-  }, []);
+  const displayTestimonials = testimonials.length > 0 ? testimonials : [
+    {
+      id: "1",
+      name: "Kalyani Inamdar",
+      text: "Best place to learn at, got immense support and guidance from all the teachers. Thank you so much.",
+    },
+    {
+      id: "2",
+      name: "Vaishnavi Rangade",
+      text: "After joining Saraswati coaching classes my study level changed. Teachers motivate students and guide them properly.",
+    },
+  ];
 
   const openEnroll = (target: string) => {
     setEnrollTarget(target);
@@ -113,7 +87,7 @@ const Index = () => {
       startAutoplay();
     }
     return () => stopAutoplay();
-  }, [emblaApi, startAutoplay, stopAutoplay]);
+  }, [emblaApi, startAutoplay, stopAutoplay, displayTestimonials]);
 
 
   return (
@@ -464,8 +438,12 @@ const Index = () => {
 
     {/* Cards */}
     <div className="grid md:grid-cols-3 gap-6 justify-items-center">
-
-      {courses.slice(0, 3).map((course, index) => {
+            {loadingCourses ? (
+               Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="w-full max-w-[320px] h-[320px] bg-slate-100 animate-pulse rounded-3xl" />
+              ))
+            ) : courses.length > 0 ? (
+              courses.slice(0, 3).map((course, index) => {
 
         const cardColors = [
           "bg-blue-100",
@@ -512,8 +490,10 @@ const Index = () => {
           </div>
         )
 
-      })}
-
+      })
+      ) : (
+        <p className="col-span-full text-center text-muted-foreground">No courses available at the moment.</p>
+      )}
     </div>
   </div>
 </section>
@@ -545,8 +525,12 @@ const Index = () => {
 
 {/* Cards */}
 <div className="grid md:grid-cols-3 gap-6 justify-items-center">
-
-  {testSeries.slice(0, 3).map((ts) => (
+            {loadingTestSeries ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="w-full max-w-[320px] h-[320px] bg-slate-100 animate-pulse rounded-2xl" />
+              ))
+            ) : testSeries.length > 0 ? (
+              testSeries.slice(0, 3).map((ts) => (
     <Card
       key={ts.id}
       className="group flex flex-col rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 w-full max-w-[300px]"
@@ -592,8 +576,10 @@ const Index = () => {
       </CardContent>
 
     </Card>
-  ))}
-
+  ))
+  ) : (
+    <p className="col-span-full text-center text-muted-foreground">No test series available at the moment.</p>
+  )}
 </div>
 
 
@@ -636,8 +622,8 @@ const Index = () => {
 
         <div className="embla overflow-hidden" ref={emblaRef}>
           <div className="embla__container flex">
-            {testimonials.length > 0 ? (
-              testimonials.map((t) => (
+            {displayTestimonials.length > 0 ? (
+              displayTestimonials.map((t) => (
                 <div
                   key={t.id}
                   className="embla__slide flex-[0_0_70%] md:flex-[0_0_50%] lg:flex-[0_0_40%] px-4"
@@ -683,9 +669,9 @@ const Index = () => {
     )}
 
     {/* DOTS */}
-    {!loadingTestimonials && testimonials.length > 0 && (
+    {!loadingTestimonials && displayTestimonials.length > 0 && (
       <div className="flex justify-center mt-8 gap-3">
-        {testimonials.map((_,i) => (
+        {displayTestimonials.map((_,i) => (
           <div
             key={i}
             className="w-3 h-3 rounded-full bg-slate-300"

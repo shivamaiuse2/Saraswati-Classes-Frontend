@@ -5,11 +5,13 @@ import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 
 const StudentMyTestSeries = () => {
-  const { testSeries } = useApp();  
-  const { currentStudent } = useAuth();
+  const { testSeries, loadingTestSeries } = useApp();  
+  const { currentStudent, loading: authLoading } = useAuth();
+  
+  const isLoading = authLoading || loadingTestSeries;
 
   const approvedTs = testSeries.filter((t) =>
-    currentStudent?.approvedTestSeries.includes(t.id)
+    currentStudent?.approvedTestSeries?.includes(t.id)
   );
 
   return (
@@ -24,7 +26,27 @@ const StudentMyTestSeries = () => {
         </p>
       </div>
 
-      {approvedTs.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-6">
+          {[1, 2].map(i => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex justify-between">
+                  <div className="space-y-2">
+                    <div className="h-6 w-48 bg-muted rounded" />
+                    <div className="h-4 w-32 bg-muted rounded" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="h-12 bg-muted rounded-lg" />
+                  <div className="h-12 bg-muted rounded-lg" />
+                  <div className="h-12 bg-muted rounded-lg" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : approvedTs.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center text-muted-foreground text-sm">
             No test series assigned yet. Once the admin approves your test
@@ -57,13 +79,13 @@ const StudentMyTestSeries = () => {
                   </div>
 
                   <div className="mt-4 grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    {(ts as any).tests && (ts as any).tests.length === 0 ? (
+                    {ts.tests && ts.tests.length === 0 ? (
                       <p className="text-xs text-muted-foreground">
                         No tests configured yet for this series. They will appear
                         here once added by the admin.
                       </p>
                     ) : (
-                      ((ts as any).tests || []).map((test: any) => (
+                      (ts.tests || []).map((test: any) => (
                         <div
                           key={test.id}
                           className="flex items-start gap-3 rounded-lg border border-dashed bg-muted/60 px-3 py-2"

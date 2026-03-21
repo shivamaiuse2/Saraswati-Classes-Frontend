@@ -21,7 +21,8 @@ const fadeIn = {
 const categories = ["All", "Foundation", "Science", "Competitive"] as const;
 
 const CoursesPage = () => {
-  const { courses } = useApp();
+  const { courses, loadingCourses } = useApp();
+  const { testSeries, loadingTestSeries } = useApp();
   const { currentStudent } = useAuth();
 
   const [filter, setFilter] = useState<string>("All");
@@ -29,7 +30,9 @@ const CoursesPage = () => {
   const [enrollTarget, setEnrollTarget] = useState("");
 
   const filtered =
-    filter === "All" ? courses : courses.filter((c) => c.category === filter);
+    filter === "All" 
+      ? courses 
+      : courses.filter((c) => c.category.toUpperCase() === filter.toUpperCase());
 
   const openEnroll = (t: string) => {
     setEnrollTarget(t);
@@ -63,58 +66,55 @@ const CoursesPage = () => {
             ))}
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 justify-items-center">
-            {filtered.map((course, i) => {
-              const cardColors = [
-                "bg-blue-100",
-                "bg-yellow-100",
-                "bg-purple-100",
-                "bg-orange-100",
-              ];
-              const colorClass =
-                cardColors[i % cardColors.length] || "bg-blue-100";
+          <div className="grid md:grid-cols-3 gap-6 justify-items-center w-full">
+            {loadingCourses ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="w-full max-w-[320px] h-[320px] bg-slate-100 animate-pulse rounded-3xl" />
+              ))
+            ) : filtered.length > 0 ? (
+              filtered.map((course, i) => {
+                const cardColors = [
+                  "bg-blue-100",
+                  "bg-yellow-100",
+                  "bg-purple-100",
+                  "bg-orange-100",
+                ];
+                const colorClass = cardColors[i % cardColors.length] || "bg-blue-100";
 
-              return (
-                <motion.div
-                  key={course.id}
-                  custom={i}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={fadeIn}
-                  className="w-full max-w-[320px]"
-                >
-                  <div
-                    className={`rounded-3xl p-7 min-h-[320px] flex flex-col justify-between transition hover:shadow-xl hover:-translate-y-1.5 ${colorClass}`}
+                return (
+                  <motion.div
+                    key={course.id}
+                    custom={i}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="w-full max-w-[320px]"
                   >
-                    <p className="text-gray-500 font-semibold text-sm mb-5">
-                      {String(i + 1).padStart(2, "0")}
-                    </p>
-
-                    <h3 className="text-lg font-semibold mb-2">
-                      {course.title}
-                    </h3>
-
-                    <p className="text-xs text-gray-600 mb-4">
-                      {course.timing} • {course.days}
-                    </p>
-
-                    <ul className="text-sm text-gray-700 space-y-2">
-                      <li>• {course.description}</li>
-                      <li>• {course.category}</li>
-                      <li>• {course.mode}</li>
-                    </ul>
-
-                    <Link to={`/courses/${course.id}`} className="mt-6">
-                      <button className="w-full flex items-center justify-center gap-2 bg-blue-800 text-white py-3 rounded-full text-sm font-medium hover:bg-blue-900 transition">
-                        View Details
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </Link>
-                  </div>
-                </motion.div>
-              );
-            })}
+                    <div className={`rounded-3xl p-7 min-h-[320px] flex flex-col justify-between transition hover:shadow-xl hover:-translate-y-1.5 ${colorClass}`}>
+                      <p className="text-gray-500 font-semibold text-sm mb-5">{String(i + 1).padStart(2, "0")}</p>
+                      <h3 className="text-lg font-semibold mb-2">{course.title}</h3>
+                      <p className="text-xs text-gray-600 mb-4">{course.timing} • {course.days}</p>
+                      <ul className="text-sm text-gray-700 space-y-2">
+                        <li>• {course.description}</li>
+                        <li>• {course.category}</li>
+                        <li>• {course.mode}</li>
+                      </ul>
+                      <Link to={`/courses/${course.id}`} className="mt-6">
+                        <button className="w-full flex items-center justify-center gap-2 bg-blue-800 text-white py-3 rounded-full text-sm font-medium hover:bg-blue-900 transition">
+                          View Details
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </Link>
+                    </div>
+                  </motion.div>
+                );
+              })
+            ) : (
+                <div className="col-span-full py-12 text-center text-muted-foreground w-full">
+                  No courses found in this category.
+                </div>
+            )}
           </div>
         </div>
       </section>
