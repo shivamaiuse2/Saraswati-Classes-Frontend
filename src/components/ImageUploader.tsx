@@ -10,7 +10,11 @@ interface ImageUploaderProps {
   folder?: string;
 }
 
-const ImageUploader = ({ onImageSelect, currentImage, folder = "results" }: ImageUploaderProps) => {
+const ImageUploader = ({
+  onImageSelect,
+  currentImage,
+  folder = "results",
+}: ImageUploaderProps) => {
   const [dragActive, setDragActive] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -38,30 +42,32 @@ const ImageUploader = ({ onImageSelect, currentImage, folder = "results" }: Imag
   };
 
   const handleFile = async (file: File) => {
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       setIsUploading(true);
       setUploadError(null);
-      
+
       try {
         // Upload to Cloudinary via backend
         const formData = new FormData();
-        formData.append('image', file);
-        formData.append('folder', folder);
-        
-        const response = await apiClient.post('/upload/image', formData, {
+        formData.append("image", file);
+        formData.append("folder", folder);
+
+        const response = await apiClient.post("/upload/image", formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         });
-        
+
         if (response.data.success && response.data.data.url) {
           onImageSelect(response.data.data.url);
         } else {
-          setUploadError('Failed to upload image. Please try again.');
+          setUploadError("Failed to upload image. Please try again.");
         }
       } catch (error: any) {
-        console.error('Upload error:', error);
-        setUploadError(error.response?.data?.message || 'Failed to upload image');
+        console.error("Upload error:", error);
+        setUploadError(
+          error.response?.data?.message || "Failed to upload image",
+        );
       } finally {
         setIsUploading(false);
       }
@@ -100,7 +106,7 @@ const ImageUploader = ({ onImageSelect, currentImage, folder = "results" }: Imag
           {isUploading ? (
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-              <div className="text-gray-600">Uploading to Cloudinary...</div>
+              <div className="text-gray-600">Uploading image...</div>
             </div>
           ) : (
             <div className="text-gray-600">
@@ -127,9 +133,7 @@ const ImageUploader = ({ onImageSelect, currentImage, folder = "results" }: Imag
         />
       </div>
 
-      {uploadError && (
-        <div className="text-red-500 text-sm">{uploadError}</div>
-      )}
+      {uploadError && <div className="text-red-500 text-sm">{uploadError}</div>}
 
       {/* URL Input */}
       <div className="flex gap-2">
@@ -138,7 +142,7 @@ const ImageUploader = ({ onImageSelect, currentImage, folder = "results" }: Imag
           placeholder="Or paste image URL"
           value={urlInput}
           onChange={(e) => setUrlInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
+          onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
           disabled={isUploading}
         />
         <Button
