@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import StudentSidebar from "./StudentSidebar";
 import { useAuth } from "@/context/AuthContext";
+import NetworkErrorBanner from "@/components/NetworkErrorBanner";
 
 type TabKey = "overview" | "courses" | "tests" | "results" | "profile";
 
@@ -40,6 +41,8 @@ const StudentLayout = ({ children, active, onChangeTab }: StudentLayoutProps) =>
           </p>
         </div>
       </header>
+      
+      <NetworkErrorBanner />
 
       <div className="flex flex-1">
         <StudentSidebar active={active} onChange={(k) => onChangeTab(k as TabKey)} />

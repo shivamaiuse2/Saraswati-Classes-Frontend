@@ -120,25 +120,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string, userType: 'admin' | 'student'): Promise<boolean> => {
     try {
-      console.log("AuthContext login called with:", { email, userType });
       let loginResponse;
       
       if (userType === 'admin') {
-        console.log("Calling admin login API...");
         loginResponse = await authService.adminLogin({ email, password });
-        console.log("Admin login response:", loginResponse);
       } else {
-        console.log("Calling student login API...");
         loginResponse = await authService.studentLogin({ email, password });
-        console.log("Student login response:", loginResponse);
       }
 
       // Check if response indicates success
-      console.log("Checking login response:", loginResponse);
-      console.log("Response success property:", loginResponse?.success);
-      
       if (loginResponse && loginResponse.success) {
-        console.log("Login successful, setting auth state");
         const { user, accessToken, refreshToken } = loginResponse.data;
         
         // Store tokens
@@ -151,15 +142,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         return true;
       } else {
-        // This shouldn't happen if backend is consistent, but handle it anyway
-        console.log("Login failed - response success is false or missing");
         throw new Error(loginResponse?.message || 'Login failed. Please check your credentials.');
       }
       
     } catch (error: any) {
       console.error("Login error in AuthContext:", error);
       
-      // If it's already a formatted error message, re-throw it
+      // If it's already a formatted error (from api.ts interceptor), re-throw it
+      if (error?.isNetworkError || error?.isTimeout) {
+        throw error;
+      }
+      
+      // If it's already an Error with a message, re-throw it
       if (error instanceof Error && error.message) {
         throw error;
       }

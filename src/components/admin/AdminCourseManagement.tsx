@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -258,6 +259,14 @@ const AdminCourseManagement = () => {
 
       if (response.success && response.data) {
         setChapterDrafts((prev) => [...prev, response.data]);
+        // Update the course in the list to reflect new chapter count
+        setCourses((prev) =>
+          prev.map((c) =>
+            c.id === chapterCourseId
+              ? { ...c, chapters: [...(c.chapters || []), response.data] }
+              : c
+          )
+        );
         setNewChapter({
           title: "",
           description: "",
@@ -343,6 +352,14 @@ const AdminCourseManagement = () => {
       const response = await courseService.deleteChapter(chapterId);
       if (response.success) {
         setChapterDrafts((prev) => prev.filter((ch) => ch.id !== chapterId));
+        // Update the course in the list to reflect chapter removal
+        setCourses((prev) =>
+          prev.map((c) =>
+            c.id === chapterCourseId
+              ? { ...c, chapters: (c.chapters || []).filter((ch) => ch.id !== chapterId) }
+              : c
+          )
+        );
         if (editingChapterId === chapterId) {
           setEditingChapterId(null);
           setEditingChapterData(null);
@@ -402,93 +419,126 @@ const AdminCourseManagement = () => {
 
       <Card>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Course Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Days</TableHead>
-                <TableHead>Fees</TableHead>
-                <TableHead>Subjects</TableHead>
-                <TableHead>Chapters</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+          <div className="overflow-x-auto">
+            <Table className="min-w-full">
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="py-10 text-center">
-                    <div className="flex flex-col items-center justify-center gap-3">
-                      <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                      <div className="text-sm text-muted-foreground">
-                        Loading courses from database...
-                      </div>
-                    </div>
-                  </TableCell>
+                  <TableHead>Course Title</TableHead>
+                  <TableHead className="hidden md:table-cell">Category</TableHead>
+                  <TableHead className="hidden lg:table-cell">Time</TableHead>
+                  <TableHead className="hidden lg:table-cell">Days</TableHead>
+                  <TableHead className="hidden sm:table-cell">Fees</TableHead>
+                  <TableHead className="hidden md:table-cell">Subjects</TableHead>
+                  <TableHead className="hidden sm:table-cell">Chapters</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : courses.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="py-6 text-center text-xs text-muted-foreground"
-                  >
-                    No courses configured in this admin view. Use &quot;Add
-                    Course&quot; to create placeholder rows.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                courses.map((course) => (
-                <TableRow key={course.id}>
-                  <TableCell className="text-xs">{course.title}</TableCell>
-                  <TableCell className="text-xs">{course.category}</TableCell>
-                  <TableCell className="text-xs">{course.time}</TableCell>
-                  <TableCell className="text-xs">{course.days}</TableCell>
-                  <TableCell className="text-xs">
-                    ₹{course.fees.toLocaleString("en-IN")}
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {course.subjects.join(", ")}
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {course.chapters.length}
-                  </TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-7 w-7"
-                      onClick={() => openEdit(course)}
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <TableRow key={i}>
+                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                        <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                        <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                        <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                        <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-8" /></TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1 sm:gap-2">
+                            <Skeleton className="h-7 w-7 rounded" />
+                            <Skeleton className="h-7 w-7 rounded" />
+                            <Skeleton className="h-7 w-7 rounded" />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                ) : courses.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="py-6 text-center text-xs text-muted-foreground"
                     >
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-7 w-7"
-                      onClick={() => handleDelete(course.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-7 w-7"
-                      onClick={() => openChapters(course)}
-                    >
-                      <ListPlus className="h-3 w-3" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-              )}
-            </TableBody>
-          </Table>
+                      No courses configured in this admin view. Use &quot;Add
+                      Course&quot; to create placeholder rows.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  courses.map((course) => (
+                  <TableRow key={course.id}>
+                    <TableCell className="text-xs">
+                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Title</div>
+                      {course.title}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell text-xs">
+                      <div className="block md:hidden text-xs text-muted-foreground mb-1">Category</div>
+                      {course.category}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell text-xs">
+                      <div className="block lg:hidden text-xs text-muted-foreground mb-1">Time</div>
+                      {course.time}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell text-xs">
+                      <div className="block lg:hidden text-xs text-muted-foreground mb-1">Days</div>
+                      {course.days}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-xs">
+                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Fees</div>
+                      ₹{course.fees.toLocaleString("en-IN")}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell text-xs">
+                      <div className="block md:hidden text-xs text-muted-foreground mb-1">Subjects</div>
+                      {course.subjects.join(", ")}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-xs">
+                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Chapters</div>
+                      {course.chapters.length}
+                    </TableCell>
+                    <TableCell className="text-right space-x-1 sm:space-x-2">
+                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Actions</div>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-7 w-7"
+                        onClick={() => openEdit(course)}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="h-7 w-7"
+                        onClick={() => handleDelete(course.id)}
+                        disabled={isDeleting === course.id}
+                      >
+                        {isDeleting === course.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3 w-3" />
+                        )}
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-7 w-7"
+                        onClick={() => openChapters(course)}
+                      >
+                        <ListPlus className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
       <Dialog open={courseDialogOpen} onOpenChange={setCourseDialogOpen}>
-        <DialogContent aria-describedby={undefined} className="max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogContent aria-describedby={undefined} className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-sm">
               {editingCourse?.id ? "Edit Course" : "Add Course"}
@@ -497,7 +547,7 @@ const AdminCourseManagement = () => {
 
           {editingCourse && (
             <div className="flex flex-col flex-1 overflow-hidden">
-              <div className="space-y-3 mt-2 overflow-y-auto pr-3">
+              <div className="space-y-3 mt-2 overflow-y-auto pr-2">
                 <div className="space-y-1">
                   <Label htmlFor="course-title-input">Course Title</Label>
                   <Input
@@ -600,16 +650,17 @@ const AdminCourseManagement = () => {
                   />
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setCourseDialogOpen(false)}
                     disabled={isSaving}
+                    className="w-full sm:w-auto"
                   >
                     Cancel
                   </Button>
-                  <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                  <Button size="sm" onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto">
                     {isSaving ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

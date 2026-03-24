@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import ImageUploader from "@/components/ImageUploader";
-import { Plus, Trash2, Loader2, Search, X } from "lucide-react";
+import { Plus, Trash2, Loader2, Search, X, Pencil } from "lucide-react";
 import contentService from "@/services/contentService";
 import studentService from "@/services/studentService";
 import { useToast } from "@/hooks/use-toast";
@@ -16,18 +17,30 @@ interface StudentSuggestion {
   phone: string;
 }
 
+interface ResultData {
+  id?: string;
+  name: string;
+  marks: string;
+  exam: string;
+  image: string;
+  studentId: string;
+}
+
 const AdminResultManagement = () => {
   const { toast } = useToast();
   const [results, setResults] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ResultData>({
     name: "",
     marks: "",
     exam: "",
     image: "",
+    studentId: "",
   });
 
   // Autocomplete state
@@ -77,13 +90,13 @@ const AdminResultManagement = () => {
       if (formData.name.length >= 1) {
         setIsSearching(true);
         try {
-          const res = await studentService.searchStudents(formData.name);
-          if (res.success && res.data) {
-            setSuggestions(res.data);
+          const response = await studentService.searchStudents(formData.name);
+          if (response.success && response.data) {
+            setSuggestions(response.data);
             setShowSuggestions(true);
           }
-        } catch (e) {
-          console.error('Failed to search students', e);
+        } catch (error) {
+          console.error('Error searching students:', error);
         } finally {
           setIsSearching(false);
         }
@@ -96,46 +109,103 @@ const AdminResultManagement = () => {
     return () => clearTimeout(timeoutId);
   }, [formData.name]);
 
-  const handleSelectSuggestion = (suggestion: StudentSuggestion) => {
-    setFormData(prev => ({ ...prev, name: suggestion.name }));
+  const handleSelectStudent = (student: StudentSuggestion) => {
+    setFormData(prev => ({
+      ...prev,
+      name: student.name,
+      studentId: student.id,
+    }));
     setShowSuggestions(false);
-    setSuggestions([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.name && formData.marks && formData.exam && formData.image) {
-      setIsSaving(true);
-      try {
-        const payload = {
+    if (!formData.name || !formData.marks || !formData.exam || !formData.image) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      if (isEditing && editingId) {
+        // Update existing result
+        const response = await contentService.updateResult(editingId, {
           name: formData.name,
-          exam: formData.exam,
           marks: formData.marks,
+          exam: formData.exam,
           image: formData.image,
-        };
-        const response = await contentService.createResult(payload);
+          studentId: formData.studentId || undefined,
+        });
+        
+        if (response.success) {
+          toast({
+            title: "Success",
+            description: "Result updated successfully",
+          });
+          setResults(prev => prev.map(r => r.id === editingId ? { ...r, ...formData } : r));
+          setIsEditing(false);
+          setEditingId(null);
+        }
+      } else {
+        // Create new result
+        const response = await contentService.createResult({
+          name: formData.name,
+          marks: formData.marks,
+          exam: formData.exam,
+          image: formData.image,
+          studentId: formData.studentId || undefined,
+        });
+
         if (response.success && response.data) {
-          setResults(prev => [response.data as any, ...prev]);
           toast({
             title: "Success",
             description: "Result added successfully",
           });
-        } else {
-          loadResults();
+          setResults(prev => [response.data as any, ...prev]);
         }
-      } catch (e) {
-        console.error("Failed to add result", e);
-        toast({
-          title: "Error",
-          description: "Failed to add result",
-          variant: "destructive",
-        });
-      } finally {
-        setIsSaving(false);
       }
-      setFormData({ name: "", marks: "", exam: "", image: "" });
-      setIsAdding(false);
+      
+      resetForm();
+    } catch (error) {
+      console.error("Failed to save result", error);
+      toast({
+        title: "Error",
+        description: isEditing ? "Failed to update result" : "Failed to add result",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleEdit = (result: any) => {
+    setFormData({
+      name: result.name,
+      marks: result.marks,
+      exam: result.exam,
+      image: result.image,
+      studentId: result.studentId || "",
+    });
+    setEditingId(result.id);
+    setIsEditing(true);
+    setIsAdding(false);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      marks: "",
+      exam: "",
+      image: "",
+      studentId: "",
+    });
+    setIsAdding(false);
+    setIsEditing(false);
+    setEditingId(null);
   };
 
   const handleImageSelect = (imageUrl: string) => {
@@ -165,75 +235,103 @@ const AdminResultManagement = () => {
     }
   };
 
+  // Shimmer card component
+  const ShimmerResultCard = () => (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-center gap-4">
+          <Skeleton className="w-16 h-16 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+          <Skeleton className="h-9 w-9 rounded" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Result Management</h2>
-        <Button onClick={() => setIsAdding(!isAdding)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Result
-        </Button>
+        {!isAdding && !isEditing && (
+          <Button onClick={() => setIsAdding(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Result
+          </Button>
+        )}
       </div>
 
-      {isAdding && (
+      {/* Add/Edit Form */}
+      {(isAdding || isEditing) && (
         <Card>
           <CardHeader>
-            <CardTitle>Add New Result</CardTitle>
+            <CardTitle className="text-lg">{isEditing ? "Edit Result" : "Add New Result"}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="relative" ref={suggestionsRef}>
-                  <Label htmlFor="name">Student Name</Label>
-                  <div className="relative">
-                    <Input
-                      id="name"
-                      ref={inputRef}
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Type to search students..."
-                      required
-                      className="pr-8"
-                    />
-                    {isSearching && (
-                      <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />
-                    )}
-                    {formData.name && !isSearching && (
-                      <X
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 cursor-pointer text-gray-400 hover:text-gray-600"
-                        onClick={() => setFormData(prev => ({ ...prev, name: "" }))}
-                      />
-                    )}
-                  </div>
-                  
-                  {/* Autocomplete suggestions */}
-                  {showSuggestions && suggestions.length > 0 && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
-                      {suggestions.map((suggestion) => (
-                        <div
-                          key={suggestion.id}
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
-                          onClick={() => handleSelectSuggestion(suggestion)}
-                        >
-                          <Search className="h-4 w-4 text-gray-400" />
-                          <div>
-                            <div className="font-medium">{suggestion.name}</div>
-                            <div className="text-xs text-gray-500">{suggestion.email}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* No results message */}
-                  {showSuggestions && formData.name.length >= 2 && suggestions.length === 0 && !isSearching && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-4 text-center text-gray-500 text-sm">
-                      No students found. You can enter a custom name.
+              {/* Student Name with Autocomplete */}
+              <div className="relative" ref={suggestionsRef}>
+                <Label htmlFor="name">Student Name</Label>
+                <div className="relative">
+                  <Input
+                    id="name"
+                    ref={inputRef}
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Type to search students..."
+                    required
+                  />
+                  {isSearching && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                     </div>
                   )}
                 </div>
+                
+                {/* Autocomplete Suggestions */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-48 overflow-y-auto">
+                    {suggestions.map((student) => (
+                      <button
+                        key={student.id}
+                        type="button"
+                        className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                        onClick={() => handleSelectStudent(student)}
+                      >
+                        <Search className="w-4 h-4 text-muted-foreground" />
+                        <div>
+                          <p className="font-medium text-sm">{student.name}</p>
+                          <p className="text-xs text-muted-foreground">{student.email}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {formData.studentId && (
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <span className="bg-green-100 px-2 py-1 rounded">
+                    Linked to student account
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => setFormData(prev => ({ ...prev, studentId: "" }))}
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              )}
+
+              <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="exam">Exam Name</Label>
+                  <Label htmlFor="exam">Exam</Label>
                   <Input
                     id="exam"
                     value={formData.exam}
@@ -266,12 +364,12 @@ const AdminResultManagement = () => {
               <div className="flex gap-2">
                 <Button type="submit" disabled={isSaving || !formData.image}>
                   {isSaving ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Adding...</>
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{isEditing ? "Updating..." : "Adding..."}</>
                   ) : (
-                    "Add Result"
+                    isEditing ? "Update Result" : "Add Result"
                   )}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setIsAdding(false)}>
+                <Button type="button" variant="outline" onClick={resetForm}>
                   Cancel
                 </Button>
               </div>
@@ -282,8 +380,10 @@ const AdminResultManagement = () => {
 
       {/* Results List */}
       {isLoading ? (
-        <div className="flex justify-center py-10">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <div className="grid gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <ShimmerResultCard key={i} />
+          ))}
         </div>
       ) : results.length === 0 ? (
         <Card>
@@ -303,22 +403,36 @@ const AdminResultManagement = () => {
                     className="w-16 h-16 rounded-full object-cover"
                   />
                   <div className="flex-1">
-                    <h3 className="font-semibold">{result.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">{result.name}</h3>
+                      {result.studentId && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Linked to Student</span>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">{result.exam}</p>
                     <p className="text-sm font-medium text-blue-600">{result.marks}</p>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleDelete(result.id)}
-                    disabled={isDeleting === result.id}
-                  >
-                    {isDeleting === result.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-4 h-4" />
-                    )}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleEdit(result)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleDelete(result.id)}
+                      disabled={isDeleting === result.id}
+                    >
+                      {isDeleting === result.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Pencil, Upload } from "lucide-react";
+import { Plus, Trash2, Pencil, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import ImageUploader from "@/components/ImageUploader";
 import type { Banner } from "@/types/banner";
 import bannerService from "@/services/bannerService";
 import { useApp } from "@/context/AppContext";
@@ -29,8 +30,8 @@ const AdminBannerManagement = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [image, setImage] = useState("");
   const [linkedTestSeriesId, setLinkedTestSeriesId] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
-  const [imagePreview, setImagePreview] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     bannerService.getAdminBanners().then((res) => {
@@ -41,53 +42,11 @@ const AdminBannerManagement = () => {
           linkedTestSeriesId: h.testSeriesId || h.linkedTestSeriesId,
         })));
       }
-    }).catch(console.error);
+    }).catch(console.error).finally(() => setIsLoading(false));
   }, []);
 
-  useEffect(() => {
-    // Update preview when image URL changes
-    if (image && image.startsWith("http")) {
-      setImagePreview(image);
-    }
-  }, [image]);
-
-  const handleFileSelect = (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      setImage(result);
-      setImagePreview(result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileSelect(files[0]);
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
-    if (files && files.length > 0) {
-      handleFileSelect(files[0]);
-    }
+  const handleImageSelect = (imageUrl: string) => {
+    setImage(imageUrl);
   };
 
   const handleSave = async () => {
@@ -118,8 +77,21 @@ const AdminBannerManagement = () => {
     setEditingId(null);
     setImage("");
     setLinkedTestSeriesId("");
-    setImagePreview("");
     setDialogOpen(false);
+  };
+
+  const openAdd = () => {
+    setEditingId(null);
+    setImage("");
+    setLinkedTestSeriesId("");
+    setDialogOpen(true);
+  };
+
+  const openEdit = (banner: Banner) => {
+    setEditingId(banner.id);
+    setImage(banner.image);
+    setLinkedTestSeriesId(banner.linkedTestSeriesId);
+    setDialogOpen(true);
   };
 
   return (
@@ -129,20 +101,10 @@ const AdminBannerManagement = () => {
           <h1 className="text-3xl md:text-4xl font-bold">Banner Management</h1>
           <p className="text-muted-foreground text-sm">
             Configure homepage promotional banners and link them to specific test
-            series. These are stored locally and can be wired to backend APIs later.
+            series. Upload images directly or paste a URL.
           </p>
         </div>
-        <Button
-          size="sm"
-          className="gap-1"
-          onClick={() => {
-            setEditingId(null);
-            setImage("");
-            setLinkedTestSeriesId("");
-            setImagePreview("");
-            setDialogOpen(true);
-          }}
-        >
+        <Button size="sm" className="gap-1" onClick={openAdd}>
           <Plus className="h-4 w-4" />
           Add Banner
         </Button>
@@ -159,7 +121,26 @@ const AdminBannerManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {banners.map((banner) => {
+              {isLoading ? (
+                <>
+                  {[1, 2, 3].map((i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <Skeleton className="h-10 w-20 rounded-md" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-32" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Skeleton className="h-7 w-7 rounded" />
+                          <Skeleton className="h-7 w-7 rounded" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </>
+              ) : banners.map((banner) => {
                 const ts = testSeries.find((t) => t.id === banner.linkedTestSeriesId);
                 return (
                   <TableRow key={banner.id}>
@@ -180,13 +161,7 @@ const AdminBannerManagement = () => {
                         size="icon"
                         variant="outline"
                         className="h-7 w-7"
-                        onClick={() => {
-                          setEditingId(banner.id);
-                          setImage(banner.image);
-                          setImagePreview(banner.image);
-                          setLinkedTestSeriesId(banner.linkedTestSeriesId);
-                          setDialogOpen(true);
-                        }}
+                        onClick={() => openEdit(banner)}
                       >
                         <Pencil className="h-3 w-3" />
                       </Button>
@@ -195,6 +170,7 @@ const AdminBannerManagement = () => {
                         variant="destructive"
                         className="h-7 w-7"
                         onClick={async () => {
+                          setDeletingId(banner.id);
                           try {
                             const res = await bannerService.deleteBanner(banner.id);
                             if (res.success) {
@@ -202,16 +178,23 @@ const AdminBannerManagement = () => {
                             }
                           } catch (e) {
                             console.error(e);
+                          } finally {
+                            setDeletingId(null);
                           }
                         }}
+                        disabled={deletingId === banner.id}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        {deletingId === banner.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3 w-3" />
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>
                 );
               })}
-              {banners.length === 0 && (
+              {!isLoading && banners.length === 0 && (
                 <TableRow>
                   <TableCell
                     colSpan={3}
@@ -236,63 +219,15 @@ const AdminBannerManagement = () => {
           </DialogHeader>
           <div className="flex flex-col flex-1 overflow-hidden">
             <div className="space-y-4 mt-2 overflow-y-auto pr-3">
-              <div className="space-y-1">
-                <Label htmlFor="banner-image">Banner Image URL</Label>
-                <Input
-                  id="banner-image"
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  placeholder="https://..."
+              {/* Image Uploader */}
+              <div className="space-y-2">
+                <Label>Banner Image</Label>
+                <ImageUploader
+                  onImageSelect={handleImageSelect}
+                  currentImage={image}
+                  folder="banners"
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label>Or Upload Image</Label>
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${isDragging
-                      ? "border-primary bg-primary/5"
-                      : "border-input hover:border-primary/50"
-                    }`}
-                >
-                  <input
-                    type="file"
-                    id="file-input"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleInputChange}
-                  />
-                  <label
-                    htmlFor="file-input"
-                    className="flex flex-col items-center gap-2 cursor-pointer"
-                  >
-                    <Upload className="h-6 w-6 text-muted-foreground" />
-                    <div className="text-xs">
-                      <p className="font-medium">
-                        Drag and drop your image here
-                      </p>
-                      <p className="text-muted-foreground">
-                        or click to select from device
-                      </p>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {imagePreview && (
-                <div className="space-y-2">
-                  <Label>Image Preview</Label>
-                  <div className="border rounded-lg overflow-hidden bg-muted/30 p-2">
-                    <img
-                      src={imagePreview}
-                      alt="Banner preview"
-                      className="w-full h-40 object-cover rounded"
-                    />
-                  </div>
-                </div>
-              )}
 
               <div className="space-y-1">
                 <Label htmlFor="banner-series">Link to Test Series</Label>
@@ -318,7 +253,7 @@ const AdminBannerManagement = () => {
                 >
                   Cancel
                 </Button>
-                <Button size="sm" onClick={handleSave}>
+                <Button size="sm" onClick={handleSave} disabled={!image}>
                   {editingId ? "Save" : "Create"}
                 </Button>
               </div>
@@ -331,4 +266,3 @@ const AdminBannerManagement = () => {
 };
 
 export default AdminBannerManagement;
-

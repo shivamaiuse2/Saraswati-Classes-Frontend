@@ -97,6 +97,7 @@ interface Result {
   marks: string;
   exam: string;
   image: string;
+  studentId?: string;
 }
 
 interface Resource {
@@ -150,6 +151,7 @@ interface CreateResultData {
   marks: string;
   exam: string;
   image: string;
+  studentId?: string;
 }
 
 // Convert API response to frontend Blog type
@@ -183,6 +185,7 @@ const convertApiToResult = (apiResult: any): Result => {
     marks: apiResult.marks,
     exam: apiResult.exam,
     image: apiResult.image,
+    studentId: apiResult.studentId,
   };
 };
 

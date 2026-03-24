@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import AdminSidebar, { type AdminTab } from "./AdminSidebar";
+import NetworkErrorBanner from "@/components/NetworkErrorBanner";
 
 interface AdminLayoutProps {
   active: AdminTab;
@@ -33,6 +34,8 @@ const AdminLayout = ({ active, onChangeTab, children }: AdminLayoutProps) => {
           </div>
         </div>
       </header>
+      
+      <NetworkErrorBanner />
 
       <div className="flex flex-1">
         <AdminSidebar active={active} setActive={onChangeTab} />

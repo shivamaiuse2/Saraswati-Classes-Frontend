@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import logo from "@/assets/logo.png";
-import { Loader2 } from "lucide-react";
+import { Loader2, WifiOff, AlertCircle } from "lucide-react";
 
 const StudentLoginPage = () => {
   const [email, setEmail] = useState("");
@@ -15,6 +15,7 @@ const StudentLoginPage = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isNetworkError, setIsNetworkError] = useState(false);
   const { isStudent, login } = useAuth();
   const navigate = useNavigate();
 
@@ -28,24 +29,29 @@ const StudentLoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsNetworkError(false);
     setIsLoading(true);
     
     try {
-      console.log("Attempting student login with:", { email, password });
       const success = await login(email, password, "student");
       
       if (success) {
-        console.log("Student login successful, navigating to dashboard");
         navigate("/student-dashboard");
       }
     } catch (err: any) {
       console.error("Student login error:", err);
-      console.log("Error message:", err?.message);
-      console.log("Full error object:", err);
       
-      // Display specific error message
-      const errorMessage = err?.message || "An error occurred during login";
-      setError(errorMessage);
+      // Check if it's a network error
+      if (err?.isNetworkError) {
+        setIsNetworkError(true);
+        setError("Unable to connect to the server. Please check your internet connection.");
+      } else if (err?.isTimeout) {
+        setError("Request timed out. Please try again.");
+      } else {
+        // Display the error message from backend or a default message
+        const errorMessage = err?.message || "An error occurred during login. Please try again.";
+        setError(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -82,6 +88,7 @@ const StudentLoginPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="student@email.com"
+                    disabled={isLoading}
                   />
                 </div>
                 <div>
@@ -95,6 +102,7 @@ const StudentLoginPage = () => {
                       required
                       placeholder="••••••"
                       className="pr-10"
+                      disabled={isLoading}
                     />
                     <button
                       type="button"
@@ -107,9 +115,14 @@ const StudentLoginPage = () => {
                   </div>
                 </div>
                 {error && (
-                  <p className="text-sm text-destructive" aria-live="polite">
-                    {error}
-                  </p>
+                  <div className={`flex items-center gap-2 p-3 rounded-md ${isNetworkError ? 'bg-yellow-50 text-yellow-800 border border-yellow-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+                    {isNetworkError ? (
+                      <WifiOff className="h-4 w-4 flex-shrink-0" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    )}
+                    <p className="text-sm">{error}</p>
+                  </div>
                 )}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (

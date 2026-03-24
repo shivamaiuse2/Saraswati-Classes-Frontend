@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
+import { Loader2, WifiOff, AlertCircle } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const AdminLoginPage = () => {
@@ -13,6 +14,8 @@ const AdminLoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isNetworkError, setIsNetworkError] = useState(false);
   const { isAdmin, login } = useAuth();
   const navigate = useNavigate();
 
@@ -26,22 +29,31 @@ const AdminLoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsNetworkError(false);
+    setIsLoading(true);
     
     try {
-      console.log("Attempting login with:", { email, password, userType: "admin" });
       const result = await login(email, password, "admin");
-      console.log("Login result:", result);
       
       if (result) {
-        console.log("Login successful, navigating to dashboard");
         navigate("/admin-dashboard");
-      } else {
-        console.log("Login failed - credentials incorrect");
-        setError(`Invalid admin credentials.... Use admin@saraswaticlasses.com / admin@123, ${result}` as unknown as string);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login error:", err);
-      setError("An error occurred during login. Please try again.");
+      
+      // Check if it's a network error
+      if (err?.isNetworkError) {
+        setIsNetworkError(true);
+        setError("Unable to connect to the server. Please check your internet connection.");
+      } else if (err?.isTimeout) {
+        setError("Request timed out. Please try again.");
+      } else {
+        // Display the error message from backend or a default message
+        const errorMessage = err?.message || "Invalid credentials. Please try again.";
+        setError(errorMessage);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -74,6 +86,7 @@ const AdminLoginPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="admin@saraswaticlasses.com"
+                    disabled={isLoading}
                   />
                 </div>
                 <div>
@@ -87,6 +100,7 @@ const AdminLoginPage = () => {
                       required
                       placeholder="••••••"
                       className="pr-10"
+                      disabled={isLoading}
                     />
                     <button
                       type="button"
@@ -99,12 +113,24 @@ const AdminLoginPage = () => {
                   </div>
                 </div>
                 {error && (
-                  <p className="text-sm text-destructive" aria-live="polite">
-                    {error}
-                  </p>
+                  <div className={`flex items-center gap-2 p-3 rounded-md ${isNetworkError ? 'bg-yellow-50 text-yellow-800 border border-yellow-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+                    {isNetworkError ? (
+                      <WifiOff className="h-4 w-4 flex-shrink-0" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    )}
+                    <p className="text-sm">{error}</p>
+                  </div>
                 )}
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Logging in...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
               </form>
             </CardContent>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -174,6 +175,29 @@ const AdminStudentManagement = () => {
     r.username?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Shimmer row component
+  const TableShimmerRow = () => (
+    <TableRow>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-7 w-7 rounded-full" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      </TableCell>
+      <TableCell><Skeleton className="h-3 w-32" /></TableCell>
+      <TableCell><Skeleton className="h-3 w-48" /></TableCell>
+      <TableCell><Skeleton className="h-3 w-20" /></TableCell>
+      <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-1">
+          <Skeleton className="h-8 w-8 rounded" />
+          <Skeleton className="h-8 w-8 rounded" />
+          <Skeleton className="h-8 w-8 rounded" />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
@@ -213,134 +237,149 @@ const AdminStudentManagement = () => {
 
       <Card>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Enrolled Courses / Tests</TableHead>
-                <TableHead>Username</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+          <div className="overflow-x-auto">
+            <Table className="min-w-full">
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="py-10 text-center">
-                    <div className="flex justify-center items-center">
-                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    </div>
-                  </TableCell>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden md:table-cell">Email</TableHead>
+                  <TableHead className="hidden lg:table-cell">Enrolled Courses / Tests</TableHead>
+                  <TableHead className="hidden sm:table-cell">Username</TableHead>
+                  <TableHead className="hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : filteredRows.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="py-12 text-center text-xs text-muted-foreground"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      <Search className="h-8 w-8 opacity-20" />
-                      <p>No students found matching &quot;{searchQuery}&quot;</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredRows.map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell className="text-xs font-medium">
-                      <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
-                          <User className="h-4 w-4 text-primary" />
-                        </div>
-                        {row.fullName}
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <TableShimmerRow key={i} />
+                    ))}
+                  </>
+                ) : filteredRows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="py-12 text-center text-xs text-muted-foreground"
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <Search className="h-8 w-8 opacity-20" />
+                        <p>No students found matching &quot;{searchQuery}&quot;</p>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-xs">{row.email}</TableCell>
-                    <TableCell className="text-xs">
-                      <div className="flex flex-col gap-1">
-                        {row.enrolledCourses.length > 0 && (
-                          <span>
-                            <Badge variant="secondary" className="mr-1 h-4 text-[10px]">Courses</Badge>
-                            {row.enrolledCourses
-                              .map((id) => courses.find((c) => c.id === id)?.title)
-                              .filter(Boolean)
-                              .join(", ")}
-                          </span>
-                        )}
-                        {row.enrolledTestSeries.length > 0 && (
-                          <span>
-                            <Badge variant="secondary" className="mr-1 h-4 text-[10px]">Tests</Badge>
-                            {row.enrolledTestSeries
-                              .map((id) =>
-                                testSeries.find((t) => t.id === id)?.title
-                              )
-                              .filter(Boolean)
-                              .join(", ")}
-                          </span>
-                        )}
-                        {row.enrolledCourses.length === 0 &&
-                          row.enrolledTestSeries.length === 0 && (
-                            <span className="text-muted-foreground italic">
-                              Not enrolled yet
-                            </span>
-                          )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-xs font-mono text-muted-foreground">{row.username}</TableCell>
-                    <TableCell className="text-xs">
-                      <Badge
-                        variant={row.status === "blocked" ? "destructive" : "outline"}
-                        className="gap-1 h-5 text-[10px]"
-                      >
-                        {row.status === "blocked" ? (
-                          <Ban className="h-3 w-3" />
-                        ) : (
-                          <CheckCircle2 className="h-3 w-3" />
-                        )}
-                        {row.status === "blocked" ? "Blocked" : "Active"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right space-x-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        onClick={() => openEdit(row)}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 text-destructive"
-                        onClick={() => handleDelete(row.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        onClick={() => handleToggleBlock(row.id)}
-                      >
-                        {row.status === "blocked" ? (
-                          <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-                        ) : (
-                          <Ban className="h-3.5 w-3.5" />
-                        )}
-                      </Button>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredRows.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell className="text-xs font-medium">
+                        <div className="block sm:hidden text-xs text-muted-foreground mb-1">Name</div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+                            <User className="h-4 w-4 text-primary" />
+                          </div>
+                          {row.fullName}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-xs">
+                        <div className="block md:hidden text-xs text-muted-foreground mb-1">Email</div>
+                        {row.email}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell text-xs">
+                        <div className="block lg:hidden text-xs text-muted-foreground mb-1">Enrolled</div>
+                        <div className="flex flex-col gap-1">
+                          {row.enrolledCourses.length > 0 && (
+                            <span>
+                              <Badge variant="secondary" className="mr-1 h-4 text-[10px]">Courses</Badge>
+                              {row.enrolledCourses
+                                .map((id) => courses.find((c) => c.id === id)?.title)
+                                .filter(Boolean)
+                                .join(", ")}
+                            </span>
+                          )}
+                          {row.enrolledTestSeries.length > 0 && (
+                            <span>
+                              <Badge variant="secondary" className="mr-1 h-4 text-[10px]">Tests</Badge>
+                              {row.enrolledTestSeries
+                                .map((id) =>
+                                  testSeries.find((t) => t.id === id)?.title
+                                )
+                                .filter(Boolean)
+                                .join(", ")}
+                            </span>
+                          )}
+                          {row.enrolledCourses.length === 0 &&
+                            row.enrolledTestSeries.length === 0 && (
+                              <span className="text-muted-foreground italic">
+                                Not enrolled yet
+                              </span>
+                            )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-xs font-mono text-muted-foreground">
+                        <div className="block sm:hidden text-xs text-muted-foreground mb-1">Username</div>
+                        {row.username}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-xs">
+                        <div className="block sm:hidden text-xs text-muted-foreground mb-1">Status</div>
+                        <Badge
+                          variant={row.status === "blocked" ? "destructive" : "outline"}
+                          className="gap-1 h-5 text-[10px]"
+                        >
+                          {row.status === "blocked" ? (
+                            <Ban className="h-3 w-3" />
+                          ) : (
+                            <CheckCircle2 className="h-3 w-3" />
+                          )}
+                          {row.status === "blocked" ? "Blocked" : "Active"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right space-x-1">
+                        <div className="block sm:hidden text-xs text-muted-foreground mb-1">Actions</div>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => openEdit(row)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-destructive"
+                          onClick={() => handleDelete(row.id)}
+                          disabled={isDeleting === row.id}
+                        >
+                          {isDeleting === row.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => handleToggleBlock(row.id)}
+                        >
+                          {row.status === "blocked" ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
+                          ) : (
+                            <Ban className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent aria-describedby={undefined} className="max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogContent aria-describedby={undefined} className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-sm">
               {editing?.id ? "Edit Student" : "Add Student"}
@@ -349,7 +388,7 @@ const AdminStudentManagement = () => {
 
           {editing && (
             <div className="flex flex-col flex-1 overflow-hidden">
-              <div className="space-y-3 mt-2 overflow-y-auto pr-3">
+              <div className="space-y-3 mt-2 overflow-y-auto pr-2">
                 <div className="space-y-1">
                   <Label htmlFor="student-name-input">Full Name</Label>
                   <Input
@@ -363,7 +402,7 @@ const AdminStudentManagement = () => {
                   />
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label htmlFor="student-dob-input">Date of Birth</Label>
                     <Input
@@ -391,7 +430,7 @@ const AdminStudentManagement = () => {
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label htmlFor="student-guardian-phone-input">Guardian Phone</Label>
                     <Input
@@ -430,7 +469,7 @@ const AdminStudentManagement = () => {
                     }
                   />
                 </div>
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label htmlFor="student-mobile-input">Mobile Number</Label>
                     <Input
@@ -467,7 +506,7 @@ const AdminStudentManagement = () => {
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label>Board</Label>
                     <Select
@@ -518,7 +557,7 @@ const AdminStudentManagement = () => {
                   />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label>Enroll in Courses</Label>
                     <div className="border rounded-md p-2 max-h-40 overflow-auto space-y-1 text-xs">
@@ -587,16 +626,17 @@ const AdminStudentManagement = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setDialogOpen(false)}
                     disabled={isSaving}
+                    className="w-full sm:w-auto"
                   >
                     Cancel
                   </Button>
-                  <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                  <Button size="sm" onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto">
                     {isSaving ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

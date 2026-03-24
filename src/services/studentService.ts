@@ -187,6 +187,12 @@ const studentService = {
     const response = await apiClient.get(`/admin/students/search?q=${encodeURIComponent(query)}`);
     return response.data;
   },
+
+  // Get student's achievement results (added by admin)
+  getStudentAchievements: async (): Promise<{ success: boolean; message: string; data: Array<{ id: string; name: string; marks: string; exam: string; image: string; createdAt: string }> }> => {
+    const response = await apiClient.get('/students/achievements');
+    return response.data;
+  },
 };
 
 export default studentService;

@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -19,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import ImageUploader from "@/components/ImageUploader";
 import testSeriesService from "@/services/testSeriesService";
 
 interface SeriesFormState {
@@ -55,6 +57,7 @@ const AdminTestSeriesManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isDeletingTest, setIsDeletingTest] = useState<string | null>(null);
   const [manageTestsOpen, setManageTestsOpen] = useState(false);
   const [selectedSeriesForTests, setSelectedSeriesForTests] = useState<any | null>(null);
   const [seriesTests, setSeriesTests] = useState<any[]>([]);
@@ -155,6 +158,10 @@ const AdminTestSeriesManagement = () => {
     setEditingSeries(null);
   };
 
+  const handleImageSelect = (imageUrl: string) => {
+    setEditingSeries((prev) => (prev ? { ...prev, image: imageUrl } : prev));
+  };
+
   const openManageTests = async (ts: any) => {
     setSelectedSeriesForTests(ts);
     setManageTestsOpen(true);
@@ -192,6 +199,7 @@ const AdminTestSeriesManagement = () => {
   };
 
   const handleDeleteTest = async (testId: string) => {
+    setIsDeletingTest(testId);
     try {
       const resp = await testSeriesService.deleteTest(testId);
       if (resp.success) {
@@ -199,6 +207,8 @@ const AdminTestSeriesManagement = () => {
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setIsDeletingTest(null);
     }
   };
 
@@ -221,84 +231,104 @@ const AdminTestSeriesManagement = () => {
 
       <Card>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Mode</TableHead>
-                <TableHead>Tests Count</TableHead>
-                <TableHead>Fees</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+          <div className="overflow-x-auto">
+            <Table className="min-w-full">
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={5} className="py-10 text-center">
-                    <div className="flex flex-col items-center justify-center gap-3">
-                      <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                      <div className="text-sm text-muted-foreground">
-                        Loading test series from database...
-                      </div>
-                    </div>
-                  </TableCell>
+                  <TableHead>Title</TableHead>
+                  <TableHead className="hidden md:table-cell">Mode</TableHead>
+                  <TableHead className="hidden sm:table-cell">Tests Count</TableHead>
+                  <TableHead className="hidden sm:table-cell">Fees</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : series.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="py-6 text-center text-xs text-muted-foreground"
-                  >
-                    No test series configured in this view. Use &quot;Add Test
-                    Series&quot; to create placeholder rows.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                series.map((ts) => (
-                  <TableRow key={ts.id}>
-                  <TableCell className="text-xs">{ts.title}</TableCell>
-                  <TableCell className="text-xs">{ts.mode || "ONLINE"}</TableCell>
-                  <TableCell className="text-xs">{ts.testsCount || 0}</TableCell>
-                  <TableCell className="text-xs">
-                    ₹{parseInt(ts.price || "0").toLocaleString("en-IN")}
-                  </TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-7 w-7 text-primary"
-                      title="Manage Tests"
-                      onClick={() => openManageTests(ts)}
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <TableRow key={i}>
+                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                        <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-10" /></TableCell>
+                        <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1 sm:gap-2">
+                            <Skeleton className="h-7 w-7 rounded" />
+                            <Skeleton className="h-7 w-7 rounded" />
+                            <Skeleton className="h-7 w-7 rounded" />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                ) : series.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="py-6 text-center text-xs text-muted-foreground"
                     >
-                      <ClipboardList className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-7 w-7"
-                      onClick={() => openEdit(ts)}
-                    >
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-7 w-7"
-                      onClick={() => handleDelete(ts.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-              )}
-            </TableBody>
-          </Table>
+                      No test series configured in this view. Use &quot;Add Test
+                      Series&quot; to create placeholder rows.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  series.map((ts) => (
+                    <TableRow key={ts.id}>
+                    <TableCell className="text-xs">
+                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Title</div>
+                      {ts.title}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell text-xs">
+                      <div className="block md:hidden text-xs text-muted-foreground mb-1">Mode</div>
+                      {ts.mode || "ONLINE"}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-xs">
+                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Tests Count</div>
+                      {ts.testsCount || 0}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-xs">
+                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Fees</div>
+                      ₹{parseInt(ts.price || "0").toLocaleString("en-IN")}
+                    </TableCell>
+                    <TableCell className="text-right space-x-1 sm:space-x-2">
+                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Actions</div>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-7 w-7 text-primary"
+                        title="Manage Tests"
+                        onClick={() => openManageTests(ts)}
+                      >
+                        <ClipboardList className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-7 w-7"
+                        onClick={() => openEdit(ts)}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="h-7 w-7"
+                        onClick={() => handleDelete(ts.id)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
       <Dialog open={seriesDialogOpen} onOpenChange={setSeriesDialogOpen}>
-        <DialogContent aria-describedby={undefined} className="max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogContent aria-describedby={undefined} className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-sm">
               {editingSeries?.id ? "Edit Test Series" : "Add Test Series"}
@@ -307,7 +337,7 @@ const AdminTestSeriesManagement = () => {
 
           {editingSeries && (
             <div className="flex flex-col flex-1 overflow-hidden">
-              <div className="space-y-3 mt-2 overflow-y-auto pr-3">
+              <div className="space-y-3 mt-2 overflow-y-auto pr-2">
                 <div className="space-y-1">
                   <Label htmlFor="ts-title-input">Title</Label>
                   <Input
@@ -340,7 +370,7 @@ const AdminTestSeriesManagement = () => {
                   </select>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label htmlFor="ts-count-input">Number of Tests</Label>
                     <Input
@@ -384,16 +414,12 @@ const AdminTestSeriesManagement = () => {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="ts-image-input">Image URL</Label>
-                  <Input
-                    id="ts-image-input"
-                    value={editingSeries.image}
-                    onChange={(e) =>
-                      setEditingSeries((prev) =>
-                        prev ? { ...prev, image: e.target.value } : prev
-                      )
-                    }
+                <div className="space-y-2">
+                  <Label>Image</Label>
+                  <ImageUploader
+                    onImageSelect={handleImageSelect}
+                    currentImage={editingSeries.image}
+                    folder="test-series"
                   />
                 </div>
 
@@ -455,16 +481,17 @@ const AdminTestSeriesManagement = () => {
                   />
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setSeriesDialogOpen(false)}
                     disabled={isSaving}
+                    className="w-full sm:w-auto"
                   >
                     Cancel
                   </Button>
-                  <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                  <Button size="sm" onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto">
                     {isSaving ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -564,8 +591,13 @@ const AdminTestSeriesManagement = () => {
                         variant="ghost" 
                         className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => handleDeleteTest(t.id)}
+                        disabled={isDeletingTest === t.id}
                       >
-                        <Trash2 className="h-4 h-4" />
+                        {isDeletingTest === t.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   ))}

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -18,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import ImageUploader from "@/components/ImageUploader";
 import { useToast } from "@/hooks/use-toast";
 import contentService from "@/services/contentService";
 
@@ -33,9 +35,9 @@ const AdminGalleryManagement = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<GalleryRow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Load gallery items from backend
   useEffect(() => {
     const fetchGalleryItems = async () => {
       try {
@@ -46,7 +48,7 @@ const AdminGalleryManagement = () => {
             id: item.id,
             category: item.category,
             title: item.title,
-            imageUrl: item.image  // Map the 'image' field from API to 'imageUrl' in GalleryRow
+            imageUrl: item.image
           })));
         } else {
           throw new Error(response.message || "Failed to load gallery items");
@@ -82,6 +84,7 @@ const AdminGalleryManagement = () => {
   };
 
   const handleDelete = async (id: string) => {
+    setDeletingId(id);
     try {
       await contentService.deleteGalleryItem(id);
       setRows((prev) => prev.filter((r) => r.id !== id));
@@ -96,7 +99,13 @@ const AdminGalleryManagement = () => {
         description: error.message || "Failed to delete gallery item",
         variant: "destructive",
       });
+    } finally {
+      setDeletingId(null);
     }
+  };
+
+  const handleImageSelect = (imageUrl: string) => {
+    setEditing((prev) => (prev ? { ...prev, imageUrl } : null));
   };
 
   const handleSave = async () => {
@@ -112,10 +121,9 @@ const AdminGalleryManagement = () => {
 
     try {
       if (editing.id) {
-        // Update existing gallery item
         const response = await contentService.updateGalleryItem(editing.id, {
           title: editing.title,
-          image: editing.imageUrl,  // Use 'image' for API call
+          image: editing.imageUrl,
           category: editing.category,
         });
         
@@ -124,7 +132,7 @@ const AdminGalleryManagement = () => {
             id: response.data.id,
             title: response.data.title,
             category: response.data.category,
-            imageUrl: response.data.image  // Map the 'image' field from API to 'imageUrl' in GalleryRow
+            imageUrl: response.data.image
           } : r));
           toast({
             title: "Success",
@@ -134,10 +142,9 @@ const AdminGalleryManagement = () => {
           throw new Error(response.message || "Failed to update gallery item");
         }
       } else {
-        // Create new gallery item
         const response = await contentService.createGalleryItem({
           title: editing.title,
-          image: editing.imageUrl,  // Use 'image' for API call
+          image: editing.imageUrl,
           category: editing.category,
         });
         
@@ -146,7 +153,7 @@ const AdminGalleryManagement = () => {
             id: response.data.id,
             title: response.data.title,
             category: response.data.category,
-            imageUrl: response.data.image  // Map the 'image' field from API to 'imageUrl' in GalleryRow
+            imageUrl: response.data.image
           }]);
           toast({
             title: "Success",
@@ -172,6 +179,21 @@ const AdminGalleryManagement = () => {
   const shortUrl = (url: string) =>
     url.length > 40 ? `${url.slice(0, 37)}...` : url;
 
+  // Shimmer row component
+  const TableShimmerRow = () => (
+    <TableRow>
+      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+      <TableCell><Skeleton className="h-3 w-40" /></TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          <Skeleton className="h-7 w-7 rounded" />
+          <Skeleton className="h-7 w-7 rounded" />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
@@ -181,7 +203,7 @@ const AdminGalleryManagement = () => {
           </h1>
           <p className="text-sm text-muted-foreground">
             Manage images for Classroom Photos, Topper Achievements and Events.
-            Entries here will later be connected to the public gallery page.
+            Upload images directly or paste a URL.
           </p>
         </div>
         <Button size="sm" className="gap-1" onClick={openAdd}>
@@ -193,10 +215,6 @@ const AdminGalleryManagement = () => {
       <Card>
         <CardContent className="p-6">
           {loading ? (
-            <div className="flex justify-center items-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -207,12 +225,32 @@ const AdminGalleryManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <TableShimmerRow key={i} />
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Image</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {rows.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="font-medium">{row.title}</TableCell>
                     <TableCell>{row.category}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">
-                      {shortUrl(row.imageUrl)}
+                    <TableCell>
+                      <img 
+                        src={row.imageUrl} 
+                        alt={row.title}
+                        className="h-10 w-16 rounded object-cover border"
+                      />
                     </TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button
@@ -228,8 +266,13 @@ const AdminGalleryManagement = () => {
                         variant="destructive"
                         className="h-7 w-7"
                         onClick={() => handleDelete(row.id)}
+                        disabled={deletingId === row.id}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        {deletingId === row.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3 w-3" />
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -258,7 +301,7 @@ const AdminGalleryManagement = () => {
               {editing?.id ? "Edit Gallery Item" : "Add Gallery Item"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 mt-2 overflow-y-auto pr-3">
+          <div className="space-y-4 mt-2 overflow-y-auto pr-3">
             <div className="space-y-1">
               <Label htmlFor="gallery-title-input">Title</Label>
               <Input
@@ -281,15 +324,14 @@ const AdminGalleryManagement = () => {
                 placeholder="Enter category (e.g. Classroom Photos)"
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="gallery-url-input">Image URL</Label>
-              <Input
-                id="gallery-url-input"
-                value={editing?.imageUrl || ""}
-                onChange={(e) =>
-                  setEditing((prev) => (prev ? { ...prev, imageUrl: e.target.value } : null))
-                }
-                placeholder="https://example.com/image.jpg"
+            
+            {/* Image Uploader */}
+            <div className="space-y-2">
+              <Label>Image</Label>
+              <ImageUploader
+                onImageSelect={handleImageSelect}
+                currentImage={editing?.imageUrl || ""}
+                folder="gallery"
               />
             </div>
           </div>
@@ -304,7 +346,7 @@ const AdminGalleryManagement = () => {
             >
               Cancel
             </Button>
-            <Button size="sm" onClick={handleSave}>
+            <Button size="sm" onClick={handleSave} disabled={!editing?.imageUrl}>
               {editing?.id ? "Update" : "Create"}
             </Button>
           </div>

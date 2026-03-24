@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -19,7 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import ImageUploader from "@/components/ImageUploader";
-import { Plus, Trash2, Pencil, Calendar, User } from "lucide-react";
+import { Plus, Trash2, Pencil, Calendar, User, Loader2 } from "lucide-react";
 import contentService from "@/services/contentService";
 import { useToast } from "@/hooks/use-toast";
 
@@ -45,6 +46,7 @@ const AdminBlogManagement = () => {
   const [blogDialogOpen, setBlogDialogOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState<BlogFormState | null>(null);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const loadBlogs = async () => {
@@ -89,6 +91,7 @@ const AdminBlogManagement = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this blog?")) return;
+    setDeletingId(id);
     try {
       const res = await contentService.deleteBlog(id);
       if (res.success) {
@@ -98,6 +101,8 @@ const AdminBlogManagement = () => {
     } catch (e) {
       console.error(e);
       toast({ title: "Error", description: "Failed to delete blog", variant: "destructive" });
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -136,6 +141,23 @@ const AdminBlogManagement = () => {
     setEditingBlog(prev => prev ? { ...prev, image: imageUrl } : prev);
   };
 
+  // Shimmer row component
+  const TableShimmerRow = () => (
+    <TableRow>
+      <TableCell><Skeleton className="w-12 h-12 rounded" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+      <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          <Skeleton className="h-8 w-8 rounded" />
+          <Skeleton className="h-8 w-8 rounded" />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
@@ -153,88 +175,102 @@ const AdminBlogManagement = () => {
 
       <Card>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">Image</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
+          <div className="overflow-x-auto">
+            <Table className="min-w-full">
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-10">Loading blogs...</TableCell>
+                  <TableHead className="w-[100px] hidden sm:table-cell">Image</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead className="hidden md:table-cell">Author</TableHead>
+                  <TableHead className="hidden md:table-cell">Date</TableHead>
+                  <TableHead className="hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : blogs.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
-                    No blogs found. Create your first blog to get started.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                blogs.map((blog) => (
-                  <TableRow key={blog.id}>
-                    <TableCell>
-                      <img
-                        src={blog.image || blog.imageUrl || "https://placehold.co/400x250?text=No+Image"}
-                        alt={blog.title}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium max-w-[250px] truncate">
-                      {blog.title}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3 text-muted-foreground" />
-                        {blog.author || "Admin"}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 text-muted-foreground" />
-                        {new Date(blog.date || blog.createdAt).toLocaleDateString()}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold ${
-                        blog.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                      }`}>
-                        {blog.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-8 w-8 text-blue-600 border-blue-200 hover:bg-blue-50"
-                        onClick={() => openEdit(blog)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
-                        onClick={() => handleDelete(blog.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <TableShimmerRow key={i} />
+                    ))}
+                  </>
+                ) : blogs.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                      No blogs found. Create your first blog to get started.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  blogs.map((blog) => (
+                    <TableRow key={blog.id}>
+                      <TableCell className="hidden sm:table-cell">
+                        <img
+                          src={blog.image || blog.imageUrl || "https://placehold.co/400x250?text=No+Image"}
+                          alt={blog.title}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium max-w-[150px] sm:max-w-[250px] truncate">
+                        <div className="block sm:hidden text-xs text-muted-foreground mb-1">Title</div>
+                        {blog.title}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-sm">
+                        <div className="block md:hidden text-xs text-muted-foreground mb-1">Author</div>
+                        <div className="flex items-center gap-1">
+                          <User className="h-3 w-3 text-muted-foreground" />
+                          {blog.author || "Admin"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-sm">
+                        <div className="block md:hidden text-xs text-muted-foreground mb-1">Date</div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3 text-muted-foreground" />
+                          {new Date(blog.date || blog.createdAt).toLocaleDateString()}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <div className="block sm:hidden text-xs text-muted-foreground mb-1">Status</div>
+                        <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold ${
+                          blog.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                        }`}>
+                          {blog.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right space-x-1 sm:space-x-2">
+                        <div className="block sm:hidden text-xs text-muted-foreground mb-1">Actions</div>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8 text-blue-600 border-blue-200 hover:bg-blue-50"
+                          onClick={() => openEdit(blog)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          onClick={() => handleDelete(blog.id)}
+                          disabled={deletingId === blog.id}
+                        >
+                          {deletingId === blog.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
       <Dialog open={blogDialogOpen} onOpenChange={setBlogDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>
               {editingBlog?.id ? "Edit Blog" : "Add New Blog"}
@@ -242,7 +278,7 @@ const AdminBlogManagement = () => {
           </DialogHeader>
 
           {editingBlog && (
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 py-2">
               <div className="space-y-2">
                 <Label htmlFor="blog-title">Title</Label>
                 <Input
@@ -253,7 +289,7 @@ const AdminBlogManagement = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="blog-date">Publish Date</Label>
                   <Input
@@ -288,17 +324,17 @@ const AdminBlogManagement = () => {
                 <Textarea
                   id="blog-content"
                   placeholder="Write your blog content here..."
-                  rows={12}
+                  rows={6}
                   value={editingBlog.content}
                   onChange={(e) => setEditingBlog(prev => prev ? { ...prev, content: e.target.value } : null)}
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button variant="outline" onClick={() => setBlogDialogOpen(false)}>
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-2 sm:pt-4 border-t">
+                <Button variant="outline" onClick={() => setBlogDialogOpen(false)} className="w-full sm:w-auto">
                   Cancel
                 </Button>
-                <Button onClick={handleSave}>
+                <Button onClick={handleSave} className="w-full sm:w-auto">
                   {editingBlog.id ? "Update Blog" : "Create Blog"}
                 </Button>
               </div>
@@ -310,4 +346,4 @@ const AdminBlogManagement = () => {
   );
 };
 
-export default AdminBlogManagement;
+export default AdminBlogManagement;

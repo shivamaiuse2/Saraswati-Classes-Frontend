@@ -235,6 +235,9 @@ interface AppContextType {
   loadTestSeries: () => Promise<void>;
   testimonials: any[];
   loadingTestimonials: boolean;
+  
+  networkError: string | null;
+  clearNetworkError: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -266,6 +269,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [loadingResults, setLoadingResults] = useState(true);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+  const [networkError, setNetworkError] = useState<string | null>(null);
+
+  // Helper to check if error is a network error
+  const isNetworkError = (error: any): boolean => {
+    return error?.isNetworkError || 
+           error?.code === 'ERR_NETWORK' || 
+           error?.message?.includes('Network Error') ||
+           error?.message?.includes('Unable to connect');
+  };
 
   // Load courses from API
   const loadCourses = async () => {
@@ -274,11 +286,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       const response = await courseService.getCourses(1, 100);
       if (response.success && response.data) {
         setCourses(response.data.map(convertApiToCourse));
+        setNetworkError(null);
       } else {
         setCourses([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading courses:", error);
+      if (isNetworkError(error)) {
+        setNetworkError('Unable to connect to the server. Please check your internet connection.');
+      }
       setCourses([]);
     } finally {
       setLoadingCourses(false);
@@ -292,11 +308,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       const response = await testSeriesService.getTestSeries(1, 100);
       if (response.success && response.data) {
         setTestSeries(response.data.map(convertApiToTestSeries));
+        setNetworkError(null);
       } else {
         setTestSeries([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading test series:", error);
+      if (isNetworkError(error)) {
+        setNetworkError('Unable to connect to the server. Please check your internet connection.');
+      }
       setTestSeries([]);
     } finally {
       setLoadingTestSeries(false);
@@ -532,6 +552,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const clearNetworkError = () => setNetworkError(null);
+
   return (
     <AppContext.Provider value={{
       courses, addCourse, deleteCourse, loadingCourses,
@@ -546,6 +568,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       resources, addResource, loadingResources,
       testimonials, loadingTestimonials,
       loadCourses, loadTestSeries,
+      networkError, clearNetworkError,
     }}>
       {children}
     </AppContext.Provider>

@@ -152,6 +152,27 @@ const testSeriesService = {
     const response = await apiClient.post('/test-series/results', resultData);
     return response.data;
   },
+
+  // Get all test results (Admin)
+  getAllTestResults: async (page: number = 1, limit: number = 20, studentId?: string): Promise<PaginatedResponse<any>> => {
+    let url = `/test-series/results?page=${page}&limit=${limit}`;
+    if (studentId) url += `&studentId=${studentId}`;
+    
+    const response = await apiClient.get(url);
+    return response.data;
+  },
+
+  // Update test result
+  updateTestResult: async (id: string, resultData: any): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.put(`/test-series/results/${id}`, resultData);
+    return response.data;
+  },
+
+  // Delete test result
+  deleteTestResult: async (id: string): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.delete(`/test-series/results/${id}`);
+    return response.data;
+  },
 };
 
 export default testSeriesService;

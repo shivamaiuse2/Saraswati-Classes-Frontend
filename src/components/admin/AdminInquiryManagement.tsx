@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -46,14 +47,19 @@ const AdminInquiryManagement = () => {
   );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<EditableInquiry | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const openEdit = (row: EditableInquiry) => {
     setEditing(row);
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    // Simulate API call delay for demo
+    await new Promise(resolve => setTimeout(resolve, 500));
     setRows((prev) => prev.filter((r) => r.id !== id));
+    setDeletingId(null);
   };
 
   const handleSave = () => {
@@ -62,6 +68,22 @@ const AdminInquiryManagement = () => {
     setDialogOpen(false);
     setEditing(null);
   };
+
+  // Shimmer row component
+  const TableShimmerRow = () => (
+    <TableRow>
+      <TableCell><Skeleton className="h-3 w-24" /></TableCell>
+      <TableCell><Skeleton className="h-3 w-32" /></TableCell>
+      <TableCell><Skeleton className="h-3 w-40" /></TableCell>
+      <TableCell><Skeleton className="h-3 w-16" /></TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          <Skeleton className="h-7 w-7 rounded" />
+          <Skeleton className="h-7 w-7 rounded" />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
 
   return (
     <div className="space-y-6">
@@ -89,34 +111,48 @@ const AdminInquiryManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className="text-xs">{row.name}</TableCell>
-                  <TableCell className="text-xs">{row.email}</TableCell>
-                  <TableCell className="text-xs">
-                    {row.courseOrSeries}
-                  </TableCell>
-                  <TableCell className="text-xs">{row.status}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-7 w-7"
-                      onClick={() => openEdit(row)}
-                    >
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-7 w-7"
-                      onClick={() => handleDelete(row.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {rows.length === 0 ? (
+                // Show shimmer when no data
+                <>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <TableShimmerRow key={i} />
+                  ))}
+                </>
+              ) : (
+                rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell className="text-xs">{row.name}</TableCell>
+                    <TableCell className="text-xs">{row.email}</TableCell>
+                    <TableCell className="text-xs">
+                      {row.courseOrSeries}
+                    </TableCell>
+                    <TableCell className="text-xs">{row.status}</TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-7 w-7"
+                        onClick={() => openEdit(row)}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="h-7 w-7"
+                        onClick={() => handleDelete(row.id)}
+                        disabled={deletingId === row.id}
+                      >
+                        {deletingId === row.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3 w-3" />
+                        )}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
               {rows.length === 0 && (
                 <TableRow>
                   <TableCell
@@ -214,4 +250,3 @@ const AdminInquiryManagement = () => {
 };
 
 export default AdminInquiryManagement;
-
