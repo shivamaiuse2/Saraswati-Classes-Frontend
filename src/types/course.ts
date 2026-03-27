@@ -1,6 +1,6 @@
 import type { Chapter } from "./chapter";
 
-export type CourseCategory = "Foundation" | "Science" | "Competitive";
+export type CourseCategory = "Science" | "Competitive";
 
 export interface Course {
   id: string;

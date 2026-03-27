@@ -141,6 +141,7 @@ const AdminStudentManagement = () => {
         board: editing.board,
         status: editing.status?.toUpperCase() ?? "ACTIVE",
         password: editing.password,
+        username: editing.username,
         dateOfBirth: editing.dateOfBirth,
         guardianName: editing.guardianName,
         guardianPhone: editing.guardianPhone,
@@ -245,6 +246,7 @@ const AdminStudentManagement = () => {
                   <TableHead className="hidden md:table-cell">Email</TableHead>
                   <TableHead className="hidden lg:table-cell">Enrolled Courses / Tests</TableHead>
                   <TableHead className="hidden sm:table-cell">Username</TableHead>
+                  <TableHead className="hidden sm:table-cell">Password</TableHead>
                   <TableHead className="hidden sm:table-cell">Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -318,6 +320,10 @@ const AdminStudentManagement = () => {
                       <TableCell className="hidden sm:table-cell text-xs font-mono text-muted-foreground">
                         <div className="block sm:hidden text-xs text-muted-foreground mb-1">Username</div>
                         {row.username}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-xs font-mono text-muted-foreground">
+                        <div className="block sm:hidden text-xs text-muted-foreground mb-1">Password</div>
+                        {row.password}
                       </TableCell>
                       <TableCell className="hidden sm:table-cell text-xs">
                         <div className="block sm:hidden text-xs text-muted-foreground mb-1">Status</div>

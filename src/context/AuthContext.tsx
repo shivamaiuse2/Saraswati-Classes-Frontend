@@ -31,6 +31,7 @@ interface User {
     dateOfBirth?: string;
     guardianName?: string;
     guardianPhone?: string;
+    username?: string;
     certificates?: any[];
     courseEnrollments?: any[];
     enrollments?: any[];

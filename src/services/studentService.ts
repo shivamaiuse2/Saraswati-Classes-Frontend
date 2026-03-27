@@ -30,6 +30,7 @@ interface UpdateStudentData {
   dateOfBirth?: string;
   guardianName?: string;
   guardianPhone?: string;
+  username?: string;
 }
 
 interface EnrollmentData {
@@ -69,7 +70,7 @@ const convertApiToStudent = (apiStudent: any): any => {
   return {
     id: apiStudent.id,
     email: apiStudent.email,
-    password: '', // Never expose password
+    password: profile.plainPassword || '', // Expose plain password if available
     name: profile.name || apiStudent.name || '',
     fullName: profile.name || apiStudent.name || '',
     address: profile.address || apiStudent.address || '',
@@ -77,7 +78,7 @@ const convertApiToStudent = (apiStudent: any): any => {
     phone: profile.phone || apiStudent.phone || '',
     standard: profile.standard || apiStudent.standard || '',
     board: profile.board || apiStudent.board || 'SSC',
-    username: apiStudent.username || profile.username || apiStudent.email || '',
+    username: profile.username || apiStudent.email || '',
     status: (profile.status || apiStudent.status || 'ACTIVE').toLowerCase(),
     approvedCourses,
     approvedTestSeries,

@@ -18,7 +18,7 @@ const fadeIn = {
   }),
 };
 
-const categories = ["All", "Foundation", "Science", "Competitive"] as const;
+const categories = ["All", "Science", "Competitive"] as const;
 
 const CoursesPage = () => {
   const { courses, loadingCourses } = useApp();

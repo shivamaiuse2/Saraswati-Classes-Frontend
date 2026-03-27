@@ -365,8 +365,6 @@ const AdminTestSeriesManagement = () => {
                   >
                     <option value="ONLINE">ONLINE</option>
                     <option value="OFFLINE">OFFLINE</option>
-                    <option value="OMR_BASED">OMR BASED</option>
-                    <option value="BOARD_STYLE">BOARD STYLE</option>
                   </select>
                 </div>
                 
@@ -438,7 +436,7 @@ const AdminTestSeriesManagement = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="ts-demo-input">Demo Test Link (Google Form)</Label>
+                  <Label htmlFor="ts-demo-input">Test Link (Google Form)</Label>
                   <Input
                     id="ts-demo-input"
                     value={editingSeries.demoTestLink}
@@ -452,7 +450,7 @@ const AdminTestSeriesManagement = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="ts-features-input">Features (comma separated)</Label>
+                  <Label htmlFor="ts-features-input">Syllabus & Coverage (comma separated)</Label>
                   <Textarea
                     id="ts-features-input"
                     rows={2}

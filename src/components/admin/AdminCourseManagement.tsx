@@ -45,7 +45,7 @@ interface CourseFormState {
 
 const emptyCourseForm: CourseFormState = {
   title: "",
-  category: "Foundation",
+  category: "Science",
   time: "",
   days: "",
   description: "",
@@ -53,7 +53,7 @@ const emptyCourseForm: CourseFormState = {
   subjects: "",
 };
 
-const categories: CourseCategory[] = ["Foundation", "Science", "Competitive"];
+const categories: CourseCategory[] = ["Science", "Competitive"];
 
 const AdminCourseManagement = () => {
   const { toast } = useToast();

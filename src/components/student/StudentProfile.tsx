@@ -23,6 +23,7 @@ const StudentProfile = () => {
     guardianName: "",
     guardianPhone: "",
     profileImage: "",
+    username: "",
   });
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const StudentProfile = () => {
         guardianName: profile.guardianName || "",
         guardianPhone: profile.guardianPhone || "",
         profileImage: profile.profileImage || "",
+        username: profile.username || "",
       });
     }
   }, [profile]);
@@ -55,6 +57,7 @@ const StudentProfile = () => {
         guardianName: formData.guardianName,
         guardianPhone: formData.guardianPhone,
         profileImage: formData.profileImage,
+        username: formData.username,
       });
     } else {
       toast.error("Failed to update profile");
@@ -197,8 +200,16 @@ const StudentProfile = () => {
                   />
                 </div>
               </div>
-
               <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="profile-username">Username</Label>
+                  <Input
+                    id="profile-username"
+                    value={isEditing ? formData.username : profile?.username || ""}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    readOnly={!isEditing}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="profile-phone">Phone Number</Label>
                   <Input
@@ -208,6 +219,9 @@ const StudentProfile = () => {
                     readOnly={!isEditing}
                   />
                 </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="profile-dob">Date of Birth</Label>
                   <Input
@@ -215,6 +229,15 @@ const StudentProfile = () => {
                     type="date"
                     value={isEditing ? formData.dateOfBirth : (profile?.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split('T')[0] : "")}
                     onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                    readOnly={!isEditing}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="profile-address">Address</Label>
+                  <Input
+                    id="profile-address"
+                    value={isEditing ? formData.address : profile?.address || ""}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     readOnly={!isEditing}
                   />
                 </div>
@@ -241,15 +264,7 @@ const StudentProfile = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="profile-address">Address</Label>
-                <Input
-                  id="profile-address"
-                  value={isEditing ? formData.address : profile?.address || ""}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  readOnly={!isEditing}
-                />
-              </div>
+
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">

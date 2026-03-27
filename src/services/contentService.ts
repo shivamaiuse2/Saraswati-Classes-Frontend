@@ -10,7 +10,7 @@ export interface CourseChapter {
 export interface Course {
   id: string;
   title: string;
-  category: "Foundation" | "Science" | "Competitive";
+  category: "Science" | "Competitive";
   description: string;
   fullDescription: string;
   mode: "Online" | "Offline" | "Online / Offline";

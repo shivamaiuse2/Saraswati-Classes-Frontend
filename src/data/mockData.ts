@@ -8,7 +8,7 @@ export interface CourseChapter {
 export interface Course {
   id: string;
   title: string;
-  category: "Foundation" | "Science" | "Competitive";
+  category: "Science" | "Competitive";
   description: string;
   fullDescription: string;
   mode: "Online" | "Offline" | "Online / Offline";
@@ -94,7 +94,7 @@ export const defaultCourses: Course[] = [
   {
     id: "8th-cbse",
     title: "8th CBSE",
-    category: "Foundation",
+    category: "Competitive",
     description:
       "Build strong fundamentals in Maths and Science aligned with CBSE syllabus.",
     fullDescription:
@@ -128,7 +128,7 @@ export const defaultCourses: Course[] = [
   {
     id: "9th-cbse",
     title: "9th CBSE",
-    category: "Foundation",
+    category: "Competitive",
     description:
       "Strengthen concepts and problem-solving skills for 9th CBSE board.",
     fullDescription:
@@ -162,7 +162,7 @@ export const defaultCourses: Course[] = [
   {
     id: "10th-cbse",
     title: "10th CBSE",
-    category: "Foundation",
+    category: "Science",
     description:
       "Board-focused 10th CBSE preparation with regular prelim-style tests.",
     fullDescription:
@@ -196,7 +196,7 @@ export const defaultCourses: Course[] = [
   {
     id: "9th-ssc",
     title: "9th SSC",
-    category: "Foundation",
+    category: "Competitive",
     description: "Concept-focused teaching for 9th SSC students.",
     fullDescription:
       "The 9th SSC course is designed as a strong foundation program for Maharashtra State Board students. Systematic teaching, practice sheets and doubt-solving sessions help students stay ahead throughout the year.",
@@ -224,7 +224,7 @@ export const defaultCourses: Course[] = [
   {
     id: "10th-ssc",
     title: "10th SSC",
-    category: "Foundation",
+    category: "Science",
     description: "Target high marks in SSC board exams.",
     fullDescription:
       "The 10th SSC program includes chapter-wise notes, question banks and multiple full-syllabus mock tests based on the latest board pattern. Students are trained for time management and high-scoring answer writing.",

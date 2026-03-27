@@ -73,7 +73,7 @@ const convertApiToCourse = (apiCourse: any): Course => {
   return {
     id: apiCourse.id,
     title: apiCourse.title,
-    category: apiCourse.category as "Foundation" | "Science" | "Competitive",
+    category: apiCourse.category as "Science" | "Competitive",
     description: apiCourse.description,
     fullDescription: apiCourse.fullDescription || apiCourse.description,
     mode: apiCourse.mode as "Online" | "Offline" | "Online / Offline",
