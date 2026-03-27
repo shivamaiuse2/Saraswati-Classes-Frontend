@@ -5,6 +5,7 @@ import StudentMyCourses from "@/components/student/StudentMyCourses";
 import StudentMyTestSeries from "@/components/student/StudentMyTestSeries";
 import StudentResults from "@/components/student/StudentResults";
 import StudentProfile from "@/components/student/StudentProfile";
+import StudentInquiry from "@/components/student/StudentInquiry";
 import logo from "@/assets/logo.png";
 
 const StudentDashboard = () => {
@@ -23,6 +24,9 @@ const StudentDashboard = () => {
       break;
     case "profile":
       content = <StudentProfile />;
+      break;
+    case "inquiries":
+      content = <StudentInquiry />;
       break;
     case "overview":
     default:

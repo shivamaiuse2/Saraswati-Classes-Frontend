@@ -8,6 +8,10 @@ const AdminDashboardOverview = () => {
 
   const isLoading = loadingCourses || loadingTestSeries;
 
+  // Calculate inquiry statistics
+  const pendingInquiries = contactMessages.filter(msg => !msg.status || msg.status === 'PENDING' || msg.status === 'FOLLOW_UP').length;
+  const resolvedInquiries = contactMessages.filter(msg => msg.status === 'RESOLVED').length;
+
   return (
     <div className="space-y-8">
       <div className="space-y-2">
@@ -75,9 +79,7 @@ const AdminDashboardOverview = () => {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Pending Inquiries</p>
-                  <p className="text-lg font-semibold">
-                    {enrollments.filter((e) => e.status === "Pending").length}
-                  </p>
+                  <p className="text-lg font-semibold">{pendingInquiries}</p>
                 </div>
               </CardContent>
             </Card>
@@ -91,7 +93,7 @@ const AdminDashboardOverview = () => {
           <CardContent className="p-6 space-y-4">
             <p className="font-semibold text-sm">Recent Inquiries</p>
             <p className="text-xs text-muted-foreground">
-              User submissions from the contact form.
+              User inquiries from the inquiry form.
             </p>
             <div className="space-y-2">
               {isLoading ? (
@@ -108,7 +110,7 @@ const AdminDashboardOverview = () => {
                 </>
               ) : contactMessages.length === 0 ? (
                 <p className="text-xs text-muted-foreground">
-                  No inquiries yet. Messages will appear here when users submit the contact form.
+                  No inquiries yet. Messages will appear here when users submit the inquiry form.
                 </p>
               ) : (
                 contactMessages.slice(0, 5).map((msg) => (
@@ -116,11 +118,22 @@ const AdminDashboardOverview = () => {
                     key={msg.id}
                     className="border rounded-lg p-4 mb-3"
                   >
-                    <p className="font-medium">{msg.name}</p>
-                    <p className="text-sm text-muted-foreground">{msg.email}</p>
+                    <div className="flex justify-between items-start">
+                      <p className="font-medium">{msg.name}</p>
+                      <span className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
+                        {msg.email}
+                      </span>
+                    </div>
                     <p className="text-sm text-muted-foreground">{msg.phone}</p>
-                    <p className="text-sm">{msg.message}</p>
-                    <p className="text-xs text-muted-foreground">{msg.date}</p>
+                    <p className="text-sm mt-1">{msg.message}</p>
+                    {msg.status && (
+                      <div className="mt-2">
+                        <span className={`text-xs px-2 py-1 rounded-full ${msg.status === 'RESOLVED' ? 'bg-green-100 text-green-800' : msg.status === 'FOLLOW_UP' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}`}>
+                          {msg.status}
+                        </span>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-2">{new Date(msg.date).toLocaleString()}</p>
                   </div>
                 ))
               )}
@@ -128,22 +141,50 @@ const AdminDashboardOverview = () => {
           </CardContent>
         </Card>
 
-        {/* Analytics Placeholder Card */}
+        {/* Pending Inquiries Card */}
         <Card className="rounded-xl shadow-sm">
-          <CardContent className="p-6">
-            <p className="font-semibold text-sm mb-2">Planned Analytics Area</p>
-            <p className="text-xs text-muted-foreground mb-4">
-              This space is reserved for future charts such as success ratios, enrolment trends and test performance once backend reporting is connected.
+          <CardContent className="p-6 space-y-4">
+            <p className="font-semibold text-sm">Pending Inquiries</p>
+            <p className="text-xs text-muted-foreground">
+              Unresolved inquiries requiring admin attention.
             </p>
-            {isLoading ? (
-              <Skeleton className="h-40 w-full rounded-xl" />
-            ) : (
-              <div className="h-40 rounded-xl border border-dashed bg-muted/40 flex items-center justify-center">
-                <span className="text-[11px] text-muted-foreground px-4 text-center">
-                  Analytics chart placeholder – integrate with real-time data from the institute&apos;s system.
-                </span>
-              </div>
-            )}
+            <div className="space-y-2">
+              {isLoading ? (
+                // Shimmer for pending inquiries
+                <>
+                  {[1, 2].map((i) => (
+                    <div key={i} className="border rounded-lg p-4">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-48 mt-2" />
+                      <Skeleton className="h-3 w-24 mt-2" />
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <div className="text-center py-4">
+                    <p className="text-3xl font-bold text-primary">{pendingInquiries}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Total Pending Inquiries
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    <div className="text-center p-3 bg-secondary rounded-lg">
+                      <p className="text-lg font-semibold">{pendingInquiries}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Pending
+                      </p>
+                    </div>
+                    <div className="text-center p-3 bg-secondary rounded-lg">
+                      <p className="text-lg font-semibold">{resolvedInquiries}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Resolved
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

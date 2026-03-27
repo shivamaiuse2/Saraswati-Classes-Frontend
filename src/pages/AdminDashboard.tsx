@@ -10,6 +10,7 @@ import AdminResultManagement from "@/components/admin/AdminResultManagement";
 import AdminBlogManagement from "@/components/admin/AdminBlogManagement";
 import AdminResourceManagement from "@/components/admin/AdminResourceManagement";
 import AdminTestScoreManagement from "@/components/admin/AdminTestScoreManagement";
+import AdminInquiryManagement from "@/components/admin/AdminInquiryManagement";
 
 const AdminDashboard = () => {
   const [active, setActive] = useState<AdminTab>("dashboard");
@@ -39,6 +40,9 @@ const AdminDashboard = () => {
       break;
     case "test-scores":
       content = <AdminTestScoreManagement />;
+      break;
+    case "inquiries":
+      content = <AdminInquiryManagement />;
       break;
     case "dashboard":
     default:

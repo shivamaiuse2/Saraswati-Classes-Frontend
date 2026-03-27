@@ -5,6 +5,7 @@ import {
   ClipboardList,
   BarChart2,
   User,
+  MessageSquare,
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ const navItems = [
   { key: "tests", label: "My Test Series", icon: ClipboardList },
   { key: "results", label: "Results", icon: BarChart2 },
   { key: "profile", label: "Profile", icon: User },
+  { key: "inquiries", label: "Inquiries", icon: MessageSquare },
 ] as const;
 
 interface StudentSidebarProps {

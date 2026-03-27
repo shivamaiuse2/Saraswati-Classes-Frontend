@@ -30,11 +30,12 @@ const ContactPage = () => {
         message,
       };
 
-      const response = await contactService.submitContactForm(formData);
+      // Use the public inquiry endpoint instead of contact form
+      const response = await contactService.submitPublicInquiry(formData);
       
       if (response.success) {
         toast({
-          title: "Message Sent!",
+          title: "Inquiry Submitted!",
           description: "We've received your inquiry and will contact you soon.",
         });
         
@@ -44,13 +45,13 @@ const ContactPage = () => {
         setEmail("");
         setMessage("");
       } else {
-        throw new Error(response.message || "Failed to send message");
+        throw new Error(response.message || "Failed to submit inquiry");
       }
     } catch (error: any) {
-      console.error("Error submitting contact form:", error);
+      console.error("Error submitting inquiry form:", error);
       toast({
         title: "Error",
-        description: error.message || "There was an error submitting your message. Please try again.",
+        description: error.message || "There was an error submitting your inquiry. Please try again.",
         variant: "destructive",
       });
     } finally {

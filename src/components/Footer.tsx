@@ -100,7 +100,7 @@ const Footer = () => {
             </h4>
 
             <div className="flex flex-col gap-3 text-sm text-primary-foreground/80">
-              <span>CBSE Foundation</span>
+              <span>CBSE Board</span>
               <span>SSC Board</span>
               <span>JEE / CET / NEET</span>
               <span>Test Series</span>

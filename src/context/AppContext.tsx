@@ -30,6 +30,7 @@ export interface ContactMessage {
   phone: string;
   message: string;
   date: string;
+  status?: string;
 }
 
 export interface Result {
@@ -183,6 +184,7 @@ const convertApiToContactMessage = (apiMessage: any): ContactMessage => ({
   phone: apiMessage.phone,
   message: apiMessage.message,
   date: apiMessage.date || apiMessage.createdAt || new Date().toISOString(),
+  status: apiMessage.status,
 });
 
 interface AppContextType {
@@ -218,6 +220,8 @@ interface AppContextType {
 
   contactMessages: ContactMessage[];
   addContactMessage: (msg: ContactMessage) => void;
+  updateContactMessage: (id: string, updates: Partial<ContactMessage>) => void;  // New function
+  removeContactMessage: (id: string) => void;  // New function
 
   results: Result[];
   addResult: (result: Result) => void;
@@ -552,6 +556,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const updateContactMessage = (id: string, updates: Partial<ContactMessage>) => {
+    setContactMessages(prev => 
+      prev.map(msg => 
+        msg.id === id ? { ...msg, ...updates } : msg
+      )
+    );
+  };
+
+  const removeContactMessage = (id: string) => {
+    setContactMessages(prev => 
+      prev.filter(msg => msg.id !== id)
+    );
+  };
+
   const clearNetworkError = () => setNetworkError(null);
 
   return (
@@ -562,7 +580,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       enrollments, addEnrollment, updateEnrollmentStatus, updateEnrollment,
       popup, updatePopup,
       students, addStudent, updateStudent, refreshStudentData,
-      contactMessages, addContactMessage,
+      contactMessages, addContactMessage, updateContactMessage, removeContactMessage,  // Add the new function
       results, addResult, loadingResults,
       blogs, addBlog, loadingBlogs,
       resources, addResource, loadingResources,

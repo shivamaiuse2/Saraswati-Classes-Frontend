@@ -213,7 +213,7 @@ const Index = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {/* Card 1: Foundation Courses */}
+            {/* Card 1: Class 8th to 10th */}
             <div
               className="relative flex flex-col h-full rounded-[20px] p-7 transition-all duration-300 hover:shadow-lg hover:-translate-y-1.5"
               style={{
@@ -232,22 +232,22 @@ const Index = () => {
 
                 {/* Title */}
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                  Foundation Courses
+                  Class 8th to 10th
                 </h3>
 
                 {/* Description as Bullet List */}
                 <ul className="text-sm text-slate-600 space-y-2 mb-6 flex-1">
                   <li className="flex items-start gap-2">
                     <span className="text-slate-400 mt-0.5">•</span>
-                    <span>8th–10th CBSE & SSC programs</span>
+                    <span>SSC Board</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-slate-400 mt-0.5">•</span>
-                    <span>Strong Maths & Science focus</span>
+                    <span>CBSC Board</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-slate-400 mt-0.5">•</span>
-                    <span>Structured fundamentals</span>
+                    <span>Maths & Science</span>
                   </li>
                 </ul>
 
@@ -257,7 +257,7 @@ const Index = () => {
                     size="sm"
                     className="w-full bg-blue-900 hover:bg-blue-800 text-white rounded-full font-medium"
                   >
-                    View Foundation
+                    View More
                     <ArrowRight className="h-3 w-3 ml-2" />
                   </Button>
                 </Link>
@@ -283,22 +283,22 @@ const Index = () => {
 
                 {/* Title */}
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                  JEE Preparation (via 11th–12th)
+                  11th & 12th Science
                 </h3>
 
                 {/* Description as Bullet List */}
                 <ul className="text-sm text-slate-600 space-y-2 mb-6 flex-1">
                   <li className="flex items-start gap-2">
                     <span className="text-slate-400 mt-0.5">•</span>
-                    <span>11th–12th PCMB programs</span>
+                    <span>11th–12th PCMB Program</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-slate-400 mt-0.5">•</span>
-                    <span>JEE exam pattern focus</span>
+                    <span>JEE Exam Pattern Focus</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-slate-400 mt-0.5">•</span>
-                    <span>Strong PCM foundation</span>
+                    <span>Strong MHT-CET Foundation</span>
                   </li>
                 </ul>
 
@@ -308,7 +308,7 @@ const Index = () => {
                     size="sm"
                     className="w-full bg-blue-900 hover:bg-blue-800 text-white rounded-full font-medium"
                   >
-                    JEE-Oriented Batches
+                    View More
                     <ArrowRight className="h-3 w-3 ml-2" />
                   </Button>
                 </Link>
@@ -334,22 +334,22 @@ const Index = () => {
 
                 {/* Title */}
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                  NEET Preparation (via 11th–12th)
+                  MHT-CET Course
                 </h3>
 
                 {/* Description as Bullet List */}
                 <ul className="text-sm text-slate-600 space-y-2 mb-6 flex-1">
                   <li className="flex items-start gap-2">
                     <span className="text-slate-400 mt-0.5">•</span>
-                    <span>Detailed Biology, Physics & Chemistry</span>
+                    <span>PCM & PCB Oriented Curriculum</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-slate-400 mt-0.5">•</span>
-                    <span>NEET-oriented curriculum</span>
+                    <span>Multiple Test Series</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-slate-400 mt-0.5">•</span>
-                    <span>Future NEET aspirants</span>
+                    <span>Exam Focused</span>
                   </li>
                 </ul>
 
@@ -359,58 +359,7 @@ const Index = () => {
                     size="sm"
                     className="w-full bg-blue-900 hover:bg-blue-800 text-white rounded-full font-medium"
                   >
-                    NEET-Oriented Batches
-                    <ArrowRight className="h-3 w-3 ml-2" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Card 4: CET Crash Course */}
-            <div
-              className="relative flex flex-col h-full rounded-[20px] p-7 transition-all duration-300 hover:shadow-lg hover:-translate-y-1.5"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(254, 237, 224, 0.8) 0%, rgba(254, 214, 165, 0.6) 100%)",
-                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
-              }}
-            >
-              <div className="flex flex-col flex-1">
-                {/* Icon Container */}
-                <div className="mb-5">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-[12px] bg-orange-100 text-orange-600">
-                    <Calculator className="h-6 w-6" />
-                  </div>
-                </div>
-
-                {/* Title */}
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                  CET Crash Course
-                </h3>
-
-                {/* Description as Bullet List */}
-                <ul className="text-sm text-slate-600 space-y-2 mb-6 flex-1">
-                  <li className="flex items-start gap-2">
-                    <span className="text-slate-400 mt-0.5">•</span>
-                    <span>45–50 day intensive batch</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-slate-400 mt-0.5">•</span>
-                    <span>Multiple mock tests</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-slate-400 mt-0.5">•</span>
-                    <span>CET exam focused</span>
-                  </li>
-                </ul>
-
-                {/* CTA Button */}
-                <Link to="/courses" className="w-full">
-                  <Button
-                    size="sm"
-                    className="w-full bg-blue-900 hover:bg-blue-800 text-white rounded-full font-medium"
-                  >
-                    View CET Crash
+                    View More
                     <ArrowRight className="h-3 w-3 ml-2" />
                   </Button>
                 </Link>
@@ -464,11 +413,6 @@ const Index = () => {
                     key={course.id}
                     className={`rounded-3xl p-7 min-h-[320px] flex flex-col justify-between transition hover:shadow-xl w-full max-w-[300px] ${cardColors[index]}`}
                   >
-                    {/* Number */}
-                    <p className="text-gray-500 font-semibold text-sm mb-5">
-                      {String(index + 1).padStart(2, "0")}
-                    </p>
-
                     {/* Title */}
                     <h3 className="text-lg font-semibold mb-2">
                       {course.title}

@@ -9,14 +9,15 @@ import {
   FileText,
   Package,
   LogOut,
-  GraduationCap
+  GraduationCap,
+  MessageSquare
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export type AdminTab = "dashboard" | "courses" | "students" | "tests" | "banners" | "results" | "blogs" | "resources" | "test-scores";
+export type AdminTab = "dashboard" | "courses" | "students" | "tests" | "banners" | "results" | "blogs" | "resources" | "test-scores" | "inquiries";
 
 const items: { key: AdminTab; label: string; icon: React.ComponentType<any> }[] =
   [
@@ -29,6 +30,7 @@ const items: { key: AdminTab; label: string; icon: React.ComponentType<any> }[] 
     { key: "blogs", label: "Blog Management", icon: FileText },
     { key: "resources", label: "Resource Management", icon: Package },
     { key: "test-scores", label: "Student Test Scores", icon: GraduationCap },
+    { key: "inquiries", label: "Inquiry Management", icon: MessageSquare },
   ];
 
 interface AdminSidebarProps {

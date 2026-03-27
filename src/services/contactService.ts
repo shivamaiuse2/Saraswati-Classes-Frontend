@@ -32,6 +32,12 @@ const contactService = {
     return response.data;
   },
 
+  // Submit public inquiry form (no authentication required)
+  submitPublicInquiry: async (formData: ContactFormData): Promise<ContactResponse> => {
+    const response = await apiClient.post('/contact/inquiry', formData);
+    return response.data;
+  },
+
   // Get contact messages (Admin)
   getInquiries: async (page: number = 1, limit: number = 10): Promise<PaginatedResponse<any>> => {
     const response = await apiClient.get(`/admin/contact-messages?page=${page}&limit=${limit}`);
@@ -67,6 +73,12 @@ const contactService = {
   // Delete inquiry (Admin)
   deleteInquiry: async (id: string): Promise<ContactResponse> => {
     const response = await apiClient.delete(`/admin/inquiries/${id}`);
+    return response.data;
+  },
+
+  // Submit inquiry (Student) - keeping for backward compatibility
+  submitInquiry: async (formData: ContactFormData): Promise<ContactResponse> => {
+    const response = await apiClient.post('/students/inquiry', formData);
     return response.data;
   },
 };
