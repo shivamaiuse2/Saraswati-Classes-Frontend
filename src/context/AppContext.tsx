@@ -59,19 +59,15 @@ export interface Resource {
 // Conversion functions to map API responses to frontend types
 const convertApiToCourse = (apiCourse: any): Course => ({
   id: apiCourse.id,
-  title: apiCourse.title,
-  category: apiCourse.category as "Science" | "Competitive",
-  description: apiCourse.description,
-  fullDescription: apiCourse.fullDescription || apiCourse.description,
-  mode: apiCourse.mode as "Online" | "Offline" | "Online / Offline",
-  image: apiCourse.image,
-  chapters: apiCourse.chapters || [],
-  demoVideoUrl: apiCourse.demoVideoUrl || '',
-  timing: apiCourse.timing,
-  days: apiCourse.days,
-  pricePerSubject: apiCourse.pricePerSubject,
+  board: apiCourse.board as "CBSE" | "SSC" | "STATE",
+  standard: apiCourse.standard,
+  timing_start: apiCourse.timing_start,
+  timing_end: apiCourse.timing_end,
+  days: apiCourse.days || [],
   subjects: apiCourse.subjects || [],
-  duration: apiCourse.duration || '',
+  fees: apiCourse.fees,
+  isActive: apiCourse.isActive,
+  chapters: apiCourse.chapters || [],
 });
 
 const convertApiToTestSeries = (apiTestSeries: any): TestSeries => ({
@@ -356,7 +352,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         ]);
 
         if (coursesRes.status === 'fulfilled' && coursesRes.value.success) {
-          setCourses(coursesRes.value.data.map(convertApiToCourse));
+          if (Array.isArray(coursesRes.value.data)) {
+            setCourses(coursesRes.value.data.map(convertApiToCourse));
+          } else {
+            const allCourses: Course[] = [];
+            for (const board in coursesRes.value.data) {
+              allCourses.push(...coursesRes.value.data[board]);
+            }
+            setCourses(allCourses);
+          }
         }
         if (testRes.status === 'fulfilled' && testRes.value.success) {
           setTestSeries(testRes.value.data.map(convertApiToTestSeries));
@@ -432,18 +436,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const addCourse = async (c: Omit<Course, "id">) => {
     try {
       const apiCourseData = {
-        title: c.title,
-        category: c.category,
-        description: c.description,
-        fullDescription: c.fullDescription || c.description,
-        mode: c.mode || "Online",
-        image: c.image || "",
-        timing: c.timing || "",
+        board: c.board,
+        standard: c.standard,
+        timing_start: c.timing_start,
+        timing_end: c.timing_end,
         days: c.days,
-        pricePerSubject: c.pricePerSubject || 0,
-        subjects: c.subjects || [],
-        duration: c.duration || "",
-        demoVideoUrl: c.demoVideoUrl || "",
+        subjects: c.subjects,
+        fees: c.fees,
+        isActive: c.isActive !== undefined ? c.isActive : true,
       };
       const response = await courseService.createCourse(apiCourseData);
       if (response.success) setCourses(prev => [...prev, convertApiToCourse(response.data)]);

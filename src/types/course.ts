@@ -1,16 +1,28 @@
-import type { Chapter } from "./chapter";
+export type Board = "CBSE" | "SSC" | "STATE";
 
-export type CourseCategory = "Science" | "Competitive";
+export interface CourseChapter {
+  id: string;
+  courseId: string;
+  title: string;
+  description: string;
+  videoUrl?: string;
+  testDescription?: string;
+  testLink?: string;
+  chapterNumber: number;
+}
 
 export interface Course {
   id: string;
-  title: string;
-  category: CourseCategory;
-  description: string;
+  board: Board;
+  standard: string;
+  timing_start: string;
+  timing_end: string;
+  days: string[];
   subjects: string[];
-  days: string;
-  time: string;
   fees: number;
-  chapters: Chapter[];
+  isActive: boolean;
+  chapters: CourseChapter[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 

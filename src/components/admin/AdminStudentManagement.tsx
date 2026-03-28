@@ -293,7 +293,10 @@ const AdminStudentManagement = () => {
                             <span>
                               <Badge variant="secondary" className="mr-1 h-4 text-[10px]">Courses</Badge>
                               {row.enrolledCourses
-                                .map((id) => courses.find((c) => c.id === id)?.title)
+                                .map((id) => {
+                                  const c = courses.find((c) => c.id === id);
+                                  return c ? `${c.board} - ${c.standard}` : null;
+                                })
                                 .filter(Boolean)
                                 .join(", ")}
                             </span>
@@ -586,7 +589,7 @@ const AdminStudentManagement = () => {
                                 );
                               }}
                             />
-                            <span>{course.title}</span>
+                            <span>{course.board} - {course.standard}</span>
                           </label>
                         );
                       })}

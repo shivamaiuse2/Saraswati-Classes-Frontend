@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, Plus, ListPlus, X, Loader2, Save } from "lucide-react";
+import { Pencil, Trash2, Plus, Loader2, Save, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,34 +26,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import type { Course, CourseCategory } from "@/types/course";
-import type { Chapter } from "@/types/chapter";
+import type { Course, Board } from "@/types/course";
 import courseService from "@/services/courseService";
 import { useToast } from "@/hooks/use-toast";
 
 interface CourseFormState {
   id?: string;
-  title: string;
-  category: CourseCategory;
-  time: string;
-  days: string;
-  description: string;
+  board: Board;
+  standard: string;
+  timing_start: string;
+  timing_end: string;
+  days: string; // Comma separated in form
+  subjects: string; // Comma separated in form
   fees: string;
-  subjects: string;
+  isActive: boolean;
 }
 
 const emptyCourseForm: CourseFormState = {
-  title: "",
-  category: "Science",
-  time: "",
-  days: "",
-  description: "",
+  board: "CBSE",
+  standard: "",
+  timing_start: "",
+  timing_end: "",
+  days: "Monday, Tuesday, Wednesday, Thursday, Friday",
+  subjects: "Maths, Science",
   fees: "",
-  subjects: "",
+  isActive: true,
 };
 
-const categories: CourseCategory[] = ["Science", "Competitive"];
+const boards: Board[] = ["CBSE", "SSC", "STATE"];
 
 const AdminCourseManagement = () => {
   const { toast } = useToast();
@@ -64,59 +64,36 @@ const AdminCourseManagement = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  const [chapterDialogOpen, setChapterDialogOpen] = useState(false);
-  const [chapterCourseId, setChapterCourseId] = useState<string | null>(null);
-  const [chapterDrafts, setChapterDrafts] = useState<Chapter[]>([]);
-  const [isLoadingChapters, setIsLoadingChapters] = useState(false);
-  const [newChapter, setNewChapter] = useState<{
-    title: string;
-    description: string;
-    videoUrl: string;
-    testDescription: string;
-    testLink: string;
-  }>({
-    title: "",
-    description: "",
-    videoUrl: "",
-    testDescription: "",
-    testLink: "",
-  });
-  const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
-  const [editingChapterData, setEditingChapterData] = useState<{
-    title: string;
-    description: string;
-    videoUrl: string;
-    testDescription: string;
-    testLink: string;
-  } | null>(null);
-  const [isSavingChapter, setIsSavingChapter] = useState(false);
-  const [isDeletingChapter, setIsDeletingChapter] = useState<string | null>(null);
-
   useEffect(() => {
-    const fetchCourses = async () => {
-      setIsLoading(true);
-      try {
-        const res = await courseService.getCourses();
-        if (res.success && res.data) {
-          setCourses((res.data as any[]).map(c => ({
-            ...c,
-            time: c.timing || c.time || "",
-            fees: c.pricePerSubject || c.fees || 0
-          })) as any);
-        }
-      } catch (error) {
-        console.error('Error fetching courses:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch courses",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchCourses();
-  }, [toast]);
+  }, []);
+
+  const fetchCourses = async () => {
+    setIsLoading(true);
+    try {
+      const res = await courseService.getCourses(1, 100);
+      if (res.success && res.data) {
+        if (Array.isArray(res.data)) {
+          setCourses(res.data);
+        } else {
+          const all: Course[] = [];
+          for (const key in res.data) {
+            all.push(...res.data[key]);
+          }
+          setCourses(all);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch courses",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const openAdd = () => {
     setEditingCourse(emptyCourseForm);
@@ -126,18 +103,20 @@ const AdminCourseManagement = () => {
   const openEdit = (course: Course) => {
     setEditingCourse({
       id: course.id,
-      title: course.title,
-      category: course.category,
-      time: course.time,
-      days: course.days,
-      description: course.description,
-      fees: course.fees.toString(),
+      board: course.board,
+      standard: course.standard,
+      timing_start: course.timing_start,
+      timing_end: course.timing_end,
+      days: course.days.join(", "),
       subjects: course.subjects.join(", "),
+      fees: course.fees.toString(),
+      isActive: course.isActive,
     });
     setCourseDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this course?")) return;
     setIsDeleting(id);
     try {
       const res = await courseService.deleteCourse(id);
@@ -155,59 +134,50 @@ const AdminCourseManagement = () => {
         description: "Failed to delete course",
         variant: "destructive",
       });
+    } finally {
+      setIsDeleting(null);
     }
-    setIsDeleting(null);
   };
 
   const handleSave = async () => {
     if (!editingCourse) return;
-    if (!editingCourse.title.trim()) return;
+    if (!editingCourse.standard) {
+      toast({ title: "Validation Error", description: "Standard is required", variant: "destructive" });
+      return;
+    }
 
     setIsSaving(true);
-    const subjectsArray = editingCourse.subjects
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const subjectsArray = editingCourse.subjects.split(",").map(s => s.trim()).filter(Boolean);
+    const daysArray = editingCourse.days.split(",").map(d => d.trim()).filter(Boolean);
     const feesNumber = Number(editingCourse.fees) || 0;
 
-    const baseData = {
-      title: editingCourse.title,
-      category: editingCourse.category,
-      description: editingCourse.description,
+    const data = {
+      board: editingCourse.board,
+      standard: editingCourse.standard,
+      timing_start: editingCourse.timing_start,
+      timing_end: editingCourse.timing_end,
+      days: daysArray,
       subjects: subjectsArray,
-      days: editingCourse.days,
-      time: editingCourse.time,
-      pricePerSubject: feesNumber,
-      fullDescription: editingCourse.description,
-      mode: "Online",
-      duration: "1 year",
-      timing: editingCourse.time,
+      fees: feesNumber,
+      isActive: editingCourse.isActive,
     };
 
     try {
       if (editingCourse.id) {
-        const response = await courseService.updateCourse(editingCourse.id, baseData as any);
-        if (response.success && response.data) {
-          const updated = response.data as any;
-          setCourses((prev) =>
-            prev.map((c) => (c.id === editingCourse.id ? { ...updated, time: updated.timing || updated.time || "", fees: updated.pricePerSubject || updated.fees || 0 } as any : c))
-          );
-          toast({
-            title: "Success",
-            description: "Course updated successfully",
-          });
+        const response = await courseService.updateCourse(editingCourse.id, data);
+        if (response.success) {
+          toast({ title: "Success", description: "Course updated successfully" });
+          fetchCourses();
         }
       } else {
-        const response = await courseService.createCourse(baseData as any);
-        if (response.success && response.data) {
-          const created = response.data as any;
-          setCourses((prev) => [...prev, { ...created, time: created.timing || created.time || "", fees: created.pricePerSubject || created.fees || 0 } as any]);
-          toast({
-            title: "Success",
-            description: "Course created successfully",
-          });
+        const response = await courseService.createCourse(data);
+        if (response.success) {
+          toast({ title: "Success", description: "Course created successfully" });
+          fetchCourses();
         }
       }
+      setCourseDialogOpen(false);
+      setEditingCourse(null);
     } catch (e) {
       console.error(e);
       toast({
@@ -218,318 +188,92 @@ const AdminCourseManagement = () => {
     } finally {
       setIsSaving(false);
     }
-
-    setCourseDialogOpen(false);
-    setEditingCourse(null);
-  };
-
-  const openChapters = async (course: Course) => {
-    setChapterCourseId(course.id);
-    setChapterDrafts(course.chapters || []);
-    setNewChapter({
-      title: "",
-      description: "",
-      videoUrl: "",
-      testDescription: "",
-      testLink: "",
-    });
-    setChapterDialogOpen(true);
-  };
-
-  const handleAddChapter = async () => {
-    if (!chapterCourseId) return;
-    if (!newChapter.title.trim() || !newChapter.description.trim()) {
-      toast({
-        title: "Error",
-        description: "Title and description are required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSavingChapter(true);
-    try {
-      const response = await courseService.addChapterToCourse(chapterCourseId, {
-        title: newChapter.title,
-        description: newChapter.description,
-        videoUrl: newChapter.videoUrl || undefined,
-        testDescription: newChapter.testDescription || undefined,
-        testLink: newChapter.testLink || undefined,
-      });
-
-      if (response.success && response.data) {
-        setChapterDrafts((prev) => [...prev, response.data]);
-        // Update the course in the list to reflect new chapter count
-        setCourses((prev) =>
-          prev.map((c) =>
-            c.id === chapterCourseId
-              ? { ...c, chapters: [...(c.chapters || []), response.data] }
-              : c
-          )
-        );
-        setNewChapter({
-          title: "",
-          description: "",
-          videoUrl: "",
-          testDescription: "",
-          testLink: "",
-        });
-        toast({
-          title: "Success",
-          description: "Chapter added successfully",
-        });
-      }
-    } catch (error) {
-      console.error('Error adding chapter:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add chapter",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSavingChapter(false);
-    }
-  };
-
-  const handleEditChapter = (chapter: Chapter) => {
-    setEditingChapterId(chapter.id);
-    setEditingChapterData({
-      title: chapter.title,
-      description: chapter.description,
-      videoUrl: chapter.videoUrl || "",
-      testDescription: chapter.testDescription || "",
-      testLink: chapter.testLink || "",
-    });
-  };
-
-  const handleUpdateChapter = async (chapterId: string) => {
-    if (!editingChapterData) return;
-    if (!editingChapterData.title.trim() || !editingChapterData.description.trim()) {
-      toast({
-        title: "Error",
-        description: "Title and description are required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSavingChapter(true);
-    try {
-      const response = await courseService.updateChapter(chapterId, {
-        title: editingChapterData.title,
-        description: editingChapterData.description,
-        videoUrl: editingChapterData.videoUrl || undefined,
-        testDescription: editingChapterData.testDescription || undefined,
-        testLink: editingChapterData.testLink || undefined,
-      });
-
-      if (response.success && response.data) {
-        setChapterDrafts((prev) =>
-          prev.map((ch) => (ch.id === chapterId ? response.data : ch))
-        );
-        setEditingChapterId(null);
-        setEditingChapterData(null);
-        toast({
-          title: "Success",
-          description: "Chapter updated successfully",
-        });
-      }
-    } catch (error) {
-      console.error('Error updating chapter:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update chapter",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSavingChapter(false);
-    }
-  };
-
-  const handleDeleteChapter = async (chapterId: string) => {
-    setIsDeletingChapter(chapterId);
-    try {
-      const response = await courseService.deleteChapter(chapterId);
-      if (response.success) {
-        setChapterDrafts((prev) => prev.filter((ch) => ch.id !== chapterId));
-        // Update the course in the list to reflect chapter removal
-        setCourses((prev) =>
-          prev.map((c) =>
-            c.id === chapterCourseId
-              ? { ...c, chapters: (c.chapters || []).filter((ch) => ch.id !== chapterId) }
-              : c
-          )
-        );
-        if (editingChapterId === chapterId) {
-          setEditingChapterId(null);
-          setEditingChapterData(null);
-        }
-        toast({
-          title: "Success",
-          description: "Chapter deleted successfully",
-        });
-      }
-    } catch (error) {
-      console.error('Error deleting chapter:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete chapter",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeletingChapter(null);
-    }
-  };
-
-  const handleCancelChapterEdit = () => {
-    setEditingChapterId(null);
-    setEditingChapterData(null);
-  };
-
-  const handleCloseChapterDialog = () => {
-    setChapterDialogOpen(false);
-    setChapterCourseId(null);
-    setChapterDrafts([]);
-    setEditingChapterId(null);
-    setEditingChapterData(null);
-    setNewChapter({
-      title: "",
-      description: "",
-      videoUrl: "",
-      testDescription: "",
-      testLink: "",
-    });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold">Course Management</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Batches</h1>
           <p className="text-sm text-muted-foreground">
-            Manage the list of courses visible on the website. All changes here
-            are frontend-only placeholders until backend APIs are connected.
+            Manage your CBSE, SSC and State Board course batches.
           </p>
         </div>
-        <Button size="sm" className="gap-1" onClick={openAdd}>
+        <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700" onClick={openAdd}>
           <Plus className="h-4 w-4" />
-          Add Course
+          Add Batch
         </Button>
       </div>
 
-      <Card>
+      <Card className="border-none shadow-sm overflow-hidden">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table className="min-w-full">
-              <TableHeader>
+            <Table>
+              <TableHeader className="bg-slate-50">
                 <TableRow>
-                  <TableHead>Course Title</TableHead>
-                  <TableHead className="hidden md:table-cell">Category</TableHead>
-                  <TableHead className="hidden lg:table-cell">Time</TableHead>
-                  <TableHead className="hidden lg:table-cell">Days</TableHead>
-                  <TableHead className="hidden sm:table-cell">Fees</TableHead>
-                  <TableHead className="hidden md:table-cell">Subjects</TableHead>
-                  <TableHead className="hidden sm:table-cell">Chapters</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="font-bold">Board</TableHead>
+                  <TableHead className="font-bold">Standard</TableHead>
+                  <TableHead className="font-bold">Timing</TableHead>
+                  <TableHead className="font-bold hidden md:table-cell">Days</TableHead>
+                  <TableHead className="font-bold">Fees</TableHead>
+                  <TableHead className="font-bold hidden lg:table-cell">Subjects</TableHead>
+                  <TableHead className="text-right font-bold font-bold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <>
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <TableRow key={i}>
-                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                        <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
-                        <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
-                        <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
-                        <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
-                        <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
-                        <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-8" /></TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1 sm:gap-2">
-                            <Skeleton className="h-7 w-7 rounded" />
-                            <Skeleton className="h-7 w-7 rounded" />
-                            <Skeleton className="h-7 w-7 rounded" />
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </>
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                      <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
+                    </TableRow>
+                  ))
                 ) : courses.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={8}
-                      className="py-6 text-center text-xs text-muted-foreground"
-                    >
-                      No courses configured in this admin view. Use &quot;Add
-                      Course&quot; to create placeholder rows.
+                    <TableCell colSpan={7} className="h-32 text-center text-slate-500">
+                      No batches found. Click &quot;Add Batch&quot; to create one.
                     </TableCell>
                   </TableRow>
                 ) : (
                   courses.map((course) => (
-                  <TableRow key={course.id}>
-                    <TableCell className="text-xs">
-                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Title</div>
-                      {course.title}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-xs">
-                      <div className="block md:hidden text-xs text-muted-foreground mb-1">Category</div>
-                      {course.category}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-xs">
-                      <div className="block lg:hidden text-xs text-muted-foreground mb-1">Time</div>
-                      {course.time}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-xs">
-                      <div className="block lg:hidden text-xs text-muted-foreground mb-1">Days</div>
-                      {course.days}
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-xs">
-                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Fees</div>
-                      ₹{course.fees.toLocaleString("en-IN")}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-xs">
-                      <div className="block md:hidden text-xs text-muted-foreground mb-1">Subjects</div>
-                      {course.subjects.join(", ")}
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-xs">
-                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Chapters</div>
-                      {course.chapters.length}
-                    </TableCell>
-                    <TableCell className="text-right space-x-1 sm:space-x-2">
-                      <div className="block sm:hidden text-xs text-muted-foreground mb-1">Actions</div>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-7 w-7"
-                        onClick={() => openEdit(course)}
-                      >
-                        <Pencil className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        className="h-7 w-7"
-                        onClick={() => handleDelete(course.id)}
-                        disabled={isDeleting === course.id}
-                      >
-                        {isDeleting === course.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3 w-3" />
-                        )}
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-7 w-7"
-                        onClick={() => openChapters(course)}
-                      >
-                        <ListPlus className="h-3 w-3" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
+                    <TableRow key={course.id} className="hover:bg-slate-50/50">
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${
+                          course.board === 'CBSE' ? 'bg-blue-100 text-blue-700' : 
+                          course.board === 'SSC' ? 'bg-amber-100 text-amber-700' : 
+                          'bg-purple-100 text-purple-700'
+                        }`}>
+                          {course.board}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-medium text-slate-900">{course.standard}</TableCell>
+                      <TableCell className="text-xs text-slate-600">
+                        {course.timing_start} – {course.timing_end}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-xs text-slate-600 truncate max-w-[200px]">
+                        {course.days.join(", ")}
+                      </TableCell>
+                      <TableCell className="font-bold text-slate-900">₹{course.fees.toLocaleString()}</TableCell>
+                      <TableCell className="hidden lg:table-cell text-xs text-slate-600 truncate max-w-[150px]">
+                        {course.subjects.join(", ")}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="icon" className="h-8 w-8 text-blue-600" onClick={() => openEdit(course)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(course.id)} disabled={isDeleting === course.id}>
+                            {isDeleting === course.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
@@ -538,423 +282,60 @@ const AdminCourseManagement = () => {
       </Card>
 
       <Dialog open={courseDialogOpen} onOpenChange={setCourseDialogOpen}>
-        <DialogContent aria-describedby={undefined} className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-sm">
-              {editingCourse?.id ? "Edit Course" : "Add Course"}
-            </DialogTitle>
+            <DialogTitle>{editingCourse?.id ? "Edit Batch" : "Add New Batch"}</DialogTitle>
           </DialogHeader>
-
           {editingCourse && (
-            <div className="flex flex-col flex-1 overflow-hidden">
-              <div className="space-y-3 mt-2 overflow-y-auto pr-2">
-                <div className="space-y-1">
-                  <Label htmlFor="course-title-input">Course Title</Label>
-                  <Input
-                    id="course-title-input"
-                    value={editingCourse.title}
-                    onChange={(e) =>
-                      setEditingCourse((prev) =>
-                        prev ? { ...prev, title: e.target.value } : prev
-                      )
-                    }
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="course-category-input">Category</Label>
-                  <Select
-                    value={editingCourse.category}
-                    onValueChange={(value) =>
-                      setEditingCourse((prev) =>
-                        prev
-                          ? { ...prev, category: value as CourseCategory }
-                          : prev
-                      )
-                    }
-                  >
-                    <SelectTrigger id="course-category-input">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="course-time-input">Time</Label>
-                  <Input
-                    id="course-time-input"
-                    value={editingCourse.time}
-                    onChange={(e) =>
-                      setEditingCourse((prev) =>
-                        prev ? { ...prev, time: e.target.value } : prev
-                      )
-                    }
-                    placeholder="e.g. 4:15 – 5:30 PM"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="course-days-input">Days</Label>
-                  <Input
-                    id="course-days-input"
-                    value={editingCourse.days}
-                    onChange={(e) =>
-                      setEditingCourse((prev) =>
-                        prev ? { ...prev, days: e.target.value } : prev
-                      )
-                    }
-                    placeholder="e.g. Monday – Saturday"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="course-fees-input">Fees</Label>
-                  <Input
-                    id="course-fees-input"
-                    value={editingCourse.fees}
-                    onChange={(e) =>
-                      setEditingCourse((prev) =>
-                        prev ? { ...prev, fees: e.target.value } : prev
-                      )
-                    }
-                    placeholder="e.g. 9000"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="course-subjects-input">Subjects</Label>
-                  <Input
-                    id="course-subjects-input"
-                    value={editingCourse.subjects}
-                    onChange={(e) =>
-                      setEditingCourse((prev) =>
-                        prev ? { ...prev, subjects: e.target.value } : prev
-                      )
-                    }
-                    placeholder="e.g. Maths, Science"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="course-description-input">Short Description</Label>
-                  <Textarea
-                    id="course-description-input"
-                    rows={3}
-                    value={editingCourse.description}
-                    onChange={(e) =>
-                      setEditingCourse((prev) =>
-                        prev ? { ...prev, description: e.target.value } : prev
-                      )
-                    }
-                  />
-                </div>
-
-                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCourseDialogOpen(false)}
-                    disabled={isSaving}
-                    className="w-full sm:w-auto"
-                  >
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto">
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save"
-                    )}
-                  </Button>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <Label>Board</Label>
+                <Select value={editingCourse.board} onValueChange={(v: Board) => setEditingCourse(p => p ? {...p, board: v} : null)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Board" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {boards.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Standard</Label>
+                <Input value={editingCourse.standard} onChange={e => setEditingCourse(p => p ? {...p, standard: e.target.value} : null)} placeholder="e.g. VIII, IX, X, XII Science" />
+              </div>
+              <div className="space-y-2">
+                <Label>Start Timing</Label>
+                <Input value={editingCourse.timing_start} onChange={e => setEditingCourse(p => p ? {...p, timing_start: e.target.value} : null)} placeholder="e.g. 6:30 PM" />
+              </div>
+              <div className="space-y-2">
+                <Label>End Timing</Label>
+                <Input value={editingCourse.timing_end} onChange={e => setEditingCourse(p => p ? {...p, timing_end: e.target.value} : null)} placeholder="e.g. 7:30 PM" />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>Working Days (Comma separated)</Label>
+                <Input value={editingCourse.days} onChange={e => setEditingCourse(p => p ? {...p, days: e.target.value} : null)} placeholder="Monday, Tuesday, ..." />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>Subjects (Comma separated)</Label>
+                <Input value={editingCourse.subjects} onChange={e => setEditingCourse(p => p ? {...p, subjects: e.target.value} : null)} placeholder="Maths, Science" />
+              </div>
+              <div className="space-y-2">
+                <Label>Annual Fees (per subject)</Label>
+                <Input type="number" value={editingCourse.fees} onChange={e => setEditingCourse(p => p ? {...p, fees: e.target.value} : null)} placeholder="9000" />
+              </div>
+              <div className="flex items-end pb-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" checked={editingCourse.isActive} onChange={e => setEditingCourse(p => p ? {...p, isActive: e.target.checked} : null)} className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <span className="text-sm font-medium">Batch is Active</span>
+                </label>
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={chapterDialogOpen} onOpenChange={handleCloseChapterDialog}>
-        <DialogContent aria-describedby={undefined} className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="text-sm">Manage Chapters</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col flex-1 overflow-hidden">
-            <div className="space-y-4 mt-2 overflow-y-auto pr-3">
-              <div className="space-y-2">
-                {chapterDrafts.map((ch) => (
-                  <div key={ch.id}>
-                    {editingChapterId === ch.id ? (
-                      <div className="rounded-lg border bg-blue-50 px-3 py-3 space-y-2">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-xs font-semibold">
-                            Editing Chapter {ch.chapterNumber}
-                          </p>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-5 w-5"
-                            onClick={handleCancelChapterEdit}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <div className="space-y-2 text-xs">
-                          <div>
-                            <Label htmlFor={`edit-ch-title-${ch.id}`} className="text-xs">Chapter Title</Label>
-                            <Input
-                              id={`edit-ch-title-${ch.id}`}
-                              className="text-xs h-8"
-                              value={editingChapterData?.title || ""}
-                              onChange={(e) =>
-                                setEditingChapterData((prev) =>
-                                  prev
-                                    ? { ...prev, title: e.target.value }
-                                    : prev
-                                )
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor={`edit-ch-desc-${ch.id}`} className="text-xs">Chapter Description</Label>
-                            <textarea
-                              id={`edit-ch-desc-${ch.id}`}
-                              className="w-full rounded border border-input bg-white px-2 py-1 text-xs resize-none"
-                              rows={2}
-                              value={editingChapterData?.description || ""}
-                              onChange={(e) =>
-                                setEditingChapterData((prev) =>
-                                  prev
-                                    ? { ...prev, description: e.target.value }
-                                    : prev
-                                )
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor={`edit-ch-yt-${ch.id}`} className="text-xs">Video URL</Label>
-                            <Input
-                              id={`edit-ch-yt-${ch.id}`}
-                              className="text-xs h-8"
-                              value={editingChapterData?.videoUrl || ""}
-                              onChange={(e) =>
-                                setEditingChapterData((prev) =>
-                                  prev
-                                    ? { ...prev, videoUrl: e.target.value }
-                                    : prev
-                                )
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor={`edit-ch-test-desc-${ch.id}`} className="text-xs">Test Description</Label>
-                            <Input
-                              id={`edit-ch-test-desc-${ch.id}`}
-                              className="text-xs h-8"
-                              value={editingChapterData?.testDescription || ""}
-                              onChange={(e) =>
-                                setEditingChapterData((prev) =>
-                                  prev
-                                    ? { ...prev, testDescription: e.target.value }
-                                    : prev
-                                )
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor={`edit-ch-test-link-${ch.id}`} className="text-xs">Google Form Link</Label>
-                            <Input
-                              id={`edit-ch-test-link-${ch.id}`}
-                              className="text-xs h-8"
-                              value={editingChapterData?.testLink || ""}
-                              onChange={(e) =>
-                                setEditingChapterData((prev) =>
-                                  prev
-                                    ? { ...prev, testLink: e.target.value }
-                                    : prev
-                                )
-                              }
-                            />
-                          </div>
-                        </div>
-                        <div className="flex justify-end gap-2 pt-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs"
-                            onClick={handleCancelChapterEdit}
-                            disabled={isSavingChapter}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="h-7 text-xs"
-                            onClick={() => handleUpdateChapter(ch.id)}
-                            disabled={isSavingChapter}
-                          >
-                            {isSavingChapter ? (
-                              <><Loader2 className="h-3 w-3 animate-spin mr-1" />Updating...</>
-                            ) : "Update"}
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="rounded-lg border border-dashed bg-muted/60 px-3 py-2 space-y-1 flex items-start justify-between">
-                        <div className="flex-1 space-y-1">
-                          <p className="text-xs font-semibold">
-                            Chapter {ch.chapterNumber}: {ch.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {ch.description}
-                          </p>
-                          {ch.videoUrl && (
-                            <p className="text-[11px] text-muted-foreground">
-                              Video: {ch.videoUrl}
-                            </p>
-                          )}
-                          {ch.testLink && (
-                            <p className="text-[11px] text-muted-foreground">
-                              Test: {ch.testLink}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-1 ml-2">
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-7 w-7"
-                            onClick={() => handleEditChapter(ch)}
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            className="h-7 w-7"
-                            onClick={() => handleDeleteChapter(ch.id)}
-                            disabled={isDeletingChapter === ch.id}
-                          >
-                            {isDeletingChapter === ch.id ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-3 w-3" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {chapterDrafts.length === 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    No chapters added yet. Use the form below to add the first one.
-                  </p>
-                )}
-              </div>
-
-              <div className="border-t pt-3 space-y-2">
-                <p className="text-xs font-semibold">Add New Chapter</p>
-                <div className="space-y-1">
-                  <Label htmlFor="chapter-title-input">
-                    Chapter Title
-                  </Label>
-                  <Input
-                    id="chapter-title-input"
-                    value={newChapter.title}
-                    onChange={(e) =>
-                      setNewChapter((prev) => ({
-                        ...prev,
-                        title: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. Introduction to Algebra"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="chapter-description-input">
-                    Chapter Description
-                  </Label>
-                  <Textarea
-                    id="chapter-description-input"
-                    rows={2}
-                    value={newChapter.description}
-                    onChange={(e) =>
-                      setNewChapter((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    placeholder="Brief description of the chapter content"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="chapter-youtube-input">Video URL</Label>
-                  <Input
-                    id="chapter-youtube-input"
-                    value={newChapter.videoUrl}
-                    onChange={(e) =>
-                      setNewChapter((prev) => ({
-                        ...prev,
-                        videoUrl: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. https://youtube.com/watch?v=..."
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="chapter-test-desc-input">Test Description</Label>
-                  <Input
-                    id="chapter-test-desc-input"
-                    value={newChapter.testDescription}
-                    onChange={(e) =>
-                      setNewChapter((prev) => ({
-                        ...prev,
-                        testDescription: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. Chapter 1 Quiz"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="chapter-test-link-input">Google Form Link</Label>
-                  <Input
-                    id="chapter-test-link-input"
-                    value={newChapter.testLink}
-                    onChange={(e) =>
-                      setNewChapter((prev) => ({
-                        ...prev,
-                        testLink: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. https://forms.google.com/..."
-                  />
-                </div>
-                <div className="flex justify-end gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCloseChapterDialog}
-                  >
-                    Close
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={handleAddChapter}
-                    disabled={isSavingChapter}
-                  >
-                    {isSavingChapter ? (
-                      <><Loader2 className="h-4 w-4 animate-spin mr-1" />Adding...</>
-                    ) : (
-                      <><Plus className="h-4 w-4 mr-1" />Add Chapter</>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="ghost" onClick={() => setCourseDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 min-w-[100px]">
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Batch"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -963,4 +344,3 @@ const AdminCourseManagement = () => {
 };
 
 export default AdminCourseManagement;
-

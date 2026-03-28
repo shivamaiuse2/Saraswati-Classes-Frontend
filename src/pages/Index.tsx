@@ -41,12 +41,12 @@ const fadeUp = {
   }),
 };
 
-const scrollReveal = {
+const scrollReveal: any = {
   hidden: { opacity: 0, y: 50 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.6, ease: "easeOut" },
   },
 };
 
@@ -388,94 +388,92 @@ const Index = () => {
         </div>
       </motion.section>
 
-      {/* Explore Courses */}
+      {/* Explore Courses Section */}
       <motion.section
-        className="py-12 md:py-16 bg-secondary/40"
+        className="py-12 md:py-20 bg-slate-50/50"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.05 }}
+        viewport={{ once: true, amount: 0.1 }}
       >
-        <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-8">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-12">
           {/* Header */}
-          <motion.div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" variants={scrollReveal}>
-            <div>
-              <h2 className="text-2xl md:text-3xl font-semibold">
-                Explore Courses
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                A quick look at some of our key batches for this academic year.
-              </p>
-            </div>
-
-            <Link to="/courses">
-              <Button variant="outline" size="sm" className="gap-2 shrink-0">
-                View All Courses
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+          <motion.div className="text-center space-y-3" variants={scrollReveal}>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
+              Explore Our Courses
+            </h2>
+            <p className="text-slate-600 max-w-2xl mx-auto text-lg">
+              Choose your board and start your journey towards academic excellence with our expert guidance.
+            </p>
           </motion.div>
 
-          {/* Cards */}
+          {/* Category Cards */}
           <motion.div 
-            key={loadingCourses ? "loading" : "loaded"}
-            className="grid md:grid-cols-3 gap-6 justify-items-center" 
+            className="grid md:grid-cols-3 gap-8" 
             variants={staggerContainer}
           >
-            {loadingCourses ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  variants={scrollReveal}
-                  className="w-full max-w-[320px] h-[320px] bg-slate-100 animate-pulse rounded-3xl"
-                />
-              ))
-            ) : courses.length > 0 ? (
-              courses.slice(0, 3).map((course, index) => {
-                const cardColors = [
-                  "bg-blue-100",
-                  "bg-yellow-100",
-                  "bg-purple-100",
-                ];
-
-                return (
-                  <motion.div
-                    key={course.id}
-                    variants={scrollReveal}
-                    className={`rounded-3xl p-7 min-h-[320px] flex flex-col justify-between transition hover:shadow-xl w-full max-w-[300px] ${cardColors[index]}`}
-                  >
-                    {/* Title */}
-                    <h3 className="text-lg font-semibold mb-2">
-                      {course.title}
-                    </h3>
-
-                    {/* Timing */}
-                    <p className="text-xs text-gray-600 mb-4">
-                      {course.timing} • {course.days}
-                    </p>
-
-                    {/* Description */}
-                    <ul className="text-sm text-gray-700 space-y-2">
-                      <li>• {course.description}</li>
-                      <li>• {course.category}</li>
-                      <li>• {course.mode}</li>
-                    </ul>
-
-                    {/* Button */}
-                    <Link to={`/courses/${course.id}`} className="mt-6">
-                      <button className="w-full flex items-center justify-center gap-2 bg-blue-800 text-white py-3 rounded-full text-sm font-medium hover:bg-blue-900 transition">
-                        View Details
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </Link>
-                  </motion.div>
-                );
-              })
-            ) : (
-              <p className="col-span-full text-center text-muted-foreground">
-                No courses available at the moment.
+            {/* CBSE Card */}
+            <motion.div
+              variants={scrollReveal}
+              className="group relative bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 flex flex-col h-full"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-[100px] -z-10 group-hover:bg-blue-100 transition-colors duration-500" />
+              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform duration-500">
+                <BookOpen className="h-7 w-7" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">CBSE Courses</h3>
+              <p className="text-slate-600 mb-8 flex-1">
+                Comprehensive coaching for CBSE Class VIII, IX, and X focusing on Maths and Science with a structured curriculum.
               </p>
-            )}
+              <Link to="/courses">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl font-semibold gap-2 transition-all duration-300">
+                  Explore CBSE
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* SSC Card */}
+            <motion.div
+              variants={scrollReveal}
+              className="group relative bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 flex flex-col h-full"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-[100px] -z-10 group-hover:bg-amber-100 transition-colors duration-500" />
+              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200 group-hover:scale-110 transition-transform duration-500">
+                <Monitor className="h-7 w-7" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">SSC Courses</h3>
+              <p className="text-slate-600 mb-8 flex-1">
+                Expert guidance for Maharashtra State Board (SSC) Class VIII, IX, and X to build strong fundamentals and excel in exams.
+              </p>
+              <Link to="/courses">
+                <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white py-6 rounded-xl font-semibold gap-2 transition-all duration-300">
+                  Explore SSC
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* State Board Card */}
+            <motion.div
+              variants={scrollReveal}
+              className="group relative bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 flex flex-col h-full"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-bl-[100px] -z-10 group-hover:bg-purple-100 transition-colors duration-500" />
+              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-lg shadow-purple-200 group-hover:scale-110 transition-transform duration-500">
+                <Stethoscope className="h-7 w-7" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">State Board</h3>
+              <p className="text-slate-600 mb-8 flex-1">
+                Integrated 11th & 12th Science coaching for State Board, JEE, and MHT-CET with a focus on PCMB subjects.
+              </p>
+              <Link to="/courses">
+                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-xl font-semibold gap-2 transition-all duration-300">
+                  Explore State Board
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </motion.section>

@@ -67,14 +67,14 @@ const StudentMyCourses = () => {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="secondary">{course.category}</Badge>
-                        <Badge variant="outline">{course.mode}</Badge>
+                        <Badge variant="secondary">{course.board}</Badge>
+                        <Badge variant="outline">Batch Program</Badge>
                       </div>
                       <h2 className="font-semibold text-base md:text-lg">
-                        {course.title}
+                        {course.board} - {course.standard}
                       </h2>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {course.timing} • {course.days}
+                        {course.timing_start} - {course.timing_end} • {course.days.join(", ")}
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -83,15 +83,10 @@ const StudentMyCourses = () => {
                   </div>
 
                   <div className="mt-4 space-y-2">
-                    {course.chapters.map((ch: any, idx: number) => {
-                      const chapterNumber =
-                        typeof ch.chapterNumber === "number"
-                          ? ch.chapterNumber
-                          : idx + 1;
-                      const chapterDescription =
-                        ch.chapterDescription ?? ch.description ?? "";
-                      const youtubeLink = ch.youtubeLink ?? ch.videoUrl ?? "";
-                      const testLink = ch.testLink ?? "";
+                    {course.chapters.map((ch, idx) => {
+                      const chapterNumber = ch.chapterNumber || idx + 1;
+                      const youtubeLink = ch.videoUrl || "";
+                      const testLink = ch.testLink || "";
 
                       return (
                       <div
@@ -102,10 +97,10 @@ const StudentMyCourses = () => {
                           {chapterNumber}.
                         </span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{`Chapter ${chapterNumber}`}</p>
-                          {chapterDescription && (
+                          <p className="text-sm font-medium">{ch.title}</p>
+                          {ch.description && (
                             <p className="text-xs text-muted-foreground mt-0.5">
-                              {chapterDescription}
+                              {ch.description}
                             </p>
                           )}
                           <div className="mt-2 flex flex-wrap gap-2">
@@ -116,7 +111,7 @@ const StudentMyCourses = () => {
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
                               >
-                                Watch on YouTube
+                                Watch Video
                                 <ExternalLink className="h-3 w-3" />
                               </a>
                             )}
@@ -127,7 +122,7 @@ const StudentMyCourses = () => {
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
                               >
-                                Open Chapter Test
+                                Chapter Test
                                 <ExternalLink className="h-3 w-3" />
                               </a>
                             )}
@@ -139,7 +134,7 @@ const StudentMyCourses = () => {
 
                     {course.chapters.length === 0 && (
                       <p className="text-xs text-muted-foreground">
-                        Modules will be configured for this course by the
+                        Modules will be configured for this batch by the
                         admin. You’ll see topic-wise videos here once they are
                         added.
                       </p>
