@@ -28,7 +28,7 @@ const items: { key: AdminTab; label: string; icon: React.ComponentType<any> }[] 
     { key: "banners", label: "Banner Management", icon: ImageIcon },
     { key: "results", label: "Result Management", icon: Trophy },
     { key: "blogs", label: "Blog Management", icon: FileText },
-    { key: "resources", label: "Resource Management", icon: Package },
+    // { key: "resources", label: "Resource Management", icon: Package },
     { key: "test-scores", label: "Student Test Scores", icon: GraduationCap },
     { key: "inquiries", label: "Inquiry Management", icon: MessageSquare },
   ];

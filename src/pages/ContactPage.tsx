@@ -19,9 +19,9 @@ const ContactPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setIsLoading(true);
-    
+
     try {
       const formData = {
         name,
@@ -32,13 +32,13 @@ const ContactPage = () => {
 
       // Use the public inquiry endpoint instead of contact form
       const response = await contactService.submitPublicInquiry(formData);
-      
+
       if (response.success) {
         toast({
           title: "Inquiry Submitted!",
           description: "We've received your inquiry and will contact you soon.",
         });
-        
+
         // Reset form
         setName("");
         setPhone("");
@@ -132,7 +132,7 @@ const ContactPage = () => {
             {/* Contact Form */}
             <Card className="rounded-xl shadow-sm">
               <CardContent className="p-6">
-                
+
                 <form onSubmit={handleSubmit} className="space-y-4">
 
                   <div className="space-y-2">
@@ -192,7 +192,7 @@ const ContactPage = () => {
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
-                        <Send className="mr-2 h-4 w-4 animate-spin" />
+                        <Send className="mr-2 h-4 w-4" />
                         Sending...
                       </>
                     ) : (

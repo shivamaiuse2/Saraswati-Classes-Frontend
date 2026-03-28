@@ -15,7 +15,7 @@ const navLinks = [
   { label: "Courses", to: "/courses" },
   { label: "Test Series", to: "/test-series" },
   { label: "About", to: "/about" },
-  { label: "Resources", to: "/resources" },
+  // { label: "Resources", to: "/resources" },
   { label: "Results", to: "/results" },
   { label: "Blog", to: "/blog" },
   { label: "Contact / Enroll", to: "/contact" },
