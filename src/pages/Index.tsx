@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import heroImage from "@/assets/hero.png";
+import heroImage from "@/assets/hero1.png";
 import {
   BookOpen,
   Monitor,
@@ -17,18 +17,19 @@ import Layout from "@/components/Layout";
 import EnrollmentModal from "@/components/EnrollmentModal";
 import { useApp } from "@/context/AppContext";
 import contentService from "@/services/contentService";
-import HomeBannerCarousel from "@/components/banner/HomeBannerCarousel";
 import StudentSlider from "@/components/StudentSlider";
 import PopupBanner from "@/components/PopupBanner";
 import AboutOverview from "@/components/AboutOverview";
-
+import HomeBannerCarousel from "@/components/banner/HomeBannerCarousel";
 import useEmblaCarousel from "embla-carousel-react";
+import { testimonials as staticTestimonials } from "@/data/testimonials";
 
 interface Testimonial {
   id: string;
   name: string;
   text: string;
   avatar?: string;
+  rating?: number;
 }
 
 const fadeUp = {
@@ -40,11 +41,29 @@ const fadeUp = {
   }),
 };
 
+const scrollReveal = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+    },
+  },
+};
+
 const Index = () => {
   const {
     testSeries,
     courses,
-    testimonials,
+    testimonials: apiTestimonials,
     loadingTestimonials,
     loadingCourses,
     loadingTestSeries,
@@ -53,20 +72,9 @@ const Index = () => {
   const [enrollTarget, setEnrollTarget] = useState("");
 
   const displayTestimonials =
-    testimonials.length > 0
-      ? testimonials
-      : [
-          {
-            id: "1",
-            name: "Kalyani Inamdar",
-            text: "Best place to learn at, got immense support and guidance from all the teachers. Thank you so much.",
-          },
-          {
-            id: "2",
-            name: "Vaishnavi Rangade",
-            text: "After joining Saraswati coaching classes my study level changed. Teachers motivate students and guide them properly.",
-          },
-        ];
+    apiTestimonials.length > 0
+      ? apiTestimonials
+      : staticTestimonials;
 
   const openEnroll = (target: string) => {
     setEnrollTarget(target);
@@ -123,18 +131,18 @@ const Index = () => {
               transition={{ duration: 0.5 }}
             >
               {/* Headline */}
-              <h1 className="text-[32px] md:text-[46px] font-bold leading-[1.2] text-[#0F172A] mb-4">
-                A focused coaching institute for{" "}
-                <span className="text-[#2EA7FF]">
-                  serious school & competitive prep
+              <h1 className="text-[clamp(28px,5vw,48px)] font-semibold leading-tight text-[#1E293B] mb-4 max-w-[650px]">
+                A Focused Coaching Institute For{" "}
+                <span className="text-[#3BA3F5] font-semibold">
+                  Academic Excellence
                 </span>
               </h1>
 
               {/* Description */}
               <p className="text-[16px] text-[#475569] max-w-[520px] mb-6">
-                Saraswati Classes offers structured classroom programs, test
-                series and personalised mentoring for students aiming for top
-                scores in boards and entrance exams.
+                Saraswati Classes offers structured classroom programs, test series
+                and personalised mentoring for students aiming for top scores in
+                boards and entrance exams.
               </p>
 
               {/* Buttons */}
@@ -161,6 +169,7 @@ const Index = () => {
               transition={{ duration: 0.6 }}
               className="relative flex items-center justify-center"
             >
+
               {/* Glow Background */}
               <div className="absolute w-[420px] h-[420px] bg-[#2EA7FF]/20 rounded-full blur-3xl"></div>
 
@@ -188,8 +197,9 @@ const Index = () => {
 
               {/* Card 4 */}
               <div className="absolute z-20 bottom-4 right-10 bg-white/95 backdrop-blur-md rounded-xl shadow-lg px-4 py-2 text-sm font-semibold text-slate-700 border border-slate-200 animate-float-delay">
-                ⭐ 95% Success Rate
+                ⭐ 100% Success Rate
               </div>
+
             </motion.div>
           </div>
         </div>
@@ -201,20 +211,27 @@ const Index = () => {
       <StudentSlider />
 
       {/* Programs We Offer */}
-      <section className="py-12 md:py-16 bg-background">
+      <motion.section
+        className="py-12 md:py-16 bg-background"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-8">
-          <div className="text-center space-y-2">
+          <motion.div className="text-center space-y-2" variants={scrollReveal}>
             <h2 className="text-2xl font-semibold">Programs We Offer</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Structured programs across foundation, science streams and
               competitive exam preparation designed for consistent, year-long
               performance.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <motion.div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8" variants={staggerContainer}>
             {/* Card 1: Class 8th to 10th */}
-            <div
+            <motion.div
+              variants={scrollReveal}
               className="relative flex flex-col h-full rounded-[20px] p-7 transition-all duration-300 hover:shadow-lg hover:-translate-y-1.5"
               style={{
                 background:
@@ -262,10 +279,11 @@ const Index = () => {
                   </Button>
                 </Link>
               </div>
-            </div>
+            </motion.div>
 
             {/* Card 2: JEE Preparation */}
-            <div
+            <motion.div
+              variants={scrollReveal}
               className="relative flex flex-col h-full rounded-[20px] p-7 transition-all duration-300 hover:shadow-lg hover:-translate-y-1.5"
               style={{
                 background:
@@ -313,10 +331,11 @@ const Index = () => {
                   </Button>
                 </Link>
               </div>
-            </div>
+            </motion.div>
 
             {/* Card 3: NEET Preparation */}
-            <div
+            <motion.div
+              variants={scrollReveal}
               className="relative flex flex-col h-full rounded-[20px] p-7 transition-all duration-300 hover:shadow-lg hover:-translate-y-1.5"
               style={{
                 background:
@@ -364,16 +383,22 @@ const Index = () => {
                   </Button>
                 </Link>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Explore Courses */}
-      <section className="py-12 md:py-16 bg-secondary/40">
+      <motion.section
+        className="py-12 md:py-16 bg-secondary/40"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.05 }}
+      >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-8">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <motion.div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" variants={scrollReveal}>
             <div>
               <h2 className="text-2xl md:text-3xl font-semibold">
                 Explore Courses
@@ -389,14 +414,19 @@ const Index = () => {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-          </div>
+          </motion.div>
 
           {/* Cards */}
-          <div className="grid md:grid-cols-3 gap-6 justify-items-center">
+          <motion.div 
+            key={loadingCourses ? "loading" : "loaded"}
+            className="grid md:grid-cols-3 gap-6 justify-items-center" 
+            variants={staggerContainer}
+          >
             {loadingCourses ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div
+                <motion.div
                   key={i}
+                  variants={scrollReveal}
                   className="w-full max-w-[320px] h-[320px] bg-slate-100 animate-pulse rounded-3xl"
                 />
               ))
@@ -409,8 +439,9 @@ const Index = () => {
                 ];
 
                 return (
-                  <div
+                  <motion.div
                     key={course.id}
+                    variants={scrollReveal}
                     className={`rounded-3xl p-7 min-h-[320px] flex flex-col justify-between transition hover:shadow-xl w-full max-w-[300px] ${cardColors[index]}`}
                   >
                     {/* Title */}
@@ -437,7 +468,7 @@ const Index = () => {
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </Link>
-                  </div>
+                  </motion.div>
                 );
               })
             ) : (
@@ -445,16 +476,22 @@ const Index = () => {
                 No courses available at the moment.
               </p>
             )}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Test Series Highlight */}
 
-      <section className="py-12 md:py-16 bg-secondary/40">
+      <motion.section
+        className="py-12 md:py-16 bg-secondary/40"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.05 }}
+      >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-8">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <motion.div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" variants={scrollReveal}>
             <div className="space-y-1">
               <h2 className="text-2xl md:text-3xl font-semibold">
                 Test Series Highlights
@@ -470,175 +507,220 @@ const Index = () => {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-          </div>
+          </motion.div>
 
           {/* Cards */}
-          <div className="grid md:grid-cols-3 gap-6 justify-items-center">
+          <motion.div 
+            key={loadingTestSeries ? "loading" : "loaded"}
+            className="grid md:grid-cols-3 gap-6 justify-items-center" 
+            variants={staggerContainer}
+          >
             {loadingTestSeries ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div
+                <motion.div
                   key={i}
+                  variants={scrollReveal}
                   className="w-full max-w-[320px] h-[320px] bg-slate-100 animate-pulse rounded-2xl"
                 />
               ))
             ) : testSeries.length > 0 ? (
               testSeries.slice(0, 3).map((ts) => (
-                <Card
-                  key={ts.id}
-                  className="group flex flex-col rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 w-full max-w-[300px]"
-                >
-                  {/* Image */}
-                  <div className="overflow-hidden">
-                    <img
-                      src={ts.image}
-                      alt={ts.title}
-                      className="w-full h-40 object-cover group-hover:scale-105 transition duration-300"
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <CardContent className="p-5 flex flex-col flex-1">
-                    <h3 className="font-semibold text-lg mb-2">{ts.title}</h3>
-
-                    <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">
-                      {ts.overview}
-                    </p>
-
-                    {/* Buttons */}
-                    <div className="flex gap-2 mt-auto">
-                      <Button
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => openEnroll(ts.title)}
-                      >
-                        Enroll Now
-                      </Button>
-
-                      <Link to={`/test-series/${ts.id}`} className="flex-1">
-                        <Button size="sm" variant="outline" className="w-full">
-                          Details
-                        </Button>
-                      </Link>
+                <motion.div key={ts.id} variants={scrollReveal} className="w-full max-w-[300px]">
+                  <Card className="group flex flex-col rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 w-full">
+                    {/* Image */}
+                    <div className="overflow-hidden">
+                      <img
+                        src={ts.image}
+                        alt={ts.title}
+                        className="w-full h-40 object-cover group-hover:scale-105 transition duration-300"
+                      />
                     </div>
-                  </CardContent>
-                </Card>
+
+                    {/* Content */}
+                    <CardContent className="p-5 flex flex-col flex-1">
+                      <h3 className="font-semibold text-lg mb-2">{ts.title}</h3>
+
+                      <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">
+                        {ts.overview}
+                      </p>
+
+                      {/* Buttons */}
+                      <div className="flex gap-2 mt-auto">
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => openEnroll(ts.title)}
+                        >
+                          Enroll Now
+                        </Button>
+
+                        <Link to={`/test-series/${ts.id}`} className="flex-1">
+                          <Button size="sm" variant="outline" className="w-full">
+                            Details
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))
             ) : (
               <p className="col-span-full text-center text-muted-foreground">
                 No test series available at the moment.
               </p>
             )}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* About Overview */}
-      <AboutOverview />
+      <motion.div
+        variants={scrollReveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+      >
+        <AboutOverview />
+      </motion.div>
 
       {/* Testimonials */}
-      <section className="py-20 bg-[#F8FAFC]">
+      <motion.section
+        className="py-20 bg-[#F8FAFC]"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+      >
         <div className="max-w-[1200px] mx-auto px-4">
+
           {/* Heading */}
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A]">
+          <motion.div className="text-center mb-12" variants={scrollReveal}>
+            <h2 className="relative inline-block text-3xl md:text-4xl font-semibold text-[#0F172A] leading-tight">
               What Our Students Say
+
+              <span className="absolute left-1/2 -translate-x-1/2 -bottom-2 
+        w-[95%] h-[10px] 
+        bg-gradient-to-r from-[#2563EB] to-[#2EA7FF] 
+        opacity-30 
+        rounded-[50px] 
+        blur-[1px]">
+              </span>
             </h2>
 
-            <p className="text-[#64748B] max-w-xl mx-auto mt-3">
-              Real feedback shared by parents and students about their learning
-              experience.
+            <p className="text-[#64748B] max-w-xl mx-auto mt-4">
+              Real feedback shared by parents and students about their learning experience.
             </p>
-          </div>
+          </motion.div>
 
-          {/* Loading state for testimonials */}
-          {loadingTestimonials ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-          ) : (
-            /* Carousel */
-            <div className="relative">
-              {/* LEFT ARROW */}
-              <button
-                onClick={() => emblaApi?.scrollPrev()}
-                className="absolute -left-6 top-1/2 -translate-y-1/2 bg-white shadow-md w-10 h-10 rounded-full flex items-center justify-center"
-              >
-                ‹
-              </button>
+          {/* Carousel */}
+          <motion.div className="relative" variants={scrollReveal}>
 
-              <div className="embla overflow-hidden" ref={emblaRef}>
-                <div className="embla__container flex">
-                  {displayTestimonials.length > 0 ? (
-                    displayTestimonials.map((t) => (
-                      <div
-                        key={t.id}
-                        className="embla__slide flex-[0_0_70%] md:flex-[0_0_50%] lg:flex-[0_0_40%] px-4"
-                      >
-                        <div className="bg-white rounded-2xl shadow-md p-8 transition hover:shadow-lg">
-                          {/* Stars */}
-                          <div className="flex text-yellow-400 mb-4 text-lg">
-                            ⭐⭐⭐⭐⭐
-                          </div>
+            {/* LEFT ARROW */}
+            <button
+              onClick={() => emblaApi?.scrollPrev()}
+              className="absolute -left-3 md:-left-5 top-1/2 -translate-y-1/2 
+        bg-white shadow-md w-10 h-10 rounded-full flex items-center justify-center"
+            >
+              ‹
+            </button>
 
-                          {/* Review */}
-                          <p className="text-[#475569] leading-relaxed mb-6">
-                            {t.text}
-                          </p>
+            <div className="embla overflow-hidden" ref={emblaRef}>
+              <div className="embla__container flex">
 
-                          {/* Name */}
-                          <p className="font-semibold text-[#0F172A]">
-                            {t.name}
-                          </p>
-                        </div>
+                {displayTestimonials.map((t, i) => (
+                  <div
+                    key={i}
+                    className="embla__slide flex-[0_0_70%] md:flex-[0_0_50%] lg:flex-[0_0_40%] px-4"
+                  >
+                    <div className="bg-white rounded-2xl shadow-md p-8 transition hover:shadow-lg">
+
+                      {/* ⭐ STARS */}
+                      <div className="flex mb-4 text-base">
+                        {Array.from({ length: 5 }).map((_, idx) => (
+                          <span
+                            key={idx}
+                            className={idx < (t.rating || 5) ? "text-yellow-400" : "text-gray-300"}
+                          >
+                            ★
+                          </span>
+                        ))}
                       </div>
-                    ))
-                  ) : (
-                    <div className="embla__slide flex-[0_0_100%] px-4">
-                      <div className="bg-white rounded-2xl shadow-md p-8 text-center">
-                        <p className="text-[#475569]">
-                          No testimonials available at the moment.
-                        </p>
-                      </div>
+
+                      {/* Review */}
+                      <p className="text-[#475569] leading-relaxed mb-6">
+                        {t.text}
+                      </p>
+
+                      {/* Name */}
+                      <p className="font-semibold text-[#0F172A]">
+                        {t.name}
+                      </p>
+
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+                ))}
 
-              {/* RIGHT ARROW */}
-              <button
-                onClick={() => emblaApi?.scrollNext()}
-                className="absolute -right-6 top-1/2 -translate-y-1/2 bg-white shadow-md w-10 h-10 rounded-full flex items-center justify-center"
-              >
-                ›
-              </button>
+              </div>
             </div>
-          )}
+
+            {/* RIGHT ARROW */}
+            <button
+              onClick={() => emblaApi?.scrollNext()}
+              className="absolute -right-3 md:-right-5 top-1/2 -translate-y-1/2 
+        bg-white shadow-md w-10 h-10 rounded-full flex items-center justify-center"
+            >
+              ›
+            </button>
+
+          </motion.div>
 
           {/* DOTS */}
-          {!loadingTestimonials && displayTestimonials.length > 0 && (
-            <div className="flex justify-center mt-8 gap-3">
-              {displayTestimonials.map((_, i) => (
-                <div key={i} className="w-3 h-3 rounded-full bg-slate-300" />
-              ))}
-            </div>
-          )}
+          <motion.div className="flex justify-center mt-8 gap-3" variants={scrollReveal}>
+            {displayTestimonials.map((_, i) => (
+              <div
+                key={i}
+                className="w-3 h-3 rounded-full bg-slate-300"
+              />
+            ))}
+          </motion.div>
+
         </div>
-      </section>
+      </motion.section>
+
       {/* CTA */}
 
       {/* Map section above footer */}
-      <section className="py-12 md:py-16 bg-background">
+      <motion.section
+        className="py-12 md:py-16 bg-background"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-6">
-          <div className="space-y-2 text-center">
-            <h2 className="text-2xl font-semibold">Visit Our Centre</h2>
 
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Saraswati Classes is conveniently located for students across
-              Pune. Use the map below to get directions to our coaching centre.
+          <motion.div className="space-y-2 text-center" variants={scrollReveal}>
+            <h2 className="relative inline-block text-2xl md:text-3xl font-semibold text-[#0F172A]">
+              Visit Our Centre
+
+              {/* Sloppy underline */}
+              <span className="absolute left-1/2 -translate-x-1/2 -bottom-2 
+        w-[95%] h-[8px] 
+        bg-gradient-to-r from-[#2563EB] to-[#2EA7FF] 
+        opacity-30 
+        rounded-[50px] 
+        blur-[1px] rotate-[-1deg]">
+              </span>
+            </h2>
+
+            <p className="text-muted-foreground max-w-2xl mx-auto mt-3">
+              Saraswati Classes is conveniently located for students across Pune.
+              Use the map below to get directions to our coaching centre.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="space-y-4">
+          <motion.div className="space-y-4" variants={scrollReveal}>
+
             <div className="rounded-xl overflow-hidden border bg-muted">
               <iframe
                 title="Saraswati Classes Location"
@@ -651,7 +733,7 @@ const Index = () => {
 
             <div className="flex justify-center">
               <a
-                href="https://maps.app.goo.gl/WPW2hZ4g7J4hd3ym9"
+                href="https://maps.app.goo.gl/quZfN1tDNubyfYEM9"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -660,9 +742,11 @@ const Index = () => {
                 </Button>
               </a>
             </div>
-          </div>
+
+          </motion.div>
+
         </div>
-      </section>
+      </motion.section>
     </Layout>
   );
 };

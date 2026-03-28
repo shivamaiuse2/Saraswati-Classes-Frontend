@@ -87,12 +87,12 @@ const ContactPage = () => {
 
   return (
     <Layout>
-      <section className="py-16">
-        <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-12">
+      <section className="py-20">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-14">
 
-          {/* Page Heading */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl md:text-4xl font-semibold">
+          {/* Heading */}
+          <div className="text-center space-y-3">
+            <h1 className="text-3xl md:text-4xl font-semibold text-[#0F172A]">
               Contact Saraswati Classes
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -101,8 +101,8 @@ const ContactPage = () => {
             </p>
           </div>
 
-          {/* Contact + Form Section */}
-          <div className="grid lg:grid-cols-2 gap-10 items-start">
+          {/* Contact + Form */}
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
 
             {/* Contact Info */}
             <div className="space-y-4">
@@ -110,18 +110,38 @@ const ContactPage = () => {
               {contactDetails.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <Card key={item.label} className="rounded-xl shadow-sm">
-                    <CardContent className="p-5 flex items-center gap-4">
+                  // <Card key={item.label} className="rounded-xl shadow-sm">
+                  //   <CardContent className="p-5 flex items-center gap-4">
 
-                      <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
-                        <Icon className="h-5 w-5 text-primary" />
+                  //     <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
+                  //       <Icon className="h-5 w-5 text-primary" />
+                  //     </div>
+
+                  //     <div>
+                  //       <p className="font-medium text-sm">{item.label}</p>
+                  //       <p className="text-muted-foreground">{item.value}</p>
+                  //     </div>
+
+                  //   </CardContent>
+                  // </Card>
+                  <Card
+                    key={item.label}
+                    className="rounded-xl border hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  >
+                    <CardContent className="p-5 flex items-start gap-4">
+                      <div className="h-11 w-11 rounded-full bg-secondary flex items-center justify-center shadow-sm">
+                        <item.icon className="h-5 w-5 text-primary" />
                       </div>
 
-                      <div>
-                        <p className="font-medium text-sm">{item.label}</p>
-                        <p className="text-muted-foreground">{item.value}</p>
-                      </div>
+                      <div className="space-y-1">
+                        <p className="font-medium text-sm text-[#0F172A]">
+                          {item.label}
+                        </p>
 
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {item.value}
+                        </p>
+                      </div>
                     </CardContent>
                   </Card>
                 );
@@ -130,8 +150,12 @@ const ContactPage = () => {
             </div>
 
             {/* Contact Form */}
-            <Card className="rounded-xl shadow-sm">
-              <CardContent className="p-6">
+            <Card className="rounded-xl border hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-6 space-y-5">
+
+                <h2 className="text-lg font-semibold text-[#0F172A]">
+                  Inquiry / Appointment Form
+                </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -211,20 +235,17 @@ const ContactPage = () => {
 
           {/* Google Map */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-center">
+            <h2 className="text-xl font-semibold text-center text-[#0F172A]">
               Visit Our Coaching Centre
             </h2>
 
-            <div className="rounded-xl overflow-hidden border">
-
+            <div className="rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition">
               <iframe
                 title="Saraswati Classes Location"
                 src="https://www.google.com/maps?q=Saraswati+Classes+Sinhgad+Road+Pune&output=embed"
                 className="w-full h-[350px] border-0"
                 loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
-
+              />
             </div>
           </div>
 

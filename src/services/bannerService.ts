@@ -20,7 +20,7 @@ interface CreateBannerData {
   enabled: boolean;
 }
 
-interface UpdateBannerData extends Partial<CreateBannerData> {}
+interface UpdateBannerData extends Partial<CreateBannerData> { }
 
 // Convert API response to frontend HeroPoster type
 const convertApiToHeroPoster = (apiBanner: any): HeroPoster => {
@@ -38,24 +38,40 @@ const bannerService = {
   getBanners: async (): Promise<BannersResponse> => {
     const response = await apiClient.get('/banners');
     const apiResponse = response.data;
-    
+
     // Convert API response to frontend format
     const convertedBanners = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToHeroPoster);
-    
+
     return {
       ...apiResponse,
       data: convertedBanners
     };
   },
 
+  // Fetch all active banners
+  fetchBanners: async (): Promise<BannersResponse> => {
+    const response = await apiClient.get('/banners');
+    const apiResponse = response.data;
+
+    // Convert API response to frontend format
+    const convertedBanners = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToHeroPoster);
+
+    return {
+      ...apiResponse,
+      data: convertedBanners
+    };
+  },
+
+
+
   // Get all banners (Admin)
   getAdminBanners: async (): Promise<BannersResponse> => {
     const response = await apiClient.get('/admin/banners');
     const apiResponse = response.data;
-    
+
     // Convert API response to frontend format
     const convertedBanners = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToHeroPoster);
-    
+
     return {
       ...apiResponse,
       data: convertedBanners
@@ -66,7 +82,7 @@ const bannerService = {
   getBannerById: async (id: string): Promise<BannerResponse> => {
     const response = await apiClient.get(`/admin/banners/${id}`);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
       data: convertApiToHeroPoster(apiResponse.data)
@@ -77,7 +93,7 @@ const bannerService = {
   createBanner: async (bannerData: CreateBannerData): Promise<BannerResponse> => {
     const response = await apiClient.post('/admin/banners', bannerData);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
       data: convertApiToHeroPoster(apiResponse.data)
@@ -88,7 +104,7 @@ const bannerService = {
   updateBanner: async (id: string, bannerData: UpdateBannerData): Promise<BannerResponse> => {
     const response = await apiClient.put(`/admin/banners/${id}`, bannerData);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
       data: convertApiToHeroPoster(apiResponse.data)
@@ -105,7 +121,7 @@ const bannerService = {
   enableBanner: async (id: string): Promise<BannerResponse> => {
     const response = await apiClient.patch(`/banners/${id}/enable`);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
       data: {
@@ -118,7 +134,7 @@ const bannerService = {
   disableBanner: async (id: string): Promise<BannerResponse> => {
     const response = await apiClient.patch(`/banners/${id}/disable`);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
       data: {
