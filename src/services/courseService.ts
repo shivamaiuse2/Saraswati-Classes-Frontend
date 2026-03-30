@@ -37,6 +37,7 @@ export interface Course {
   fees: number;
   isActive: boolean;
   chapters: any[];
+  chapterCount?: number;
 }
 
 interface CreateCourseData {
@@ -63,6 +64,7 @@ const convertApiToCourse = (apiCourse: any): Course => {
     fees: apiCourse.fees,
     isActive: apiCourse.isActive,
     chapters: apiCourse.chapters || [],
+    chapterCount: apiCourse.chapterCount || 0,
   };
 };
 
@@ -130,6 +132,27 @@ const courseService = {
   // Delete a course
   deleteCourse: async (id: string): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.delete(`/courses/${id}`);
+    return response.data;
+  },
+
+  // Chapter Methods
+  getChapters: async (courseId: string) => {
+    const response = await apiClient.get(`/courses/${courseId}/chapters`);
+    return response.data;
+  },
+
+  createChapter: async (courseId: string, chapterData: any) => {
+    const response = await apiClient.post(`/courses/${courseId}/chapters`, chapterData);
+    return response.data;
+  },
+
+  updateChapter: async (id: string, chapterData: any) => {
+    const response = await apiClient.put(`/chapters/${id}`, chapterData);
+    return response.data;
+  },
+
+  deleteChapter: async (id: string) => {
+    const response = await apiClient.delete(`/chapters/${id}`);
     return response.data;
   },
 };

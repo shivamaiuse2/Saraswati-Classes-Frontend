@@ -68,6 +68,7 @@ const convertApiToCourse = (apiCourse: any): Course => ({
   fees: apiCourse.fees,
   isActive: apiCourse.isActive,
   chapters: apiCourse.chapters || [],
+  chapterCount: apiCourse.chapterCount || 0,
 });
 
 const convertApiToTestSeries = (apiTestSeries: any): TestSeries => ({

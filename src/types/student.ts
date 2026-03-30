@@ -7,7 +7,7 @@ export interface Student {
   mobile: string;
   email: string;
   standard: string;
-  board: "SSC" | "CBSE";
+  board: "SSC" | "CBSE" | "STATE";
   enrolledCourses: string[];
   enrolledTestSeries: string[];
   username: string;

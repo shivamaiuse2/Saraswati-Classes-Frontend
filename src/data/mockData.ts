@@ -9,6 +9,7 @@ export interface Course {
   fees: number;
   isActive: boolean;
   chapters: any[];
+  chapterCount?: number;
 }
 
 export interface TestSeries {
@@ -303,7 +304,7 @@ export const testimonials = [
   {
     name: "Rahul Verma",
     course: "JEE Preparation",
-    text: "The JEE batch is highly focused with conceptual teaching and lots of practice questions. Test analysis sessions were extremely useful.",
+    text: "The JEE course is highly focused with conceptual teaching and lots of practice questions. Test analysis sessions were extremely useful.",
     avatar: "https://placehold.co/80x80/0ea5e9/ffffff?text=RV",
   },
   {

@@ -1,7 +1,7 @@
 export const testimonials = [
   {
     name: "Rahul Verma",
-    text: "The JEE batch is highly focused with conceptual teaching and lots of practice questions. Test analysis sessions were extremely useful.",
+    text: "The JEE course is highly focused with conceptual teaching and lots of practice questions. Test analysis sessions were extremely useful.",
     rating: 5,
   },
   {

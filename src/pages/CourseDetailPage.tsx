@@ -7,6 +7,9 @@ import {
   IndianRupee,
   Lock,
   ListChecks,
+  ExternalLink,
+  PlayCircle,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +26,7 @@ const CourseDetailPage = () => {
 
   const course = courses.find((c) => c.id === id);
   const [enrollOpen, setEnrollOpen] = useState(false);
+  const [selectedChapter, setSelectedChapter] = useState<any>(null);
 
   if (loadingCourses) {
     return (
@@ -72,12 +76,12 @@ const CourseDetailPage = () => {
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary">{course.board}</Badge>
-                <Badge variant="outline">Batch Program</Badge>
+                <Badge variant="outline">Course Program</Badge>
               </div>
 
               <h1 className="text-3xl md:text-4xl font-bold">{displayTitle}</h1>
               <p className="text-muted-foreground italic">
-                Join our premium {course.board} batch for {course.standard}. 
+                Join our premium {course.board} course for {course.standard}.
                 Experience top-tier education with focused attention and regular performance tracking.
               </p>
 
@@ -114,7 +118,7 @@ const CourseDetailPage = () => {
                 <div className="flex items-center gap-2">
                   <IndianRupee className="h-4 w-4 text-primary shrink-0" />
                   <div>
-                    <p className="font-semibold">Batch Fees</p>
+                    <p className="font-semibold">Course Fees</p>
                     <p className="text-muted-foreground">
                       ₹{course.fees.toLocaleString("en-IN")} (Yearly)
                     </p>
@@ -126,10 +130,10 @@ const CourseDetailPage = () => {
             <div>
               <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
                 <ListChecks className="h-5 w-5 text-primary" /> Why Choose This
-                Batch
+                Course
               </h2>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>Small, focused batches for personalised attention.</li>
+                <li>Small, focused courses for personalised attention.</li>
                 <li>
                   Regular tests and performance tracking aligned with the
                   syllabus.
@@ -139,44 +143,84 @@ const CourseDetailPage = () => {
             </div>
 
             <div>
-              <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-                <Lock className="h-5 w-5 text-primary" /> Learning Content
+              <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                <Lock className="h-5 w-5 text-primary" /> Learning Curriculum
               </h2>
 
-              <p className="text-sm text-muted-foreground mb-4">
-                Detailed modules and private video lectures will be unlocked
-                once the admin grants access. Below is the structure where
-                module-wise videos will appear.
-              </p>
-
-              <div className="space-y-2">
-                {course.chapters.map((ch, i) => (
-                  <Card key={i} className="bg-muted/60 border-dashed">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <span className="text-sm font-medium text-primary bg-background w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                          {i + 1}
-                        </span>
-                        <div className="flex-1">
-                          <p className="font-medium text-sm flex items-center gap-2">
-                            {ch.title}
-                            <Lock className="h-3 w-3 text-primary" />
-                          </p>
-                          {ch.description && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {ch.description}
-                            </p>
-                          )}
-                          <p className="text-[11px] text-muted-foreground mt-1">
-                            Video content will be available here as a private
-                            YouTube link after admin approval.
-                          </p>
-                        </div>
+              {selectedChapter && isApproved ? (
+                <Card className="mb-8 border-primary/20 overflow-hidden shadow-md">
+                  <div className="aspect-video w-full bg-black">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={`https://www.youtube.com/embed/${selectedChapter.youtubeLink.split('v=')[1] || selectedChapter.youtubeLink.split('/').pop()}`}
+                      title={selectedChapter.title}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <h3 className="text-2xl font-bold">{selectedChapter.title}</h3>
+                      {selectedChapter.formLink && (
+                        <Button asChild variant="outline" className="gap-2 border-blue-200 hover:bg-blue-50 text-blue-700">
+                          <a href={selectedChapter.formLink} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4" />
+                            Take Test / Assignment
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-slate-600 leading-relaxed">{selectedChapter.description}</p>
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedChapter(null)} className="text-primary hover:text-primary hover:bg-primary/5">
+                      <ArrowLeft className="mr-2 h-4 w-4" /> Back to Curriculum
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-3">
+                  {!isApproved && (
+                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm mb-4 flex items-start gap-3">
+                      <Lock className="h-5 w-5 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold">Private Curriculum Content</p>
+                        <p>Complete your enrollment to unlock video lectures, assignments, and detailed module notes.</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                    </div>
+                  )}
+                  
+                  {course.chapters.length === 0 ? (
+                    <div className="text-center py-10 border-2 border-dashed rounded-2xl text-slate-400">
+                      Curriculum is being updated. Check back soon.
+                    </div>
+                  ) : (
+                    course.chapters.map((ch, i) => (
+                      <Card 
+                        key={ch.id} 
+                        className={`group transition-all duration-200 border-slate-200 ${isApproved ? 'cursor-pointer hover:border-primary hover:shadow-md' : 'opacity-75'}`}
+                        onClick={() => isApproved && setSelectedChapter(ch)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-4">
+                            <span className="text-xs font-bold text-slate-400 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                              {String(i + 1).padStart(2, '0')}
+                            </span>
+                            <div className="flex-1">
+                              <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                                {ch.title}
+                                {!isApproved ? <Lock className="h-3.5 w-3.5 text-slate-400" /> : <PlayCircle className="h-3.5 w-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />}
+                              </h4>
+                              <p className="text-xs text-slate-500 line-clamp-1">{ch.description}</p>
+                            </div>
+                            {isApproved && <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-primary transition-colors" />}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -184,8 +228,8 @@ const CourseDetailPage = () => {
             <Card className="sticky top-20 overflow-hidden rounded-xl shadow-sm border-primary/20">
               <div className="w-full h-48 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/20 flex items-center justify-center p-8">
                 <div className="text-center">
-                   <div className="text-2xl font-bold text-primary mb-1">{course.board}</div>
-                   <div className="text-lg font-medium text-muted-foreground">{course.standard}</div>
+                  <div className="text-2xl font-bold text-primary mb-1">{course.board}</div>
+                  <div className="text-lg font-medium text-muted-foreground">{course.standard}</div>
                 </div>
               </div>
               <CardContent className="p-5 space-y-4">

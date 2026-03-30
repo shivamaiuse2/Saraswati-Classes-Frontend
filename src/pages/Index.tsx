@@ -228,7 +228,7 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <motion.div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8" variants={staggerContainer}>
+          <motion.div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" variants={staggerContainer}>
             {/* Card 1: Class 8th to 10th */}
             <motion.div
               variants={scrollReveal}
@@ -408,8 +408,8 @@ const Index = () => {
           </motion.div>
 
           {/* Category Cards */}
-          <motion.div 
-            className="grid md:grid-cols-3 gap-8" 
+          <motion.div
+            className="grid md:grid-cols-3 gap-8"
             variants={staggerContainer}
           >
             {/* CBSE Card */}
@@ -508,9 +508,9 @@ const Index = () => {
           </motion.div>
 
           {/* Cards */}
-          <motion.div 
+          <motion.div
             key={loadingTestSeries ? "loading" : "loaded"}
-            className="grid md:grid-cols-3 gap-6 justify-items-center" 
+            className="grid md:grid-cols-3 gap-6 justify-items-center"
             variants={staggerContainer}
           >
             {loadingTestSeries ? (

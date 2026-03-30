@@ -1,14 +1,14 @@
 export type Board = "CBSE" | "SSC" | "STATE";
 
-export interface CourseChapter {
+export interface Chapter {
   id: string;
   courseId: string;
   title: string;
   description: string;
-  videoUrl?: string;
-  testDescription?: string;
-  testLink?: string;
-  chapterNumber: number;
+  youtubeLink?: string;
+  formLink?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Course {
@@ -21,7 +21,8 @@ export interface Course {
   subjects: string[];
   fees: number;
   isActive: boolean;
-  chapters: CourseChapter[];
+  chapters: Chapter[];
+  chapterCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }

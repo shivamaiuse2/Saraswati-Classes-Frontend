@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Clock, Calendar, BookOpen, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,8 +19,8 @@ const staggerContainer = {
 
 const columnReveal: any = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: { duration: 0.6, ease: "easeOut" }
   },
@@ -27,15 +28,16 @@ const columnReveal: any = {
 
 const cardReveal = {
   hidden: { opacity: 0, scale: 0.95 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     scale: 1,
-    transition: { duration: 0.4 } 
+    transition: { duration: 0.4 }
   },
 };
 
 const CoursesPage = () => {
   const { courses, loadingCourses } = useApp();
+  const navigate = useNavigate();
   const [enrollOpen, setEnrollOpen] = useState(false);
   const [enrollTarget, setEnrollTarget] = useState("");
 
@@ -50,26 +52,26 @@ const CoursesPage = () => {
   const stateCourses = courses.filter(c => c.board === "STATE");
 
   const boards = [
-    { 
-      title: "CBSE", 
-      data: cbseCourses, 
-      color: "blue", 
+    {
+      title: "CBSE",
+      data: cbseCourses,
+      color: "blue",
       icon: <BookOpen className="h-6 w-6" />,
-      tagline: "Class VIII - X" 
+      tagline: "Class VIII - X"
     },
-    { 
-      title: "SSC", 
-      data: sscCourses, 
-      color: "amber", 
+    {
+      title: "SSC",
+      data: sscCourses,
+      color: "amber",
       icon: <GraduationCap className="h-6 w-6" />,
-      tagline: "Class VIII - X" 
+      tagline: "Class VIII - X"
     },
-    { 
-      title: "State Board", 
-      data: stateCourses, 
-      color: "purple", 
+    {
+      title: "State Board",
+      data: stateCourses,
+      color: "purple",
       icon: <GraduationCap className="h-6 w-6" />,
-      tagline: "XI & XII Science" 
+      tagline: "XI & XII Science"
     },
   ];
 
@@ -77,13 +79,13 @@ const CoursesPage = () => {
     <Layout>
       <section className="min-h-screen pt-24 pb-12 bg-slate-50">
         <div className="max-w-[1400px] mx-auto px-4 md:px-6">
-          <motion.div 
+          <motion.div
             className="text-center mb-12 space-y-4"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Our <span className="text-blue-600">Batches</span>
+              Our <span className="text-blue-600">Courses</span>
             </h1>
             <p className="text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed">
               Explore our structured coaching programs designed for academic excellence and competitive success.
@@ -97,15 +99,15 @@ const CoursesPage = () => {
               ))}
             </div>
           ) : (
-            <motion.div 
+            <motion.div
               className="grid md:grid-cols-3 gap-8 items-start"
               variants={staggerContainer}
               initial="hidden"
               animate="visible"
             >
               {boards.map((board) => (
-                <motion.div 
-                  key={board.title} 
+                <motion.div
+                  key={board.title}
                   variants={columnReveal}
                   className="space-y-6"
                 >
@@ -133,13 +135,13 @@ const CoursesPage = () => {
                           className="bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 relative overflow-hidden group"
                         >
                           <div className={`absolute top-0 right-0 w-24 h-24 bg-${board.color}-50 rounded-bl-[60px] -z-10 group-hover:bg-${board.color}-100 transition-colors`} />
-                          
+
                           <div className="flex justify-between items-start mb-6">
                             <div>
                               <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-${board.color}-100 text-${board.color}-700`}>
                                 Standard {course.standard}
                               </span>
-                              <h3 className="text-xl font-bold text-slate-900 mt-3">Batch {course.standard}</h3>
+                              <h3 className="text-xl font-bold text-slate-900 mt-3">Course {course.standard}</h3>
                             </div>
                             <div className="text-right">
                               <p className="text-2xl font-black text-slate-900">₹{course.fees.toLocaleString()}</p>
@@ -174,18 +176,26 @@ const CoursesPage = () => {
                             </div>
                           </div>
 
-                          <Button 
-                            onClick={() => openEnroll(`${course.board} - ${course.standard}`)}
-                            className={`w-full bg-slate-900 hover:bg-${board.color}-600 text-white rounded-2xl py-6 font-bold gap-2 transition-all duration-300`}
-                          >
-                            Enquire Now
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
+                          <div className="grid grid-cols-2 gap-3 mt-auto">
+                            <Button
+                              onClick={() => openEnroll(`${course.board} - ${course.standard}`)}
+                              className={`w-full bg-slate-100 hover:bg-${board.color}-100 text-slate-900 rounded-2xl py-6 font-bold transition-all duration-300`}
+                            >
+                              Enquire
+                            </Button>
+                            <Button
+                              onClick={() => navigate(`/courses/${course.id}`)}
+                              className={`w-full bg-slate-900 hover:bg-${board.color}-600 text-white rounded-2xl py-6 font-bold gap-2 transition-all duration-300 shadow-lg shadow-slate-200`}
+                            >
+                              Details
+                              <ArrowRight className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </motion.div>
                       ))
                     ) : (
                       <div className="bg-slate-100/50 rounded-3xl p-12 text-center border-2 border-dashed border-slate-200">
-                        <p className="text-slate-400 font-medium">No active batches for this board</p>
+                        <p className="text-slate-400 font-medium">No active courses for this board</p>
                       </div>
                     )}
                   </div>

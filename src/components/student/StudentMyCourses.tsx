@@ -68,7 +68,7 @@ const StudentMyCourses = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Badge variant="secondary">{course.board}</Badge>
-                        <Badge variant="outline">Batch Program</Badge>
+                        <Badge variant="outline">Course Program</Badge>
                       </div>
                       <h2 className="font-semibold text-base md:text-lg">
                         {course.board} - {course.standard}
@@ -89,52 +89,52 @@ const StudentMyCourses = () => {
                       const testLink = ch.testLink || "";
 
                       return (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 rounded-lg border border-dashed bg-muted/60 px-3 py-2"
-                      >
-                        <span className="text-xs font-semibold text-primary mt-0.5">
-                          {chapterNumber}.
-                        </span>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{ch.title}</p>
-                          {ch.description && (
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {ch.description}
-                            </p>
-                          )}
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {youtubeLink && (
-                              <a
-                                href={youtubeLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
-                              >
-                                Watch Video
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 rounded-lg border border-dashed bg-muted/60 px-3 py-2"
+                        >
+                          <span className="text-xs font-semibold text-primary mt-0.5">
+                            {chapterNumber}.
+                          </span>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{ch.title}</p>
+                            {ch.description && (
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {ch.description}
+                              </p>
                             )}
-                            {testLink && (
-                              <a
-                                href={testLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
-                              >
-                                Chapter Test
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            )}
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {youtubeLink && (
+                                <a
+                                  href={youtubeLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
+                                >
+                                  Watch Video
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              )}
+                              {testLink && (
+                                <a
+                                  href={testLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
+                                >
+                                  Chapter Test
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
                       );
                     })}
 
                     {course.chapters.length === 0 && (
                       <p className="text-xs text-muted-foreground">
-                        Modules will be configured for this batch by the
+                        Modules will be configured for this course by the
                         admin. You’ll see topic-wise videos here once they are
                         added.
                       </p>

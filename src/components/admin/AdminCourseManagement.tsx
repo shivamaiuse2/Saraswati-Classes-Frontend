@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, Plus, Loader2, Save, X } from "lucide-react";
+import { Pencil, Trash2, Plus, Loader2, Save, X, BookOpen } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ import {
 import type { Course, Board } from "@/types/course";
 import courseService from "@/services/courseService";
 import { useToast } from "@/hooks/use-toast";
+import AdminChaptersModal from "./AdminChaptersModal";
 
 interface CourseFormState {
   id?: string;
@@ -63,6 +64,8 @@ const AdminCourseManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [chaptersDialogOpen, setChaptersDialogOpen] = useState(false);
+  const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCourses();
@@ -194,14 +197,14 @@ const AdminCourseManagement = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Batches</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Courses</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your CBSE, SSC and State Board course batches.
+            Manage your CBSE, SSC and State Board courses.
           </p>
         </div>
         <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700" onClick={openAdd}>
           <Plus className="h-4 w-4" />
-          Add Batch
+          Add Course
         </Button>
       </div>
 
@@ -216,8 +219,9 @@ const AdminCourseManagement = () => {
                   <TableHead className="font-bold">Timing</TableHead>
                   <TableHead className="font-bold hidden md:table-cell">Days</TableHead>
                   <TableHead className="font-bold">Fees</TableHead>
+                  <TableHead className="font-bold">Chapters</TableHead>
                   <TableHead className="font-bold hidden lg:table-cell">Subjects</TableHead>
-                  <TableHead className="text-right font-bold font-bold">Actions</TableHead>
+                  <TableHead className="text-right font-bold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -229,25 +233,25 @@ const AdminCourseManagement = () => {
                       <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                       <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
                       <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-10" /></TableCell>
                       <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell className="text-right"><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
                     </TableRow>
                   ))
                 ) : courses.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="h-32 text-center text-slate-500">
-                      No batches found. Click &quot;Add Batch&quot; to create one.
+                      No courses found. Click &quot;Add Course&quot; to create one.
                     </TableCell>
                   </TableRow>
                 ) : (
                   courses.map((course) => (
                     <TableRow key={course.id} className="hover:bg-slate-50/50">
                       <TableCell>
-                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${
-                          course.board === 'CBSE' ? 'bg-blue-100 text-blue-700' : 
-                          course.board === 'SSC' ? 'bg-amber-100 text-amber-700' : 
-                          'bg-purple-100 text-purple-700'
-                        }`}>
+                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${course.board === 'CBSE' ? 'bg-blue-100 text-blue-700' :
+                          course.board === 'SSC' ? 'bg-amber-100 text-amber-700' :
+                            'bg-purple-100 text-purple-700'
+                          }`}>
                           {course.board}
                         </span>
                       </TableCell>
@@ -259,12 +263,29 @@ const AdminCourseManagement = () => {
                         {course.days.join(", ")}
                       </TableCell>
                       <TableCell className="font-bold text-slate-900">₹{course.fees.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">
+                          {course.chapterCount || 0}
+                        </span>
+                      </TableCell>
                       <TableCell className="hidden lg:table-cell text-xs text-slate-600 truncate max-w-[150px]">
                         {course.subjects.join(", ")}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="icon" className="h-8 w-8 text-blue-600" onClick={() => openEdit(course)}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1 text-slate-700 hover:text-blue-600 hover:bg-blue-50"
+                            onClick={() => {
+                              setActiveCourseId(course.id);
+                              setChaptersDialogOpen(true);
+                            }}
+                          >
+                            <BookOpen className="h-3.5 w-3.5" />
+                            <span className="hidden sm:inline">Chapters</span>
+                          </Button>
+                          <Button variant="outline" size="icon" className="h-8 w-8 text-blue-600 hover:bg-blue-50" onClick={() => openEdit(course)}>
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button variant="outline" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(course.id)} disabled={isDeleting === course.id}>
@@ -284,13 +305,13 @@ const AdminCourseManagement = () => {
       <Dialog open={courseDialogOpen} onOpenChange={setCourseDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editingCourse?.id ? "Edit Batch" : "Add New Batch"}</DialogTitle>
+            <DialogTitle>{editingCourse?.id ? "Edit Course" : "Add New Course"}</DialogTitle>
           </DialogHeader>
           {editingCourse && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
                 <Label>Board</Label>
-                <Select value={editingCourse.board} onValueChange={(v: Board) => setEditingCourse(p => p ? {...p, board: v} : null)}>
+                <Select value={editingCourse.board} onValueChange={(v: Board) => setEditingCourse(p => p ? { ...p, board: v } : null)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select Board" />
                   </SelectTrigger>
@@ -301,32 +322,32 @@ const AdminCourseManagement = () => {
               </div>
               <div className="space-y-2">
                 <Label>Standard</Label>
-                <Input value={editingCourse.standard} onChange={e => setEditingCourse(p => p ? {...p, standard: e.target.value} : null)} placeholder="e.g. VIII, IX, X, XII Science" />
+                <Input value={editingCourse.standard} onChange={e => setEditingCourse(p => p ? { ...p, standard: e.target.value } : null)} placeholder="e.g. VIII, IX, X, XII Science" />
               </div>
               <div className="space-y-2">
                 <Label>Start Timing</Label>
-                <Input value={editingCourse.timing_start} onChange={e => setEditingCourse(p => p ? {...p, timing_start: e.target.value} : null)} placeholder="e.g. 6:30 PM" />
+                <Input value={editingCourse.timing_start} onChange={e => setEditingCourse(p => p ? { ...p, timing_start: e.target.value } : null)} placeholder="e.g. 6:30 PM" />
               </div>
               <div className="space-y-2">
                 <Label>End Timing</Label>
-                <Input value={editingCourse.timing_end} onChange={e => setEditingCourse(p => p ? {...p, timing_end: e.target.value} : null)} placeholder="e.g. 7:30 PM" />
+                <Input value={editingCourse.timing_end} onChange={e => setEditingCourse(p => p ? { ...p, timing_end: e.target.value } : null)} placeholder="e.g. 7:30 PM" />
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label>Working Days (Comma separated)</Label>
-                <Input value={editingCourse.days} onChange={e => setEditingCourse(p => p ? {...p, days: e.target.value} : null)} placeholder="Monday, Tuesday, ..." />
+                <Input value={editingCourse.days} onChange={e => setEditingCourse(p => p ? { ...p, days: e.target.value } : null)} placeholder="Monday, Tuesday, ..." />
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label>Subjects (Comma separated)</Label>
-                <Input value={editingCourse.subjects} onChange={e => setEditingCourse(p => p ? {...p, subjects: e.target.value} : null)} placeholder="Maths, Science" />
+                <Input value={editingCourse.subjects} onChange={e => setEditingCourse(p => p ? { ...p, subjects: e.target.value } : null)} placeholder="Maths, Science" />
               </div>
               <div className="space-y-2">
                 <Label>Annual Fees (per subject)</Label>
-                <Input type="number" value={editingCourse.fees} onChange={e => setEditingCourse(p => p ? {...p, fees: e.target.value} : null)} placeholder="9000" />
+                <Input type="number" value={editingCourse.fees} onChange={e => setEditingCourse(p => p ? { ...p, fees: e.target.value } : null)} placeholder="9000" />
               </div>
               <div className="flex items-end pb-1">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input type="checkbox" checked={editingCourse.isActive} onChange={e => setEditingCourse(p => p ? {...p, isActive: e.target.checked} : null)} className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                  <span className="text-sm font-medium">Batch is Active</span>
+                  <input type="checkbox" checked={editingCourse.isActive} onChange={e => setEditingCourse(p => p ? { ...p, isActive: e.target.checked } : null)} className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <span className="text-sm font-medium">Course is Active</span>
                 </label>
               </div>
             </div>
@@ -334,11 +355,26 @@ const AdminCourseManagement = () => {
           <div className="flex justify-end gap-3 mt-4">
             <Button variant="ghost" onClick={() => setCourseDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 min-w-[100px]">
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Batch"}
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Course"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      {activeCourseId && (
+        <AdminChaptersModal
+          open={chaptersDialogOpen}
+          onClose={() => {
+            setChaptersDialogOpen(false);
+            setActiveCourseId(null);
+            fetchCourses(); // Refresh counts
+          }}
+          courseId={activeCourseId}
+          courseName={courses.find(c => c.id === activeCourseId) ? 
+            `${courses.find(c => c.id === activeCourseId)?.board} - ${courses.find(c => c.id === activeCourseId)?.standard}` : 
+            ""}
+        />
+      )}
     </div>
   );
 };
