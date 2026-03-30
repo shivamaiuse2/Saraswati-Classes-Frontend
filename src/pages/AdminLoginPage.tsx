@@ -31,16 +31,16 @@ const AdminLoginPage = () => {
     setError("");
     setIsNetworkError(false);
     setIsLoading(true);
-    
+
     try {
       const result = await login(email, password, "admin");
-      
+
       if (result) {
         navigate("/admin-dashboard");
       }
     } catch (err: any) {
       console.error("Login error:", err);
-      
+
       // Check if it's a network error
       if (err?.isNetworkError) {
         setIsNetworkError(true);
@@ -85,7 +85,7 @@ const AdminLoginPage = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder="admin@saraswaticlasses.com"
+                    placeholder="Enter admin email"
                     disabled={isLoading}
                   />
                 </div>

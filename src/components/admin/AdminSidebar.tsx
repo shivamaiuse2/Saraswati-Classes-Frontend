@@ -45,7 +45,6 @@ const AdminSidebar = ({ active, setActive, isMobile = false }: AdminSidebarProps
 
   const handleLogout = () => {
     logout();
-    navigate("/");
   };
 
   return (

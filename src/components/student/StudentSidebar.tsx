@@ -33,7 +33,6 @@ const StudentSidebar = ({ active, onChange, isMobile = false }: StudentSidebarPr
 
   const handleLogout = () => {
     logout();
-    navigate("/");
   };
 
   return (

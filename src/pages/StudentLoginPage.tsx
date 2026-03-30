@@ -87,7 +87,7 @@ const StudentLoginPage = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder="student@email.com"
+                    placeholder="Enter student email"
                     disabled={isLoading}
                   />
                 </div>

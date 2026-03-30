@@ -12,7 +12,7 @@ import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
 import TestSeriesPage from "./pages/TestSeriesPage";
 import TestSeriesDetailPage from "./pages/TestSeriesDetailPage";
-import LoginPage from "./pages/LoginPage";
+
 import ResultsPage from "./pages/ResultsPage";
 import StudentLoginPage from "./pages/StudentLoginPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
@@ -43,9 +43,6 @@ const App = () => (
               <Route path="/courses/:id" element={<CourseDetailPage />} />
               <Route path="/test-series" element={<TestSeriesPage />} />
               <Route path="/test-series/:id" element={<TestSeriesDetailPage />} />
-              {/* Legacy combined login (kept for backward compatibility) */}
-              <Route path="/login" element={<LoginPage />} />
-
               {/* New dedicated login routes */}
               <Route path="/student-login" element={<StudentLoginPage />} />
               <Route path="/admin-login" element={<AdminLoginPage />} />

@@ -114,17 +114,25 @@ apiClient.interceptors.response.use(
         } catch (refreshError) {
           isRefreshing = false;
           refreshSubscribers = []; // Clear subscribers on failure
-          // If refresh fails, redirect to login
+          // If refresh fails, determine where to redirect based on current role before clearing
+          const currentRole = localStorage.getItem("sc_role");
+          
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("sc_role");
           localStorage.removeItem("sc_current_student");
           localStorage.removeItem("sc_admin");
+          
           if (
-            !window.location.pathname.includes("/login") &&
+            !window.location.pathname.includes("/admin-login") &&
+            !window.location.pathname.includes("/student-login") &&
             window.location.pathname !== "/"
           ) {
-            window.location.href = "/login";
+            if (currentRole === "admin") {
+              window.location.href = "/admin-login";
+            } else {
+              window.location.href = "/student-login";
+            }
           }
           return Promise.reject(error);
         }

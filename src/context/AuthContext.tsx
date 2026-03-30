@@ -112,12 +112,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (role) {
-      localStorage.setItem("sc_role", role);
-    } else {
-      localStorage.removeItem("sc_role");
+    if (!loading) {
+      if (role) {
+        localStorage.setItem("sc_role", role);
+      } else {
+        localStorage.removeItem("sc_role");
+      }
     }
-  }, [role]);
+  }, [role, loading]);
 
   const login = async (email: string, password: string, userType: 'admin' | 'student'): Promise<boolean> => {
     try {
@@ -199,6 +201,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   const logout = () => {
+    const currentRole = role;
+    
     // Clear auth state
     setRole(null);
     setCurrentUser(null);
@@ -210,8 +214,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("sc_current_student");
     localStorage.removeItem("sc_admin");
     
-    // Redirect to login
-    navigate('/login');
+    // Redirect based on role
+    if (currentRole === 'admin') {
+      navigate('/admin-login');
+    } else {
+      navigate('/student-login');
+    }
   };
 
   const updateProfile = async (userData: any): Promise<boolean> => {

@@ -4,7 +4,6 @@ import CoursesPage from "@/pages/CoursesPage";
 import CourseDetailPage from "@/pages/CourseDetailPage";
 import TestSeriesPage from "@/pages/TestSeriesPage";
 import TestSeriesDetailPage from "@/pages/TestSeriesDetailPage";
-import LoginPage from "@/pages/LoginPage";
 import StudentLoginPage from "@/pages/StudentLoginPage";
 import AdminLoginPage from "@/pages/AdminLoginPage";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -26,8 +25,6 @@ export const AppRouter = () => (
     <Route path="/courses/:id" element={<CourseDetailPage />} />
     <Route path="/test-series" element={<TestSeriesPage />} />
     <Route path="/test-series/:id" element={<TestSeriesDetailPage />} />
-    <Route path="/login" element={<LoginPage />} />
-
     {/* New dedicated login routes */}
     <Route path="/student-login" element={<StudentLoginPage />} />
     <Route path="/admin-login" element={<AdminLoginPage />} />
