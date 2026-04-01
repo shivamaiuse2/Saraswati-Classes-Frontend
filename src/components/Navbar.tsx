@@ -13,6 +13,7 @@ import logo from "@/assets/logo.png";
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Courses", to: "/courses" },
+  { label: "Recordings", to: "/recordings" },
   { label: "Test Series", to: "/test-series" },
   { label: "About", to: "/about" },
   // { label: "Resources", to: "/resources" },

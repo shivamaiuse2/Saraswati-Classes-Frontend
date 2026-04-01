@@ -11,6 +11,7 @@ import AdminBlogManagement from "@/components/admin/AdminBlogManagement";
 import AdminResourceManagement from "@/components/admin/AdminResourceManagement";
 import AdminTestScoreManagement from "@/components/admin/AdminTestScoreManagement";
 import AdminInquiryManagement from "@/components/admin/AdminInquiryManagement";
+import AdminRecordingManagement from "@/components/admin/AdminRecordingManagement";
 
 const AdminDashboard = () => {
   const [active, setActive] = useState<AdminTab>("dashboard");
@@ -34,6 +35,9 @@ const AdminDashboard = () => {
       break;
     case "blogs":
       content = <AdminBlogManagement />;
+      break;
+    case "recordings":
+      content = <AdminRecordingManagement />;
       break;
     case "resources":
       content = <AdminResourceManagement />;

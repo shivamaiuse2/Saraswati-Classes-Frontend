@@ -12,6 +12,8 @@ import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
 import TestSeriesPage from "./pages/TestSeriesPage";
 import TestSeriesDetailPage from "./pages/TestSeriesDetailPage";
+import RecordingsPage from "./pages/RecordingsPage";
+import RecordingDetailPage from "./pages/RecordingDetailPage";
 
 import ResultsPage from "./pages/ResultsPage";
 import StudentLoginPage from "./pages/StudentLoginPage";
@@ -98,6 +100,8 @@ const App = () => (
               <Route path="/resources" element={<ResourcesPage />} />
               <Route path="/results" element={<ResultsPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/recordings" element={<RecordingsPage />} />
+              <Route path="/recordings/:id" element={<RecordingDetailPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </TooltipProvider>

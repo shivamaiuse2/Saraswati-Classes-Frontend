@@ -15,6 +15,8 @@ import ResourcesPage from "@/pages/ResourcesPage";
 import ResultsPage from "@/pages/ResultsPage";
 import Blog from "@/pages/Blog";
 import BlogDetailPage from "@/pages/BlogDetailPage";
+import RecordingsPage from "@/pages/RecordingsPage";
+import RecordingDetailPage from "@/pages/RecordingDetailPage";
 import NotFound from "@/pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
@@ -72,6 +74,8 @@ export const AppRouter = () => (
     <Route path="/blog" element={<Blog />} />
     <Route path="/blog/:id" element={<BlogDetailPage />} />
     <Route path="/contact" element={<ContactPage />} />
+    <Route path="/recordings" element={<RecordingsPage />} />
+    <Route path="/recordings/:id" element={<RecordingDetailPage />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
