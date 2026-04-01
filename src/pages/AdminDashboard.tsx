@@ -8,7 +8,6 @@ import AdminTestSeriesManagement from "@/components/admin/AdminTestSeriesManagem
 import AdminBannerManagement from "@/components/admin/AdminBannerManagement";
 import AdminResultManagement from "@/components/admin/AdminResultManagement";
 import AdminBlogManagement from "@/components/admin/AdminBlogManagement";
-import AdminResourceManagement from "@/components/admin/AdminResourceManagement";
 import AdminTestScoreManagement from "@/components/admin/AdminTestScoreManagement";
 import AdminInquiryManagement from "@/components/admin/AdminInquiryManagement";
 import AdminRecordingManagement from "@/components/admin/AdminRecordingManagement";
@@ -38,9 +37,6 @@ const AdminDashboard = () => {
       break;
     case "recordings":
       content = <AdminRecordingManagement />;
-      break;
-    case "resources":
-      content = <AdminResourceManagement />;
       break;
     case "test-scores":
       content = <AdminTestScoreManagement />;

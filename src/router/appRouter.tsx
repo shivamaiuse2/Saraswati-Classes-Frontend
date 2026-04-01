@@ -11,7 +11,6 @@ import StudentDashboard from "@/pages/StudentDashboard";
 import AboutPage from "@/pages/AboutPage";
 import ContactPage from "@/pages/ContactPage";
 import GalleryPage from "@/pages/GalleryPage";
-import ResourcesPage from "@/pages/ResourcesPage";
 import ResultsPage from "@/pages/ResultsPage";
 import Blog from "@/pages/Blog";
 import BlogDetailPage from "@/pages/BlogDetailPage";
@@ -69,7 +68,6 @@ export const AppRouter = () => (
 
     <Route path="/about" element={<AboutPage />} />
     <Route path="/gallery" element={<GalleryPage />} />
-    <Route path="/resources" element={<ResourcesPage />} />
     <Route path="/results" element={<ResultsPage />} />
     <Route path="/blog" element={<Blog />} />
     <Route path="/blog/:id" element={<BlogDetailPage />} />

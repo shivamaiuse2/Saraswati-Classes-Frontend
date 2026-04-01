@@ -100,13 +100,6 @@ interface Result {
   studentId?: string;
 }
 
-interface Resource {
-  id: string;
-  title: string;
-  description: string;
-  price: string;
-}
-
 interface GalleryItem {
   id: string;
   title: string;
@@ -140,12 +133,6 @@ interface CreateBlogData {
   image: string;
 }
 
-interface CreateResourceData {
-  title: string;
-  description: string;
-  price: string;
-}
-
 interface CreateResultData {
   name: string;
   marks: string;
@@ -165,16 +152,6 @@ const convertApiToBlog = (apiBlog: any): Blog => {
     isActive: apiBlog.isActive !== undefined ? apiBlog.isActive : true,
     author: apiBlog.author || apiBlog.creator?.adminProfile?.name || "Admin",
   } as any;
-};
-
-// Convert API response to frontend Resource type
-const convertApiToResource = (apiResource: any): Resource => {
-  return {
-    id: apiResource.id,
-    title: apiResource.title,
-    description: apiResource.description,
-    price: apiResource.price || '',
-  };
 };
 
 // Convert API response to frontend Result type
@@ -281,71 +258,6 @@ const contentService = {
 
   deleteBlog: async (id: string): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.delete(`/content/admin/blogs/${id}`);
-    return response.data;
-  },
-
-  // Resource operations (public)
-  getResources: async (page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResponse<Resource>> => {
-    let url = `/content/resources?page=${page}&limit=${limit}`;
-    if (search) url += `&search=${search}`;
-    
-    const response = await apiClient.get(url);
-    const apiResponse = response.data;
-    
-    // Convert API response to frontend format
-    const convertedItems = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToResource);
-    
-    return {
-      ...apiResponse,
-      data: convertedItems
-    };
-  },
-
-  getResourceById: async (id: string): Promise<SingleItemResponse<Resource>> => {
-    const response = await apiClient.get(`/content/resources/${id}`);
-    const apiResponse = response.data;
-    
-    return {
-      ...apiResponse,
-      data: convertApiToResource(apiResponse.data)
-    };
-  },
-
-  // Admin resource operations
-  getAdminResources: async (page: number = 1, limit: number = 10): Promise<PaginatedResponse<Resource>> => {
-    const response = await apiClient.get(`/content/admin/resources?page=${page}&limit=${limit}`);
-    const apiResponse = response.data;
-    
-    const convertedItems = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToResource);
-    
-    return {
-      ...apiResponse,
-      data: convertedItems
-    };
-  },
-
-  createResource: async (resourceData: CreateResourceData): Promise<SingleItemResponse<Resource>> => {
-    const response = await apiClient.post('/content/admin/resources', resourceData);
-    const apiResponse = response.data;
-    
-    return {
-      ...apiResponse,
-      data: convertApiToResource(apiResponse.data)
-    };
-  },
-
-  updateResource: async (id: string, resourceData: Partial<CreateResourceData>): Promise<SingleItemResponse<Resource>> => {
-    const response = await apiClient.put(`/content/admin/resources/${id}`, resourceData);
-    const apiResponse = response.data;
-    
-    return {
-      ...apiResponse,
-      data: convertApiToResource(apiResponse.data)
-    };
-  },
-
-  deleteResource: async (id: string): Promise<{ success: boolean; message: string }> => {
-    const response = await apiClient.delete(`/content/admin/resources/${id}`);
     return response.data;
   },
 

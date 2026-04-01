@@ -23,7 +23,6 @@ import StudentDashboard from "./pages/StudentDashboard";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import GalleryPage from "./pages/GalleryPage";
-import ResourcesPage from "./pages/ResourcesPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./pages/NotFound";
@@ -97,7 +96,6 @@ const App = () => (
               <Route path="/blog/:id" element={<BlogDetailPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/gallery" element={<GalleryPage />} />
-              <Route path="/resources" element={<ResourcesPage />} />
               <Route path="/results" element={<ResultsPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/recordings" element={<RecordingsPage />} />
@@ -112,4 +110,3 @@ const App = () => (
 );
 
 export default App;
-

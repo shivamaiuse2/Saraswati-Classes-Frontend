@@ -22,7 +22,7 @@ import {
   defaultPopupContent,
 } from "@/data/mockData";
 
-// Define types for contact message, result, blog, and resource
+// Define types for contact message, result, and blog
 export interface ContactMessage {
   id: string;
   name: string;
@@ -49,12 +49,6 @@ export interface Blog {
   date: string;
 }
 
-export interface Resource {
-  id: string;
-  title: string;
-  description: string;
-  price: string;
-}
 
 // Conversion functions to map API responses to frontend types
 const convertApiToCourse = (apiCourse: any): Course => ({
@@ -167,13 +161,6 @@ const convertApiToBlog = (apiBlog: any): Blog => ({
   date: apiBlog.date || apiBlog.createdAt || new Date().toISOString(),
 });
 
-const convertApiToResource = (apiResource: any): Resource => ({
-  id: apiResource.id,
-  title: apiResource.title,
-  description: apiResource.description,
-  price: apiResource.price || '',
-});
-
 const convertApiToContactMessage = (apiMessage: any): ContactMessage => ({
   id: apiMessage.id,
   name: apiMessage.name,
@@ -228,9 +215,6 @@ interface AppContextType {
   addBlog: (blog: Blog) => void;
   loadingBlogs: boolean;
 
-  resources: Resource[];
-  addResource: (resource: Resource) => void;
-  loadingResources: boolean;
  
   loadCourses: () => Promise<void>;
   loadTestSeries: () => Promise<void>;
@@ -263,9 +247,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [results, setResults] = useState<Result[]>([]);
   const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [resources, setResources] = useState<Resource[]>([]);
   const [loadingHeroPosters, setLoadingHeroPosters] = useState(true);
-  const [loadingResources, setLoadingResources] = useState(true);
   const [loadingBlogs, setLoadingBlogs] = useState(true);
   const [loadingResults, setLoadingResults] = useState(true);
   const [testimonials, setTestimonials] = useState<any[]>([]);
@@ -340,7 +322,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           bannersRes,
           resultsRes,
           blogsRes,
-          resourcesRes,
           testimonialsRes
         ] = await Promise.allSettled([
           courseService.getCourses(1, 100),
@@ -348,7 +329,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           bannerService.getBanners(),
           contentService.getResults(1, 100),
           contentService.getBlogs(1, 100),
-          contentService.getResources(1, 100),
           contentService.getGalleryItems(1, 10, "Testimonials")
         ]);
 
@@ -375,9 +355,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         if (blogsRes.status === 'fulfilled' && blogsRes.value.success) {
           setBlogs(blogsRes.value.data.map(convertApiToBlog));
         }
-        if (resourcesRes.status === 'fulfilled' && resourcesRes.value.success) {
-          setResources(resourcesRes.value.data.map(convertApiToResource));
-        }
+        
         if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.success) {
           const mapped = testimonialsRes.value.data.map(item => ({
             id: item.id,
@@ -396,7 +374,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setLoadingHeroPosters(false);
         setLoadingBlogs(false);
         setLoadingResults(false);
-        setLoadingResources(false);
+        
       }
     };
 
@@ -432,7 +410,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const addContactMessage = (msg: ContactMessage) => setContactMessages((prev) => [msg, ...prev]);
   const addResult = (result: Result) => setResults((prev) => [result, ...prev]);
   const addBlog = (blog: Blog) => setBlogs((prev) => [blog, ...prev]);
-  const addResource = (resource: Resource) => setResources((prev) => [resource, ...prev]);
+  
 
   const addCourse = async (c: Omit<Course, "id">) => {
     try {
@@ -584,7 +562,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       contactMessages, addContactMessage, updateContactMessage, removeContactMessage,  // Add the new function
       results, addResult, loadingResults,
       blogs, addBlog, loadingBlogs,
-      resources, addResource, loadingResources,
       testimonials, loadingTestimonials,
       loadCourses, loadTestSeries,
       networkError, clearNetworkError,
