@@ -1,25 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import type { Banner } from "@/types/banner";
 import bannerService from "@/services/bannerService";
+import { Button } from "@/components/ui/button";
 
-const ROTATION_INTERVAL_MS = 5000;
+const ROTATION_INTERVAL_MS = 6000;
 
 const HomeBannerCarousel = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [index, setIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     const loadBanners = async () => {
       try {
-        const response = await bannerService.fetchBanners();
+        const response = await bannerService.getBanners();
         if (response.success && Array.isArray(response.data)) {
-          setBanners(response.data.map((b: any) => ({
-            id: b.id,
-            image: b.imageUrl || b.image || "",
-            linkedTestSeriesId: b.testSeriesId || b.linkedTestSeriesId || ""
-          })));
+          setBanners(response.data);
         }
       } catch (error) {
         console.error("Failed to fetch banners:", error);
@@ -29,81 +27,105 @@ const HomeBannerCarousel = () => {
   }, []);
 
   useEffect(() => {
-    if (!banners.length) return;
+    if (!banners.length || isPaused) return;
 
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % banners.length);
     }, ROTATION_INTERVAL_MS);
 
     return () => clearInterval(timer);
-  }, [banners.length]);
+  }, [banners.length, isPaused]);
 
   if (!banners.length) return null;
 
+  const currentBanner = banners[index];
+  const nextBanner = () => setIndex((prev) => (prev + 1) % banners.length);
+  const prevBanner = () => setIndex((prev) => (prev - 1 + banners.length) % banners.length);
+
+  const getLink = () => {
+    if (currentBanner.category === "COURSE") {
+      return `/courses/${currentBanner.referenceId}`;
+    }
+    return `/test-series/${currentBanner.referenceId}`;
+  };
+
+  const getLabel = () => {
+    if (currentBanner.category === "COURSE") {
+      return "Featured Course";
+    }
+    return "Featured Test Series";
+  };
+
   return (
-    <section className="py-8">
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 relative">
-
-        {/* LEFT ARROW */}
-        <button
-          onClick={() =>
-            setIndex((prev) => (prev - 1 + banners.length) % banners.length)
-          }
-          className="absolute -left-5 md:-left-9 top-1/2 -translate-y-1/2 z-20 
-          bg-black text-white shadow-xl 
-          rounded-full p-3 md:p-3.5 
-          hover:scale-110 transition-all duration-200"
-        >
-          <ChevronLeft size={22} />
-        </button>
-
-        {/* RIGHT ARROW */}
-        <button
-          onClick={() =>
-            setIndex((prev) => (prev + 1) % banners.length)
-          }
-          className="absolute -right-5 md:-right-9 top-1/2 -translate-y-1/2 z-20 
-          bg-black text-white shadow-xl 
-          rounded-full p-3 md:p-3.5 
-          hover:scale-110 transition-all duration-200"
-        >
-          <ChevronRight size={22} />
-        </button>
-
-        {/* CARD */}
-        <Link
-          to={`/test-series/${banners[index].linkedTestSeriesId}`}
-          className="block"
-        >
-          <div
-            className="overflow-hidden rounded-3xl px-6 md:px-10 py-10 md:py-14 
-            flex flex-col md:flex-row items-center justify-between gap-6"
-            style={{
-              background:
-                "linear-gradient(135deg, #1D4ED8 0%, #2563EB 40%, #0EA5E9 100%)",
-            }}
+    <section 
+      className="py-10 md:py-16 overflow-hidden"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div className="container mx-auto px-4 relative">
+        
+        {/* Main Banner Container */}
+        <div className="relative h-[400px] md:h-[500px] w-full rounded-[2rem] overflow-hidden shadow-2xl group">
+          
+          {/* Background Image with Overlay */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 scale-105 group-hover:scale-100"
+            style={{ backgroundImage: `url(${currentBanner.imageUrl})` }}
           >
-            <div className="space-y-3 text-center md:text-left text-white max-w-xl">
-              
-              <p className="text-xs md:text-sm font-semibold uppercase tracking-[0.18em] opacity-90">
-                Featured Test Series
-              </p>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          </div>
 
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-snug">
-                Practice with our rotating{" "}
-                <span className="underline decoration-white/60">
-                  premium test series
-                </span>
+          {/* Content Layer */}
+          <div className="relative h-full flex flex-col justify-center px-8 md:px-16 max-w-2xl text-white space-y-6">
+            <div className="space-y-2 translate-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-forwards">
+              <span className="px-4 py-1 rounded-full bg-primary/20 backdrop-blur-md text-primary-foreground text-xs font-bold uppercase tracking-widest border border-white/10">
+                {getLabel()}
+              </span>
+              <h2 className="text-4xl md:text-6xl font-black leading-[1.1] tracking-tight">
+                {currentBanner.title}
               </h2>
-
-              <p className="text-sm md:text-base text-white/90 max-w-lg mx-auto md:mx-0">
-                Tap anywhere on this blue banner to open full details of the
-                currently featured test series.
+              <p className="text-lg md:text-xl text-white/80 font-medium max-w-md">
+                {currentBanner.subtitle}
               </p>
+            </div>
 
+            <div className="flex gap-4 translate-y-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-forwards delay-200">
+              <Button asChild size="lg" className="rounded-full px-8 h-14 text-lg font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
+                <Link to={getLink()}>
+                  Explore <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
             </div>
           </div>
-        </Link>
+
+          {/* Navigation Controls */}
+          <div className="absolute bottom-8 right-8 flex items-center gap-4 z-20">
+            <button
+              onClick={prevBanner}
+              className="w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <div className="flex gap-2">
+              {banners.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setIndex(i)}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${
+                    index === i ? "w-8 bg-primary" : "w-2 bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={nextBanner}
+              className="w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+
+        </div>
 
       </div>
     </section>

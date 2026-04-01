@@ -268,7 +268,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await courseService.getCourses(1, 100);
       if (response.success && response.data) {
-        setCourses(response.data.map(convertApiToCourse));
+        if (Array.isArray(response.data)) {
+          setCourses(response.data.map(convertApiToCourse));
+        } else {
+          const allCourses: Course[] = [];
+          for (const key in response.data) {
+            allCourses.push(...response.data[key].map(convertApiToCourse));
+          }
+          setCourses(allCourses);
+        }
         setNetworkError(null);
       } else {
         setCourses([]);
@@ -290,7 +298,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await testSeriesService.getTestSeries(1, 100);
       if (response.success && response.data) {
-        setTestSeries(response.data.map(convertApiToTestSeries));
+        if (Array.isArray(response.data)) {
+          setTestSeries(response.data.map(convertApiToTestSeries));
+        } else {
+          setTestSeries([]);
+        }
         setNetworkError(null);
       } else {
         setTestSeries([]);

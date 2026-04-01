@@ -1,6 +1,10 @@
 export interface Banner {
   id: string;
-  image: string;
-  linkedTestSeriesId: string;
+  imageUrl: string;
+  title: string;
+  subtitle: string;
+  category: "COURSE" | "TEST_SERIES";
+  referenceId: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
-

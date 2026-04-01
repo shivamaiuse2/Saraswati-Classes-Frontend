@@ -1,146 +1,57 @@
 import apiClient from '@/lib/api';
-import type { HeroPoster } from '@/data/mockData';
+import type { Banner } from '@/types/banner';
 
 interface BannerResponse {
   success: boolean;
   message: string;
-  data: any; // Raw API response
+  data: Banner;
 }
 
 interface BannersResponse {
   success: boolean;
   message: string;
-  data: any[]; // Raw API response
+  data: Banner[];
 }
 
 interface CreateBannerData {
   imageUrl: string;
-  testSeriesId?: string;
-  courseId?: string;
-  enabled: boolean;
+  title: string;
+  subtitle: string;
+  category: "COURSE" | "TEST_SERIES";
+  referenceId: string;
 }
 
 interface UpdateBannerData extends Partial<CreateBannerData> { }
 
-// Convert API response to frontend HeroPoster type
-const convertApiToHeroPoster = (apiBanner: any): HeroPoster => {
-  return {
-    id: apiBanner.id,
-    imageUrl: apiBanner.imageUrl,
-    testSeriesId: apiBanner.testSeriesId || '',
-    enabled: apiBanner.enabled !== undefined ? apiBanner.enabled : true,
-    createdAt: apiBanner.createdAt || new Date().toISOString(),
-  };
-};
-
 const bannerService = {
-  // Get all active banners
+  // Get all banners
   getBanners: async (): Promise<BannersResponse> => {
     const response = await apiClient.get('/banners');
-    const apiResponse = response.data;
-
-    // Convert API response to frontend format
-    const convertedBanners = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToHeroPoster);
-
-    return {
-      ...apiResponse,
-      data: convertedBanners
-    };
-  },
-
-  // Fetch all active banners
-  fetchBanners: async (): Promise<BannersResponse> => {
-    const response = await apiClient.get('/banners');
-    const apiResponse = response.data;
-
-    // Convert API response to frontend format
-    const convertedBanners = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToHeroPoster);
-
-    return {
-      ...apiResponse,
-      data: convertedBanners
-    };
-  },
-
-
-
-  // Get all banners (Admin)
-  getAdminBanners: async (): Promise<BannersResponse> => {
-    const response = await apiClient.get('/admin/banners');
-    const apiResponse = response.data;
-
-    // Convert API response to frontend format
-    const convertedBanners = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToHeroPoster);
-
-    return {
-      ...apiResponse,
-      data: convertedBanners
-    };
+    return response.data;
   },
 
   // Get banner by ID
   getBannerById: async (id: string): Promise<BannerResponse> => {
-    const response = await apiClient.get(`/admin/banners/${id}`);
-    const apiResponse = response.data;
-
-    return {
-      ...apiResponse,
-      data: convertApiToHeroPoster(apiResponse.data)
-    };
-  },
-
-  // Create a new banner
-  createBanner: async (bannerData: CreateBannerData): Promise<BannerResponse> => {
-    const response = await apiClient.post('/admin/banners', bannerData);
-    const apiResponse = response.data;
-
-    return {
-      ...apiResponse,
-      data: convertApiToHeroPoster(apiResponse.data)
-    };
-  },
-
-  // Update a banner
-  updateBanner: async (id: string, bannerData: UpdateBannerData): Promise<BannerResponse> => {
-    const response = await apiClient.put(`/admin/banners/${id}`, bannerData);
-    const apiResponse = response.data;
-
-    return {
-      ...apiResponse,
-      data: convertApiToHeroPoster(apiResponse.data)
-    };
-  },
-
-  // Delete a banner
-  deleteBanner: async (id: string): Promise<{ success: boolean; message: string }> => {
-    const response = await apiClient.delete(`/admin/banners/${id}`);
+    const response = await apiClient.get(`/banners/${id}`);
     return response.data;
   },
 
-  // Enable a banner
-  enableBanner: async (id: string): Promise<BannerResponse> => {
-    const response = await apiClient.patch(`/banners/${id}/enable`);
-    const apiResponse = response.data;
-
-    return {
-      ...apiResponse,
-      data: {
-        banner: convertApiToHeroPoster(apiResponse.data.banner)
-      }
-    };
+  // Create a new banner (Admin)
+  createBanner: async (bannerData: CreateBannerData): Promise<BannerResponse> => {
+    const response = await apiClient.post('/banners', bannerData);
+    return response.data;
   },
 
-  // Disable a banner
-  disableBanner: async (id: string): Promise<BannerResponse> => {
-    const response = await apiClient.patch(`/banners/${id}/disable`);
-    const apiResponse = response.data;
+  // Update a banner (Admin)
+  updateBanner: async (id: string, bannerData: UpdateBannerData): Promise<BannerResponse> => {
+    const response = await apiClient.put(`/banners/${id}`, bannerData);
+    return response.data;
+  },
 
-    return {
-      ...apiResponse,
-      data: {
-        banner: convertApiToHeroPoster(apiResponse.data.banner)
-      }
-    };
+  // Delete a banner (Admin)
+  deleteBanner: async (id: string): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.delete(`/banners/${id}`);
+    return response.data;
   },
 };
 
