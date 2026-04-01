@@ -54,7 +54,7 @@ const emptyCourseForm: CourseFormState = {
   isActive: true,
 };
 
-const boards: Board[] = ["CBSE", "SSC", "STATE"];
+const boards: Board[] = ["CBSE", "SSC", "HSC"];
 
 const AdminCourseManagement = () => {
   const { toast } = useToast();
@@ -370,8 +370,8 @@ const AdminCourseManagement = () => {
             fetchCourses(); // Refresh counts
           }}
           courseId={activeCourseId}
-          courseName={courses.find(c => c.id === activeCourseId) ? 
-            `${courses.find(c => c.id === activeCourseId)?.board} - ${courses.find(c => c.id === activeCourseId)?.standard}` : 
+          courseName={courses.find(c => c.id === activeCourseId) ?
+            `${courses.find(c => c.id === activeCourseId)?.board} - ${courses.find(c => c.id === activeCourseId)?.standard}` :
             ""}
         />
       )}

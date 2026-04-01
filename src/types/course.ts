@@ -1,4 +1,4 @@
-export type Board = "CBSE" | "SSC" | "STATE";
+export type Board = "CBSE" | "SSC" | "HSC";
 
 export interface Chapter {
   id: string;

@@ -1,6 +1,6 @@
 export interface Course {
   id: string;
-  board: "CBSE" | "SSC" | "STATE";
+  board: "CBSE" | "SSC" | "HSC";
   standard: string;
   timing_start: string;
   timing_end: string;
@@ -155,7 +155,7 @@ export const defaultCourses: Course[] = [
   },
   {
     id: "state-11",
-    board: "STATE",
+    board: "HSC",
     standard: "XI",
     timing_start: "6:15 PM",
     timing_end: "9:30 PM",
@@ -167,7 +167,7 @@ export const defaultCourses: Course[] = [
   },
   {
     id: "state-12",
-    board: "STATE",
+    board: "HSC",
     standard: "XII",
     timing_start: "6:15 PM",
     timing_end: "9:30 PM",

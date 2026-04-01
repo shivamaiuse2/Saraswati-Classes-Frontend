@@ -53,7 +53,7 @@ export interface Blog {
 // Conversion functions to map API responses to frontend types
 const convertApiToCourse = (apiCourse: any): Course => ({
   id: apiCourse.id,
-  board: apiCourse.board as "CBSE" | "SSC" | "STATE",
+  board: apiCourse.board as "CBSE" | "SSC" | "HSC",
   standard: apiCourse.standard,
   timing_start: apiCourse.timing_start,
   timing_end: apiCourse.timing_end,
@@ -93,11 +93,11 @@ const convertApiToHeroPoster = (apiBanner: any): HeroPoster => ({
 
 const convertApiToStudent = (apiStudent: any): StudentUser => {
   const profile = apiStudent.studentProfile || {};
-  
+
   // Extract enrollment IDs
   const enrolledCourses = (profile.courseEnrollments || []).map((e: any) => e.courseId);
   const enrolledTestSeries = (profile.testSeriesEnrollments || []).map((e: any) => e.testSeriesId);
-  
+
   // Extract approved/active enrollments
   const approvedCourses = (profile.courseEnrollments || [])
     .filter((e: any) => e.status === 'ACTIVE')
@@ -215,12 +215,12 @@ interface AppContextType {
   addBlog: (blog: Blog) => void;
   loadingBlogs: boolean;
 
- 
+
   loadCourses: () => Promise<void>;
   loadTestSeries: () => Promise<void>;
   testimonials: any[];
   loadingTestimonials: boolean;
-  
+
   networkError: string | null;
   clearNetworkError: () => void;
 }
@@ -256,10 +256,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // Helper to check if error is a network error
   const isNetworkError = (error: any): boolean => {
-    return error?.isNetworkError || 
-           error?.code === 'ERR_NETWORK' || 
-           error?.message?.includes('Network Error') ||
-           error?.message?.includes('Unable to connect');
+    return error?.isNetworkError ||
+      error?.code === 'ERR_NETWORK' ||
+      error?.message?.includes('Network Error') ||
+      error?.message?.includes('Unable to connect');
   };
 
   // Load courses from API
@@ -355,13 +355,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         if (blogsRes.status === 'fulfilled' && blogsRes.value.success) {
           setBlogs(blogsRes.value.data.map(convertApiToBlog));
         }
-        
+
         if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.success) {
           const mapped = testimonialsRes.value.data.map(item => ({
             id: item.id,
             name: item.title,
-            text: item.image, 
-            avatar: item.image 
+            text: item.image,
+            avatar: item.image
           }));
           setTestimonials(mapped);
         }
@@ -374,7 +374,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setLoadingHeroPosters(false);
         setLoadingBlogs(false);
         setLoadingResults(false);
-        
+
       }
     };
 
@@ -410,7 +410,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const addContactMessage = (msg: ContactMessage) => setContactMessages((prev) => [msg, ...prev]);
   const addResult = (result: Result) => setResults((prev) => [result, ...prev]);
   const addBlog = (blog: Blog) => setBlogs((prev) => [blog, ...prev]);
-  
+
 
   const addCourse = async (c: Omit<Course, "id">) => {
     try {
@@ -536,15 +536,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateContactMessage = (id: string, updates: Partial<ContactMessage>) => {
-    setContactMessages(prev => 
-      prev.map(msg => 
+    setContactMessages(prev =>
+      prev.map(msg =>
         msg.id === id ? { ...msg, ...updates } : msg
       )
     );
   };
 
   const removeContactMessage = (id: string) => {
-    setContactMessages(prev => 
+    setContactMessages(prev =>
       prev.filter(msg => msg.id !== id)
     );
   };

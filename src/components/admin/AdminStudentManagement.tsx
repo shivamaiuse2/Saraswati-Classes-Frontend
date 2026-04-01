@@ -39,7 +39,7 @@ const standards = [
 
 type StandardOption = (typeof standards)[number];
 
-const boards: Student["board"][] = ["SSC", "CBSE", "STATE"];
+const boards: Student["board"][] = ["SSC", "CBSE", "HSC"];
 
 const AdminStudentManagement = () => {
   const { courses, testSeries } = useApp();

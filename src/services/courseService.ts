@@ -28,7 +28,7 @@ interface ChapterResponse {
 
 export interface Course {
   id: string;
-  board: "CBSE" | "SSC" | "STATE";
+  board: "CBSE" | "SSC" | "HSC";
   standard: string;
   timing_start: string;
   timing_end: string;
@@ -68,7 +68,7 @@ const convertApiToCourse = (apiCourse: any): Course => {
   };
 };
 
-interface UpdateCourseData extends Partial<CreateCourseData> {}
+interface UpdateCourseData extends Partial<CreateCourseData> { }
 
 const courseService = {
   // Get all courses (returns grouped object if no board filter)
@@ -76,10 +76,10 @@ const courseService = {
     let url = `/courses?page=${page}&limit=${limit}`;
     if (board) url += `&board=${board}`;
     if (search) url += `&search=${search}`;
-    
+
     const response = await apiClient.get(url);
     const apiResponse = response.data;
-    
+
     if (apiResponse.success && apiResponse.data) {
       if (Array.isArray(apiResponse.data)) {
         apiResponse.data = apiResponse.data.map(convertApiToCourse);
@@ -92,7 +92,7 @@ const courseService = {
         apiResponse.data = grouped;
       }
     }
-    
+
     return apiResponse;
   },
 
@@ -100,7 +100,7 @@ const courseService = {
   getCourseById: async (id: string): Promise<SingleCourseResponse> => {
     const response = await apiClient.get(`/courses/${id}`);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
       data: convertApiToCourse(apiResponse.data)
@@ -111,7 +111,7 @@ const courseService = {
   createCourse: async (courseData: CreateCourseData): Promise<SingleCourseResponse> => {
     const response = await apiClient.post('/courses', courseData);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
       data: convertApiToCourse(apiResponse.data)
@@ -122,7 +122,7 @@ const courseService = {
   updateCourse: async (id: string, courseData: UpdateCourseData): Promise<SingleCourseResponse> => {
     const response = await apiClient.put(`/courses/${id}`, courseData);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
       data: convertApiToCourse(apiResponse.data)

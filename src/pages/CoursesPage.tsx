@@ -49,7 +49,7 @@ const CoursesPage = () => {
   // Group courses by board
   const cbseCourses = courses.filter(c => c.board === "CBSE");
   const sscCourses = courses.filter(c => c.board === "SSC");
-  const stateCourses = courses.filter(c => c.board === "STATE");
+  const stateCourses = courses.filter(c => c.board === "HSC");
 
   const boards = [
     {
