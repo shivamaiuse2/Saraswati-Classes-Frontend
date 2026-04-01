@@ -19,7 +19,6 @@ import { useApp } from "@/context/AppContext";
 import contentService from "@/services/contentService";
 import StudentSlider from "@/components/StudentSlider";
 import PopupBanner from "@/components/PopupBanner";
-import AboutOverview from "@/components/AboutOverview";
 import HomeBannerCarousel from "@/components/banner/HomeBannerCarousel";
 import useEmblaCarousel from "embla-carousel-react";
 import { testimonials as staticTestimonials } from "@/data/testimonials";
@@ -570,16 +569,6 @@ const Index = () => {
           </motion.div>
         </div>
       </motion.section>
-
-      {/* About Overview */}
-      <motion.div
-        variants={scrollReveal}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-      >
-        <AboutOverview />
-      </motion.div>
 
       {/* Testimonials */}
       <motion.section
