@@ -1,5 +1,5 @@
-import apiClient from '@/lib/api';
-import type { TestSeries } from '@/data/mockData'; // Using mockData types
+import apiClient from "@/lib/api";
+import type { TestSeries } from "@/data/mockData"; // Using mockData types
 
 interface PaginatedResponse<T> {
   success: boolean;
@@ -47,48 +47,64 @@ const convertApiToTestSeries = (apiTestSeries: any): TestSeries => {
     testPattern: apiTestSeries.testPattern,
     benefits: apiTestSeries.benefits || [],
     image: apiTestSeries.image,
-    ctaLabel: apiTestSeries.ctaLabel || 'Enroll Now',
-    demoTestLink: apiTestSeries.demoTestLink || '',
-    heroPosterThumbnail: apiTestSeries.heroPosterThumbnail || '',
+    ctaLabel: apiTestSeries.ctaLabel || "Enroll Now",
+    demoTestLink: apiTestSeries.demoTestLink || "",
+    heroPosterThumbnail: apiTestSeries.heroPosterThumbnail || "",
     showInHeroPoster: apiTestSeries.showInHeroPoster || false,
     testsCount: apiTestSeries.testsCount || 0,
-    mode: apiTestSeries.mode || 'Online',
-    price: apiTestSeries.price || '0',
+    mode: apiTestSeries.mode || "Online",
+    price: apiTestSeries.price || "0",
     tests: apiTestSeries.tests || [],
   };
 };
 
 const testSeriesService = {
   // Get all test series
-  getTestSeries: async (page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResponse<TestSeries>> => {
+  getTestSeries: async (
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+  ): Promise<PaginatedResponse<TestSeries>> => {
     let url = `/test-series?page=${page}&limit=${limit}`;
     if (search) url += `&search=${search}`;
-    
+
     const response = await apiClient.get(url);
     const apiResponse = response.data;
-    
+
     // Convert API response to frontend format
-    const convertedItems = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToTestSeries);
-    
+    const convertedItems = (
+      Array.isArray(apiResponse.data)
+        ? apiResponse.data
+        : apiResponse.data || []
+    ).map(convertApiToTestSeries);
+
     return {
       ...apiResponse,
-      data: convertedItems
+      data: convertedItems,
     };
   },
 
   // Get all test series (Admin)
-  getAdminTestSeries: async (page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResponse<TestSeries>> => {
+  getAdminTestSeries: async (
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+  ): Promise<PaginatedResponse<TestSeries>> => {
     let url = `/test-series/admin?page=${page}&limit=${limit}`;
     if (search) url += `&search=${search}`;
-    
+
     const response = await apiClient.get(url);
     const apiResponse = response.data;
-    
-    const convertedItems = (Array.isArray(apiResponse.data) ? apiResponse.data : (apiResponse.data || [])).map(convertApiToTestSeries);
-    
+
+    const convertedItems = (
+      Array.isArray(apiResponse.data)
+        ? apiResponse.data
+        : apiResponse.data || []
+    ).map(convertApiToTestSeries);
+
     return {
       ...apiResponse,
-      data: convertedItems
+      data: convertedItems,
     };
   },
 
@@ -96,80 +112,115 @@ const testSeriesService = {
   getTestSeriesById: async (id: string): Promise<SingleTestSeriesResponse> => {
     const response = await apiClient.get(`/test-series/${id}`);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
-      data: convertApiToTestSeries(apiResponse.data)
+      data: convertApiToTestSeries(apiResponse.data),
     };
   },
 
   // Create a new test series
-  createTestSeries: async (testSeriesData: CreateTestSeriesData): Promise<SingleTestSeriesResponse> => {
-    const response = await apiClient.post('/test-series', testSeriesData);
+  createTestSeries: async (
+    testSeriesData: CreateTestSeriesData,
+  ): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.post("/test-series", testSeriesData);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
-      data: convertApiToTestSeries(apiResponse.data)
+      data: convertApiToTestSeries(apiResponse.data),
     };
   },
 
   // Update a test series
-  updateTestSeries: async (id: string, testSeriesData: UpdateTestSeriesData): Promise<SingleTestSeriesResponse> => {
+  updateTestSeries: async (
+    id: string,
+    testSeriesData: UpdateTestSeriesData,
+  ): Promise<SingleTestSeriesResponse> => {
     const response = await apiClient.put(`/test-series/${id}`, testSeriesData);
     const apiResponse = response.data;
-    
+
     return {
       ...apiResponse,
-      data: convertApiToTestSeries(apiResponse.data)
+      data: convertApiToTestSeries(apiResponse.data),
     };
   },
 
   // Delete a test series
-  deleteTestSeries: async (id: string): Promise<{ success: boolean; message: string }> => {
+  deleteTestSeries: async (
+    id: string,
+  ): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.delete(`/test-series/${id}`);
     return response.data;
   },
 
   // Test management
-  addTest: async (seriesId: string, testData: any): Promise<SingleTestSeriesResponse> => {
-    const response = await apiClient.post(`/test-series/${seriesId}/tests`, testData);
+  addTest: async (
+    seriesId: string,
+    testData: any,
+  ): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.post(
+      `/test-series/${seriesId}/tests`,
+      testData,
+    );
     return response.data;
   },
 
-  updateTest: async (testId: string, testData: any): Promise<SingleTestSeriesResponse> => {
-    const response = await apiClient.put(`/test-series/tests/${testId}`, testData);
+  updateTest: async (
+    testId: string,
+    testData: any,
+  ): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.put(
+      `/test-series/tests/${testId}`,
+      testData,
+    );
     return response.data;
   },
 
-  deleteTest: async (testId: string): Promise<{ success: boolean; message: string }> => {
+  deleteTest: async (
+    testId: string,
+  ): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.delete(`/test-series/tests/${testId}`);
     return response.data;
   },
 
   // Test Results management
-  recordTestResult: async (resultData: any): Promise<SingleTestSeriesResponse> => {
-    const response = await apiClient.post('/test-series/results', resultData);
+  recordTestResult: async (
+    resultData: any,
+  ): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.post("/test-series/results", resultData);
     return response.data;
   },
 
   // Get all test results (Admin)
-  getAllTestResults: async (page: number = 1, limit: number = 20, studentId?: string): Promise<PaginatedResponse<any>> => {
+  getAllTestResults: async (
+    page: number = 1,
+    limit: number = 20,
+    studentId?: string,
+  ): Promise<PaginatedResponse<any>> => {
     let url = `/test-series/results?page=${page}&limit=${limit}`;
     if (studentId) url += `&studentId=${studentId}`;
-    
+
     const response = await apiClient.get(url);
     return response.data;
   },
 
   // Update test result
-  updateTestResult: async (id: string, resultData: any): Promise<SingleTestSeriesResponse> => {
-    const response = await apiClient.put(`/test-series/results/${id}`, resultData);
+  updateTestResult: async (
+    id: string,
+    resultData: any,
+  ): Promise<SingleTestSeriesResponse> => {
+    const response = await apiClient.put(
+      `/test-series/results/${id}`,
+      resultData,
+    );
     return response.data;
   },
 
   // Delete test result
-  deleteTestResult: async (id: string): Promise<{ success: boolean; message: string }> => {
+  deleteTestResult: async (
+    id: string,
+  ): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.delete(`/test-series/results/${id}`);
     return response.data;
   },

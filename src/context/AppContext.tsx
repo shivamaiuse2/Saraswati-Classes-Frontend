@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import courseService from "@/services/courseService";
 import testSeriesService from "@/services/testSeriesService";
 import studentService from "@/services/studentService";
@@ -49,7 +55,6 @@ export interface Blog {
   date: string;
 }
 
-
 // Conversion functions to map API responses to frontend types
 const convertApiToCourse = (apiCourse: any): Course => ({
   id: apiCourse.id,
@@ -73,20 +78,20 @@ const convertApiToTestSeries = (apiTestSeries: any): TestSeries => ({
   testPattern: apiTestSeries.testPattern,
   benefits: apiTestSeries.benefits || [],
   image: apiTestSeries.image,
-  ctaLabel: apiTestSeries.ctaLabel || 'Enroll Now',
-  demoTestLink: apiTestSeries.demoTestLink || '',
-  heroPosterThumbnail: apiTestSeries.heroPosterThumbnail || '',
+  ctaLabel: apiTestSeries.ctaLabel || "Enroll Now",
+  demoTestLink: apiTestSeries.demoTestLink || "",
+  heroPosterThumbnail: apiTestSeries.heroPosterThumbnail || "",
   showInHeroPoster: apiTestSeries.showInHeroPoster || false,
   testsCount: apiTestSeries.testsCount || 0,
-  mode: apiTestSeries.mode || 'Online',
-  price: apiTestSeries.price || '0',
+  mode: apiTestSeries.mode || "Online",
+  price: apiTestSeries.price || "0",
   tests: apiTestSeries.tests || [],
 });
 
 const convertApiToHeroPoster = (apiBanner: any): HeroPoster => ({
   id: apiBanner.id,
   imageUrl: apiBanner.imageUrl,
-  testSeriesId: apiBanner.testSeriesId || '',
+  testSeriesId: apiBanner.testSeriesId || "",
   enabled: apiBanner.enabled !== undefined ? apiBanner.enabled : true,
   createdAt: apiBanner.createdAt || new Date().toISOString(),
 });
@@ -95,37 +100,45 @@ const convertApiToStudent = (apiStudent: any): StudentUser => {
   const profile = apiStudent.studentProfile || {};
 
   // Extract enrollment IDs
-  const enrolledCourses = (profile.courseEnrollments || []).map((e: any) => e.courseId);
-  const enrolledTestSeries = (profile.testSeriesEnrollments || []).map((e: any) => e.testSeriesId);
+  const enrolledCourses = (profile.courseEnrollments || []).map(
+    (e: any) => e.courseId,
+  );
+  const enrolledTestSeries = (profile.testSeriesEnrollments || []).map(
+    (e: any) => e.testSeriesId,
+  );
 
   // Extract approved/active enrollments
   const approvedCourses = (profile.courseEnrollments || [])
-    .filter((e: any) => e.status === 'ACTIVE')
+    .filter((e: any) => e.status === "ACTIVE")
     .map((e: any) => e.courseId);
   const approvedTestSeries = (profile.testSeriesEnrollments || [])
-    .filter((e: any) => e.status === 'ACTIVE')
+    .filter((e: any) => e.status === "ACTIVE")
     .map((e: any) => e.testSeriesId);
 
   return {
     id: apiStudent.id,
     email: apiStudent.email,
-    password: '', // Never expose password
-    name: profile.name || apiStudent.name || '',
-    fullName: profile.name || apiStudent.name || '',
-    address: profile.address || apiStudent.address || '',
-    mobile: profile.phone || apiStudent.phone || '',
-    phone: profile.phone || apiStudent.phone || '',
-    standard: profile.standard || apiStudent.standard || '',
-    board: profile.board || apiStudent.board || 'SSC',
-    username: apiStudent.username || profile.username || apiStudent.email || '',
-    status: (profile.status || apiStudent.status || 'ACTIVE').toLowerCase() === 'blocked' ? 'blocked' : 'active',
+    password: "", // Never expose password
+    name: profile.name || apiStudent.name || "",
+    fullName: profile.name || apiStudent.name || "",
+    address: profile.address || apiStudent.address || "",
+    mobile: profile.phone || apiStudent.phone || "",
+    phone: profile.phone || apiStudent.phone || "",
+    standard: profile.standard || apiStudent.standard || "",
+    board: profile.board || apiStudent.board || "SSC",
+    username: apiStudent.username || profile.username || apiStudent.email || "",
+    status:
+      (profile.status || apiStudent.status || "ACTIVE").toLowerCase() ===
+      "blocked"
+        ? "blocked"
+        : "active",
     approvedCourses,
     approvedTestSeries,
     enrolledCourses,
     enrolledTestSeries,
     dateOfBirth: profile.dateOfBirth || null,
-    guardianName: profile.guardianName || '',
-    guardianPhone: profile.guardianPhone || '',
+    guardianName: profile.guardianName || "",
+    guardianPhone: profile.guardianPhone || "",
     profileImage: profile.profileImage || null,
     createdAt: apiStudent.createdAt || new Date().toISOString(),
   } as any; // Cast because types might slightly mismatch StudentUser
@@ -136,7 +149,7 @@ const convertApiToEnrollment = (apiEnrollment: any): EnrollmentRequest => ({
   name: apiEnrollment.name,
   email: apiEnrollment.email,
   phone: apiEnrollment.phone,
-  message: apiEnrollment.message || '',
+  message: apiEnrollment.message || "",
   courseOrSeries: apiEnrollment.courseOrSeries,
   status: apiEnrollment.status as "Pending" | "Approved" | "Rejected",
   createdAt: apiEnrollment.createdAt || new Date().toISOString(),
@@ -178,7 +191,9 @@ interface AppContextType {
   loadingCourses: boolean;
 
   testSeries: TestSeries[];
-  addTestSeries: (ts: Omit<TestSeries, "id"> & { id?: string }) => Promise<TestSeries>;
+  addTestSeries: (
+    ts: Omit<TestSeries, "id"> & { id?: string },
+  ) => Promise<TestSeries>;
   updateTestSeries: (id: string, updates: Partial<TestSeries>) => Promise<void>;
   deleteTestSeries: (id: string) => Promise<void>;
   loadingTestSeries: boolean;
@@ -190,7 +205,9 @@ interface AppContextType {
   removeHeroPoster: (id: string) => void;
 
   enrollments: EnrollmentRequest[];
-  addEnrollment: (req: Omit<EnrollmentRequest, "id" | "status" | "createdAt">) => void;
+  addEnrollment: (
+    req: Omit<EnrollmentRequest, "id" | "status" | "createdAt">,
+  ) => void;
   updateEnrollmentStatus: (id: string, status: "Approved" | "Rejected") => void;
   updateEnrollment: (id: string, updates: Partial<EnrollmentRequest>) => void;
 
@@ -203,18 +220,17 @@ interface AppContextType {
   refreshStudentData: () => void;
 
   contactMessages: ContactMessage[];
-  addContactMessage: (msg: ContactMessage) => void;
-  updateContactMessage: (id: string, updates: Partial<ContactMessage>) => void;  // New function
-  removeContactMessage: (id: string) => void;  // New function
+  addContactMessage: (msg: Omit<ContactMessage, "id" | "date">) => void;
+  updateContactMessage: (id: string, updates: Partial<ContactMessage>) => void; // New function
+  removeContactMessage: (id: string) => void; // New function
 
   results: Result[];
-  addResult: (result: Result) => void;
+  addResult: (result: Omit<Result, "id">) => void;
   loadingResults: boolean;
 
   blogs: Blog[];
-  addBlog: (blog: Blog) => void;
+  addBlog: (blog: Omit<Blog, "id" | "date">) => void;
   loadingBlogs: boolean;
-
 
   loadCourses: () => Promise<void>;
   loadTestSeries: () => Promise<void>;
@@ -242,7 +258,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // Use empty initial states instead of localStorage
   const [heroPosters, setHeroPosters] = useState<HeroPoster[]>([]);
   const [enrollments, setEnrollments] = useState<EnrollmentRequest[]>([]);
-  const [popup, setPopup] = useState<PopupContent>({ title: '', description: '', ctaText: '', ctaLink: '', enabled: false });
+  const [popup, setPopup] = useState<PopupContent>({
+    title: "",
+    description: "",
+    ctaText: "",
+    ctaLink: "",
+    enabled: false,
+  });
   const [students, setStudents] = useState<StudentUser[]>([]);
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [results, setResults] = useState<Result[]>([]);
@@ -256,10 +278,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // Helper to check if error is a network error
   const isNetworkError = (error: any): boolean => {
-    return error?.isNetworkError ||
-      error?.code === 'ERR_NETWORK' ||
-      error?.message?.includes('Network Error') ||
-      error?.message?.includes('Unable to connect');
+    return (
+      error?.isNetworkError ||
+      error?.code === "ERR_NETWORK" ||
+      error?.message?.includes("Network Error") ||
+      error?.message?.includes("Unable to connect")
+    );
   };
 
   // Load courses from API
@@ -284,7 +308,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       console.error("Error loading courses:", error);
       if (isNetworkError(error)) {
-        setNetworkError('Unable to connect to the server. Please check your internet connection.');
+        setNetworkError(
+          "Unable to connect to the server. Please check your internet connection.",
+        );
       }
       setCourses([]);
     } finally {
@@ -298,11 +324,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await testSeriesService.getTestSeries(1, 100);
       if (response.success && response.data) {
-        if (Array.isArray(response.data)) {
-          setTestSeries(response.data.map(convertApiToTestSeries));
-        } else {
-          setTestSeries([]);
-        }
+        // Data is already converted by the service
+        setTestSeries(response.data);
         setNetworkError(null);
       } else {
         setTestSeries([]);
@@ -310,7 +333,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       console.error("Error loading test series:", error);
       if (isNetworkError(error)) {
-        setNetworkError('Unable to connect to the server. Please check your internet connection.');
+        setNetworkError(
+          "Unable to connect to the server. Please check your internet connection.",
+        );
       }
       setTestSeries([]);
     } finally {
@@ -320,77 +345,84 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const { role, loading: authLoading } = useAuth();
 
-  // Initialize data on mount and role/auth state change
+  // Initialize public data immediately on mount
   useEffect(() => {
-    // Wait for auth to initialize before making calls (prevents missing tokens)
-    if (authLoading) return;
-
-    // PUBLIC DATA (In parallel for ultra-low latency)
     const loadPublicData = async () => {
-      try {
-        const [
-          coursesRes,
-          testRes,
-          bannersRes,
-          resultsRes,
-          blogsRes,
-          testimonialsRes
-        ] = await Promise.allSettled([
-          courseService.getCourses(1, 100),
-          testSeriesService.getTestSeries(1, 100),
-          bannerService.getBanners(),
-          contentService.getResults(1, 100),
-          contentService.getBlogs(1, 100),
-          contentService.getGalleryItems(1, 10, "Testimonials")
-        ]);
-
-        if (coursesRes.status === 'fulfilled' && coursesRes.value.success) {
-          if (Array.isArray(coursesRes.value.data)) {
-            setCourses(coursesRes.value.data.map(convertApiToCourse));
+      // 1. Courses
+      courseService.getCourses(1, 100).then(res => {
+        if (res.success && res.data) {
+          if (Array.isArray(res.data)) {
+            setCourses(res.data);
           } else {
             const allCourses: Course[] = [];
-            for (const board in coursesRes.value.data) {
-              allCourses.push(...coursesRes.value.data[board]);
+            for (const board in res.data) {
+              allCourses.push(...res.data[board]);
             }
             setCourses(allCourses);
           }
         }
-        if (testRes.status === 'fulfilled' && testRes.value.success) {
-          setTestSeries(testRes.value.data.map(convertApiToTestSeries));
-        }
-        if (bannersRes.status === 'fulfilled' && bannersRes.value.success) {
-          setHeroPosters(bannersRes.value.data.map(convertApiToHeroPoster));
-        }
-        if (resultsRes.status === 'fulfilled' && resultsRes.value.success) {
-          setResults(resultsRes.value.data.map(convertApiToResult));
-        }
-        if (blogsRes.status === 'fulfilled' && blogsRes.value.success) {
-          setBlogs(blogsRes.value.data.map(convertApiToBlog));
-        }
+      }).catch(err => console.error("Error loading courses:", err))
+      .finally(() => setLoadingCourses(false));
 
-        if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.success) {
-          const mapped = testimonialsRes.value.data.map(item => ({
-            id: item.id,
-            name: item.title,
-            text: item.image,
-            avatar: item.image
-          }));
-          setTestimonials(mapped);
+      // 2. Test Series
+      testSeriesService.getTestSeries(1, 100).then(res => {
+        if (res.success && res.data) {
+          setTestSeries(res.data);
         }
-      } catch (error) {
-        console.error('Error loading public data:', error);
-      } finally {
-        setLoadingCourses(false);
-        setLoadingTestSeries(false);
-        setLoadingTestimonials(false);
-        setLoadingHeroPosters(false);
-        setLoadingBlogs(false);
-        setLoadingResults(false);
+      }).catch(err => console.error("Error loading test series:", err))
+      .finally(() => setLoadingTestSeries(false));
 
-      }
+      // 3. Hero Posters
+      bannerService.getBanners().then(res => {
+        if (res.success && res.data) {
+          const bannerData = Array.isArray(res.data) ? res.data : (res.data.data || []);
+          if (Array.isArray(bannerData)) {
+            setHeroPosters(bannerData.map(convertApiToHeroPoster));
+          }
+        }
+      }).catch(err => console.error("Error loading banners:", err))
+      .finally(() => setLoadingHeroPosters(false));
+
+      // 4. Results
+      contentService.getResults(1, 100).then(res => {
+        if (res.success && res.data) {
+          setResults(res.data);
+        }
+      }).catch(err => console.error("Error loading results:", err))
+      .finally(() => setLoadingResults(false));
+
+      // 5. Blogs
+      contentService.getBlogs(1, 100).then(res => {
+        if (res.success && res.data) {
+          setBlogs(res.data);
+        }
+      }).catch(err => console.error("Error loading blogs:", err))
+      .finally(() => setLoadingBlogs(false));
+
+      // 6. Testimonials
+      contentService.getGalleryItems(1, 10, "Testimonials").then(res => {
+        if (res.success && res.data) {
+          if (Array.isArray(res.data)) {
+            const mapped = res.data.map((item: any) => ({
+              id: item.id,
+              name: item.title,
+              text: item.image,
+              avatar: item.image,
+            }));
+            setTestimonials(mapped);
+          }
+        }
+      }).catch(err => console.error("Error loading testimonials:", err))
+      .finally(() => setLoadingTestimonials(false));
     };
 
-    // ADMIN DATA
+    loadPublicData();
+  }, []); // Run ONLY once on mount
+
+  // Admin and Auth-dependent data
+  useEffect(() => {
+    if (authLoading || !role) return;
+
     const loadAdminData = async () => {
       if (role === "admin") {
         try {
@@ -415,14 +447,45 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    loadPublicData();
     loadAdminData();
   }, [role, authLoading]);
 
-  const addContactMessage = (msg: ContactMessage) => setContactMessages((prev) => [msg, ...prev]);
-  const addResult = (result: Result) => setResults((prev) => [result, ...prev]);
-  const addBlog = (blog: Blog) => setBlogs((prev) => [blog, ...prev]);
+  const addContactMessage = (msg: Omit<ContactMessage, "id" | "date">) =>
+    setContactMessages((prev) => [
+      {
+        ...msg,
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
+  const addResult = (result: Omit<Result, "id">) =>
+    setResults((prev) => [
+      { ...result, id: Date.now().toString() } as Result,
+      ...prev,
+    ]);
+  const addBlog = (blog: Omit<Blog, "id" | "date">) =>
+    setBlogs((prev) => [
+      {
+        ...blog,
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+      } as Blog,
+      ...prev,
+    ]);
 
+  const updateContactMessage = (
+    id: string,
+    updates: Partial<ContactMessage>,
+  ) => {
+    setContactMessages((prev) =>
+      prev.map((msg) => (msg.id === id ? { ...msg, ...updates } : msg)),
+    );
+  };
+
+  const removeContactMessage = (id: string) => {
+    setContactMessages((prev) => prev.filter((msg) => msg.id !== id));
+  };
 
   const addCourse = async (c: Omit<Course, "id">) => {
     try {
@@ -437,7 +500,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         isActive: c.isActive !== undefined ? c.isActive : true,
       };
       const response = await courseService.createCourse(apiCourseData);
-      if (response.success) setCourses(prev => [...prev, convertApiToCourse(response.data)]);
+      if (response.success)
+        setCourses((prev) => [...prev, convertApiToCourse(response.data)]);
     } catch (error) {
       console.error("Error adding course:", error);
     }
@@ -446,13 +510,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const deleteCourse = async (id: string) => {
     try {
       await courseService.deleteCourse(id);
-      setCourses(prev => prev.filter(c => c.id !== id));
+      setCourses((prev) => prev.filter((c) => c.id !== id));
     } catch (error) {
       console.error("Error deleting course:", error);
     }
   };
 
-  const addTestSeries = async (ts: Omit<TestSeries, "id"> & { id?: string }) => {
+  const addTestSeries = async (
+    ts: Omit<TestSeries, "id"> & { id?: string },
+  ) => {
     try {
       const apiTestSeriesData = {
         title: ts.title,
@@ -469,9 +535,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         mode: ts.mode || "Online",
         price: ts.price || "0",
       };
-      const response = await testSeriesService.createTestSeries(apiTestSeriesData);
+      const response =
+        await testSeriesService.createTestSeries(apiTestSeriesData);
       if (response.success) {
-        setTestSeries(prev => [...prev, convertApiToTestSeries(response.data)]);
+        setTestSeries((prev) => [
+          ...prev,
+          convertApiToTestSeries(response.data),
+        ]);
         return convertApiToTestSeries(response.data);
       }
     } catch (error) {
@@ -482,11 +552,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const updateTestSeries = async (id: string, updates: Partial<TestSeries>) => {
     try {
-      const ts = testSeries.find(t => t.id === id);
+      const ts = testSeries.find((t) => t.id === id);
       if (!ts) return;
       const apiTestSeriesData = { ...ts, ...updates } as any;
-      const response = await testSeriesService.updateTestSeries(id, apiTestSeriesData);
-      if (response.success) setTestSeries(prev => prev.map(t => t.id === id ? convertApiToTestSeries(response.data) : t));
+      const response = await testSeriesService.updateTestSeries(
+        id,
+        apiTestSeriesData,
+      );
+      if (response.success)
+        setTestSeries((prev) =>
+          prev.map((t) =>
+            t.id === id ? convertApiToTestSeries(response.data) : t,
+          ),
+        );
     } catch (error) {
       console.error("Error updating test series:", error);
     }
@@ -495,89 +573,144 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const deleteTestSeries = async (id: string) => {
     try {
       await testSeriesService.deleteTestSeries(id);
-      setTestSeries(prev => prev.filter(t => t.id !== id));
+      setTestSeries((prev) => prev.filter((t) => t.id !== id));
     } catch (error) {
       console.error("Error deleting test series:", error);
     }
   };
 
   const addHeroPoster = (p: Omit<HeroPoster, "id" | "createdAt">) => {
-    setHeroPosters(prev => [...prev, { ...p, id: Date.now().toString(), createdAt: new Date().toISOString() } as any]);
+    setHeroPosters((prev) => [
+      ...prev,
+      {
+        ...p,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+      } as any,
+    ]);
   };
 
   const updateHeroPoster = (id: string, updates: Partial<HeroPoster>) => {
-    setHeroPosters(prev => prev.map(h => h.id === id ? { ...h, ...updates } as any : h));
+    setHeroPosters((prev) =>
+      prev.map((h) => (h.id === id ? ({ ...h, ...updates } as any) : h)),
+    );
   };
 
   const removeHeroPoster = (id: string) => {
-    setHeroPosters(prev => prev.filter(h => h.id !== id));
+    setHeroPosters((prev) => prev.filter((h) => h.id !== id));
   };
 
-  const addEnrollment = (req: Omit<EnrollmentRequest, "id" | "status" | "createdAt">) => {
-    setEnrollments(prev => [...prev, { ...req, id: Date.now().toString(), status: "Pending", createdAt: new Date().toISOString() } as any]);
+  const addEnrollment = (
+    req: Omit<EnrollmentRequest, "id" | "status" | "createdAt">,
+  ) => {
+    setEnrollments((prev) => [
+      ...prev,
+      {
+        ...req,
+        id: Date.now().toString(),
+        status: "Pending",
+        createdAt: new Date().toISOString(),
+      } as any,
+    ]);
   };
 
-  const updateEnrollmentStatus = (id: string, status: "Approved" | "Rejected") => {
-    setEnrollments(prev => prev.map(e => e.id === id ? { ...e, status } as any : e));
+  const updateEnrollmentStatus = (
+    id: string,
+    status: "Approved" | "Rejected",
+  ) => {
+    setEnrollments((prev) =>
+      prev.map((e) => (e.id === id ? ({ ...e, status } as any) : e)),
+    );
   };
 
-  const updateEnrollment = (id: string, updates: Partial<EnrollmentRequest>) => {
-    setEnrollments(prev => prev.map(e => e.id === id ? { ...e, ...updates } as any : e));
+  const updateEnrollment = (
+    id: string,
+    updates: Partial<EnrollmentRequest>,
+  ) => {
+    setEnrollments((prev) =>
+      prev.map((e) => (e.id === id ? ({ ...e, ...updates } as any) : e)),
+    );
   };
 
   const updatePopup = (p: PopupContent) => setPopup(p);
 
   const addStudent = (s: Omit<StudentUser, "id" | "createdAt">) => {
-    const newStudent = { ...s, id: Date.now().toString(), createdAt: new Date().toISOString() };
-    setStudents(prev => [...prev, newStudent as any]);
+    const newStudent = {
+      ...s,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+    };
+    setStudents((prev) => [...prev, newStudent as any]);
     return newStudent as any;
   };
 
   const updateStudent = (id: string, updates: Partial<StudentUser>) => {
-    setStudents(prev => prev.map(s => s.id === id ? { ...s, ...updates } as any : s));
+    setStudents((prev) =>
+      prev.map((s) => (s.id === id ? ({ ...s, ...updates } as any) : s)),
+    );
   };
 
   const refreshStudentData = () => {
-    studentService.getStudents(1, 100).then(res => {
-      if (res.success && res.data) setStudents(res.data.map(convertApiToStudent));
-      else setStudents([]);
-    }).catch(error => {
-      console.error('Error refreshing students:', error);
-      setStudents([]);
-    });
-  };
-
-  const updateContactMessage = (id: string, updates: Partial<ContactMessage>) => {
-    setContactMessages(prev =>
-      prev.map(msg =>
-        msg.id === id ? { ...msg, ...updates } : msg
-      )
-    );
-  };
-
-  const removeContactMessage = (id: string) => {
-    setContactMessages(prev =>
-      prev.filter(msg => msg.id !== id)
-    );
+    studentService
+      .getStudents(1, 100)
+      .then((res) => {
+        if (res.success && res.data)
+          setStudents(res.data.map(convertApiToStudent));
+        else setStudents([]);
+      })
+      .catch((error) => {
+        console.error("Error refreshing students:", error);
+        setStudents([]);
+      });
   };
 
   const clearNetworkError = () => setNetworkError(null);
 
   return (
-    <AppContext.Provider value={{
-      courses, addCourse, deleteCourse, loadingCourses,
-      testSeries, addTestSeries, updateTestSeries, deleteTestSeries, loadingTestSeries,
-      heroPosters, addHeroPoster, updateHeroPoster, removeHeroPoster, loadingHeroPosters,
-      enrollments, addEnrollment, updateEnrollmentStatus, updateEnrollment,
-      popup, updatePopup,
-      students, addStudent, updateStudent, refreshStudentData,
-      contactMessages, addContactMessage, updateContactMessage, removeContactMessage,  // Add the new function
-      results, addResult, loadingResults,
-      blogs, addBlog, loadingBlogs,
-      testimonials, loadingTestimonials,
-      loadCourses, loadTestSeries,
-      networkError, clearNetworkError,
-    }}>
+    <AppContext.Provider
+      value={{
+        courses,
+        addCourse,
+        deleteCourse,
+        loadingCourses,
+        testSeries,
+        addTestSeries,
+        updateTestSeries,
+        deleteTestSeries,
+        loadingTestSeries,
+        heroPosters,
+        addHeroPoster,
+        updateHeroPoster,
+        removeHeroPoster,
+        loadingHeroPosters,
+        enrollments,
+        addEnrollment,
+        updateEnrollmentStatus,
+        updateEnrollment,
+        popup,
+        updatePopup,
+        students,
+        addStudent,
+        updateStudent,
+        refreshStudentData,
+        contactMessages,
+        addContactMessage,
+        updateContactMessage,
+        removeContactMessage, // Add the new function
+        results,
+        addResult,
+        loadingResults,
+        blogs,
+        addBlog,
+        loadingBlogs,
+        testimonials,
+        loadingTestimonials,
+        loadCourses,
+        loadTestSeries,
+        networkError,
+        clearNetworkError,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );

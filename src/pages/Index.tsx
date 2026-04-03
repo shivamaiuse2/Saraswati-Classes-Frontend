@@ -71,9 +71,7 @@ const Index = () => {
   const [enrollTarget, setEnrollTarget] = useState("");
 
   const displayTestimonials =
-    apiTestimonials.length > 0
-      ? apiTestimonials
-      : staticTestimonials;
+    apiTestimonials.length > 0 ? apiTestimonials : staticTestimonials;
 
   const openEnroll = (target: string) => {
     setEnrollTarget(target);
@@ -139,9 +137,9 @@ const Index = () => {
 
               {/* Description */}
               <p className="text-[16px] text-[#475569] max-w-[520px] mb-6">
-                Saraswati Classes offers structured classroom programs, test series
-                and personalised mentoring for students aiming for top scores in
-                boards and entrance exams.
+                Saraswati Classes offers structured classroom programs, test
+                series and personalised mentoring for students aiming for top
+                scores in boards and entrance exams.
               </p>
 
               {/* Buttons */}
@@ -168,7 +166,6 @@ const Index = () => {
               transition={{ duration: 0.6 }}
               className="relative flex items-center justify-center"
             >
-
               {/* Glow Background */}
               <div className="absolute w-[420px] h-[420px] bg-[#2EA7FF]/20 rounded-full blur-3xl"></div>
 
@@ -198,7 +195,6 @@ const Index = () => {
               <div className="absolute z-20 bottom-4 right-10 bg-white/95 backdrop-blur-md rounded-xl shadow-lg px-4 py-2 text-sm font-semibold text-slate-700 border border-slate-200 animate-float-delay">
                 ⭐ 100% Success Rate
               </div>
-
             </motion.div>
           </div>
         </div>
@@ -227,7 +223,10 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <motion.div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" variants={staggerContainer}>
+          <motion.div
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+            variants={staggerContainer}
+          >
             {/* Card 1: Class 8th to 10th */}
             <motion.div
               variants={scrollReveal}
@@ -402,7 +401,8 @@ const Index = () => {
               Explore Our Courses
             </h2>
             <p className="text-slate-600 max-w-2xl mx-auto text-lg">
-              Choose your board and start your journey towards academic excellence with our expert guidance.
+              Choose your board and start your journey towards academic
+              excellence with our expert guidance.
             </p>
           </motion.div>
 
@@ -420,9 +420,12 @@ const Index = () => {
               <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform duration-500">
                 <BookOpen className="h-7 w-7" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">CBSE Courses</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">
+                CBSE Courses
+              </h3>
               <p className="text-slate-600 mb-8 flex-1">
-                Comprehensive coaching for CBSE Class VIII, IX, and X focusing on Maths and Science with a structured curriculum.
+                Comprehensive coaching for CBSE Class VIII, IX, and X focusing
+                on Maths and Science with a structured curriculum.
               </p>
               <Link to="/courses">
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-xl font-semibold gap-2 transition-all duration-300">
@@ -441,9 +444,12 @@ const Index = () => {
               <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200 group-hover:scale-110 transition-transform duration-500">
                 <Monitor className="h-7 w-7" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">SSC Courses</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">
+                SSC Courses
+              </h3>
               <p className="text-slate-600 mb-8 flex-1">
-                Expert guidance for Maharashtra State Board (SSC) Class VIII, IX, and X to build strong fundamentals and excel in exams.
+                Expert guidance for Maharashtra State Board (SSC) Class VIII,
+                IX, and X to build strong fundamentals and excel in exams.
               </p>
               <Link to="/courses">
                 <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white py-6 rounded-xl font-semibold gap-2 transition-all duration-300">
@@ -462,9 +468,12 @@ const Index = () => {
               <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-lg shadow-purple-200 group-hover:scale-110 transition-transform duration-500">
                 <Stethoscope className="h-7 w-7" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">State Board</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">
+                State Board
+              </h3>
               <p className="text-slate-600 mb-8 flex-1">
-                Integrated 11th & 12th Science coaching for State Board, JEE, and MHT-CET with a focus on PCMB subjects.
+                Integrated 11th & 12th Science coaching for State Board, JEE,
+                and MHT-CET with a focus on PCMB subjects.
               </p>
               <Link to="/courses">
                 <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-xl font-semibold gap-2 transition-all duration-300">
@@ -482,13 +491,15 @@ const Index = () => {
       <motion.section
         className="py-12 md:py-16 bg-secondary/40"
         variants={staggerContainer}
-        initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.05 }}
       >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-8">
           {/* Header */}
-          <motion.div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" variants={scrollReveal}>
+          <motion.div
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+            variants={scrollReveal}
+          >
             <div className="space-y-1">
               <h2 className="text-2xl md:text-3xl font-semibold">
                 Test Series Highlights
@@ -508,7 +519,6 @@ const Index = () => {
 
           {/* Cards */}
           <motion.div
-            key={loadingTestSeries ? "loading" : "loaded"}
             className="grid md:grid-cols-3 gap-6 justify-items-center"
             variants={staggerContainer}
           >
@@ -522,7 +532,11 @@ const Index = () => {
               ))
             ) : testSeries.length > 0 ? (
               testSeries.slice(0, 3).map((ts) => (
-                <motion.div key={ts.id} variants={scrollReveal} className="w-full max-w-[300px]">
+                <motion.div
+                  key={ts.id}
+                  variants={scrollReveal}
+                  className="w-full max-w-[300px]"
+                >
                   <Card className="group flex flex-col rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 w-full">
                     {/* Image */}
                     <div className="overflow-hidden">
@@ -543,16 +557,20 @@ const Index = () => {
 
                       {/* Buttons */}
                       <div className="flex gap-2 mt-auto">
-                        <Button
+                        {/* <Button
                           size="sm"
                           className="flex-1"
                           onClick={() => openEnroll(ts.title)}
                         >
                           Enroll Now
-                        </Button>
+                        </Button> */}
 
                         <Link to={`/test-series/${ts.id}`} className="flex-1">
-                          <Button size="sm" variant="outline" className="w-full">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full"
+                          >
                             Details
                           </Button>
                         </Link>
@@ -579,29 +597,28 @@ const Index = () => {
         viewport={{ once: true, amount: 0.15 }}
       >
         <div className="max-w-[1200px] mx-auto px-4">
-
           {/* Heading */}
           <motion.div className="text-center mb-12" variants={scrollReveal}>
             <h2 className="relative inline-block text-3xl md:text-4xl font-semibold text-[#0F172A] leading-tight">
               What Our Students Say
-
-              <span className="absolute left-1/2 -translate-x-1/2 -bottom-2 
+              <span
+                className="absolute left-1/2 -translate-x-1/2 -bottom-2 
         w-[95%] h-[10px] 
         bg-gradient-to-r from-[#2563EB] to-[#2EA7FF] 
         opacity-30 
         rounded-[50px] 
-        blur-[1px]">
-              </span>
+        blur-[1px]"
+              ></span>
             </h2>
 
             <p className="text-[#64748B] max-w-xl mx-auto mt-4">
-              Real feedback shared by parents and students about their learning experience.
+              Real feedback shared by parents and students about their learning
+              experience.
             </p>
           </motion.div>
 
           {/* Carousel */}
           <motion.div className="relative" variants={scrollReveal}>
-
             {/* LEFT ARROW */}
             <button
               onClick={() => emblaApi?.scrollPrev()}
@@ -613,20 +630,22 @@ const Index = () => {
 
             <div className="embla overflow-hidden" ref={emblaRef}>
               <div className="embla__container flex">
-
                 {displayTestimonials.map((t, i) => (
                   <div
                     key={i}
                     className="embla__slide flex-[0_0_70%] md:flex-[0_0_50%] lg:flex-[0_0_40%] px-4"
                   >
                     <div className="bg-white rounded-2xl shadow-md p-8 transition hover:shadow-lg">
-
                       {/* ⭐ STARS */}
                       <div className="flex mb-4 text-base">
                         {Array.from({ length: 5 }).map((_, idx) => (
                           <span
                             key={idx}
-                            className={idx < (t.rating || 5) ? "text-yellow-400" : "text-gray-300"}
+                            className={
+                              idx < (t.rating || 5)
+                                ? "text-yellow-400"
+                                : "text-gray-300"
+                            }
                           >
                             ★
                           </span>
@@ -639,14 +658,10 @@ const Index = () => {
                       </p>
 
                       {/* Name */}
-                      <p className="font-semibold text-[#0F172A]">
-                        {t.name}
-                      </p>
-
+                      <p className="font-semibold text-[#0F172A]">{t.name}</p>
                     </div>
                   </div>
                 ))}
-
               </div>
             </div>
 
@@ -658,19 +673,17 @@ const Index = () => {
             >
               ›
             </button>
-
           </motion.div>
 
           {/* DOTS */}
-          <motion.div className="flex justify-center mt-8 gap-3" variants={scrollReveal}>
+          <motion.div
+            className="flex justify-center mt-8 gap-3"
+            variants={scrollReveal}
+          >
             {displayTestimonials.map((_, i) => (
-              <div
-                key={i}
-                className="w-3 h-3 rounded-full bg-slate-300"
-              />
+              <div key={i} className="w-3 h-3 rounded-full bg-slate-300" />
             ))}
           </motion.div>
-
         </div>
       </motion.section>
 
@@ -685,29 +698,27 @@ const Index = () => {
         viewport={{ once: true, amount: 0.2 }}
       >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-6">
-
           <motion.div className="space-y-2 text-center" variants={scrollReveal}>
             <h2 className="relative inline-block text-2xl md:text-3xl font-semibold text-[#0F172A]">
               Visit Our Centre
-
               {/* Sloppy underline */}
-              <span className="absolute left-1/2 -translate-x-1/2 -bottom-2 
+              <span
+                className="absolute left-1/2 -translate-x-1/2 -bottom-2 
         w-[95%] h-[8px] 
         bg-gradient-to-r from-[#2563EB] to-[#2EA7FF] 
         opacity-30 
         rounded-[50px] 
-        blur-[1px] rotate-[-1deg]">
-              </span>
+        blur-[1px] rotate-[-1deg]"
+              ></span>
             </h2>
 
             <p className="text-muted-foreground max-w-2xl mx-auto mt-3">
-              Saraswati Classes is conveniently located for students across Pune.
-              Use the map below to get directions to our coaching centre.
+              Saraswati Classes is conveniently located for students across
+              Pune. Use the map below to get directions to our coaching centre.
             </p>
           </motion.div>
 
           <motion.div className="space-y-4" variants={scrollReveal}>
-
             <div className="rounded-xl overflow-hidden border bg-muted">
               <iframe
                 title="Saraswati Classes Location"
@@ -729,9 +740,7 @@ const Index = () => {
                 </Button>
               </a>
             </div>
-
           </motion.div>
-
         </div>
       </motion.section>
     </Layout>
