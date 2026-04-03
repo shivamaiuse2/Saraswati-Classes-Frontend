@@ -218,10 +218,10 @@ const AdminInquiryManagement = () => {
                         <TableCell className="hidden lg:table-cell animate-pulse">
                           <div className="h-4 bg-muted rounded w-full"></div>
                         </TableCell>
-                        <TableCell animate-pulse>
+                        <TableCell className="animate-pulse">
                           <div className="h-6 bg-muted rounded w-16"></div>
                         </TableCell>
-                        <TableCell animate-pulse>
+                        <TableCell className="animate-pulse">
                           <div className="h-4 bg-muted rounded w-24"></div>
                         </TableCell>
                         <TableCell className="text-right animate-pulse">
