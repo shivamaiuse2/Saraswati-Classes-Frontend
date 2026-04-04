@@ -9,8 +9,11 @@ import {
   Lock,
   ListChecks,
   IndianRupee,
+  PlayCircle,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/Layout";
 import EnrollmentModal from "@/components/EnrollmentModal";
@@ -108,55 +111,51 @@ const TestSeriesDetailPage = () => {
             </div>
 
             <div>
-              <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-                <Lock className="h-5 w-5 text-primary" /> Test List
-              </h2>
-              {isApproved ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    You have access to this test series. Demo / live test links
-                    will be integrated here via the backend.
-                  </p>
-                  {ts.demoTestLink ? (
-                    <Button asChild variant="outline" size="sm">
-                      <a
-                        href={ts.demoTestLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Open Demo Test
-                      </a>
-                    </Button>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">
-                      Demo test link will be shared soon.
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {Array.from({ length: Math.min(ts.testsCount, 6) }).map(
-                    (_, i) => (
-                      <Card key={i} className="bg-muted/60 border-dashed">
-                        <CardContent className="p-3 flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-background flex items-center justify-center">
-                            <Lock className="h-4 w-4 text-primary" />
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Lock className="h-5 w-5 text-primary" /> Test List / Curriculum
+                </h2>
+                <Badge variant="secondary" className="px-3 py-1">
+                  {ts.tests?.length || ts.testsCount} Modules
+                </Badge>
+              </div>
+
+              <div className="grid gap-3">
+                {(!ts.tests || ts.tests.length === 0) ? (
+                  <div className="text-center py-10 border-2 border-dashed rounded-2xl text-slate-400">
+                    Test content is being updated. Check back soon.
+                  </div>
+                ) : (
+                  ts.tests.map((test: any, i: number) => (
+                    <Card 
+                      key={test.id || i} 
+                      className={`group transition-all duration-200 border-slate-200 ${isApproved ? 'hover:border-primary hover:shadow-md' : 'opacity-75'}`}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <span className="text-xs font-bold text-slate-400 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                            {String(test.testNumber || i + 1).padStart(2, '0')}
+                          </span>
+                          <div className="flex-1">
+                            <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                              {test.title}
+                              {!isApproved ? <Lock className="h-3.5 w-3.5 text-slate-400" /> : <PlayCircle className="h-3.5 w-3.5 text-primary" />}
+                            </h4>
+                            <p className="text-xs text-muted-foreground line-clamp-1">{test.description || "No description available"}</p>
                           </div>
-                          <div>
-                            <p className="text-xs font-medium">
-                              Test {i + 1} (Locked)
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                              Test content will be visible once access is
-                              granted by admin.
-                            </p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )
-                  )}
-                </div>
-              )}
+                          {isApproved && test.testLink && (
+                            <Button asChild variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <a href={test.testLink} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="h-4 w-4 text-primary" />
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
             </div>
           </div>
 
