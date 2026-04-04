@@ -33,7 +33,9 @@ const CourseDetailPage = () => {
       <Layout>
         <div className="py-20 text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
-          <p className="text-muted-foreground italic">Loading course details...</p>
+          <p className="text-muted-foreground italic">
+            Loading course details...
+          </p>
         </div>
       </Layout>
     );
@@ -51,12 +53,11 @@ const CourseDetailPage = () => {
       </Layout>
     );
 
-  const isApproved =
-    !!(
-      currentStudent &&
-      course &&
-      currentStudent.approvedCourses.includes(course.id)
-    );
+  const isApproved = !!(
+    currentStudent &&
+    course &&
+    currentStudent.approvedCourses.includes(course.id)
+  );
 
   const displayTitle = `${course.board} - ${course.standard}`;
   const displayTiming = `${course.timing_start} - ${course.timing_end}`;
@@ -82,7 +83,8 @@ const CourseDetailPage = () => {
               <h1 className="text-3xl md:text-4xl font-bold">{displayTitle}</h1>
               <p className="text-muted-foreground italic">
                 Join our premium {course.board} course for {course.standard}.
-                Experience top-tier education with focused attention and regular performance tracking.
+                Experience top-tier education with focused attention and regular
+                performance tracking.
               </p>
 
               <div className="grid sm:grid-cols-2 gap-4 text-sm">
@@ -107,20 +109,11 @@ const CourseDetailPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-primary shrink-0" />
+                  <BookOpen className="h-4 w-4 text-primary shrink-0" />
                   <div>
-                    <p className="font-semibold">Academic Program</p>
+                    <p className="font-semibold">Curriculum</p>
                     <p className="text-muted-foreground">
-                      Full Academic Session
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IndianRupee className="h-4 w-4 text-primary shrink-0" />
-                  <div>
-                    <p className="font-semibold">Course Fees</p>
-                    <p className="text-muted-foreground">
-                      ₹{course.fees.toLocaleString("en-IN")} (Yearly)
+                      {(course.chapters && course.chapters.length) || 0} Modules / Chapters
                     </p>
                   </div>
                 </div>
@@ -143,9 +136,14 @@ const CourseDetailPage = () => {
             </div>
 
             <div>
-              <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                <Lock className="h-5 w-5 text-primary" /> Learning Curriculum
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Lock className="h-5 w-5 text-primary" /> Learning Curriculum
+                </h2>
+                <Badge variant="secondary" className="px-3 py-1">
+                  {(course.chapters && course.chapters.length) || 0} Modules
+                </Badge>
+              </div>
 
               {selectedChapter && isApproved ? (
                 <Card className="mb-8 border-primary/20 overflow-hidden shadow-md">
@@ -153,7 +151,7 @@ const CourseDetailPage = () => {
                     <iframe
                       width="100%"
                       height="100%"
-                      src={`https://www.youtube.com/embed/${selectedChapter.youtubeLink.split('v=')[1] || selectedChapter.youtubeLink.split('/').pop()}`}
+                      src={`https://www.youtube.com/embed/${selectedChapter.youtubeLink.split("v=")[1] || selectedChapter.youtubeLink.split("/").pop()}`}
                       title={selectedChapter.title}
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -162,18 +160,35 @@ const CourseDetailPage = () => {
                   </div>
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center justify-between gap-4">
-                      <h3 className="text-2xl font-bold">{selectedChapter.title}</h3>
+                      <h3 className="text-2xl font-bold">
+                        {selectedChapter.title}
+                      </h3>
                       {selectedChapter.formLink && (
-                        <Button asChild variant="outline" className="gap-2 border-blue-200 hover:bg-blue-50 text-blue-700">
-                          <a href={selectedChapter.formLink} target="_blank" rel="noopener noreferrer">
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="gap-2 border-blue-200 hover:bg-blue-50 text-blue-700"
+                        >
+                          <a
+                            href={selectedChapter.formLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <ExternalLink className="h-4 w-4" />
                             Take Test / Assignment
                           </a>
                         </Button>
                       )}
                     </div>
-                    <p className="text-slate-600 leading-relaxed">{selectedChapter.description}</p>
-                    <Button variant="ghost" size="sm" onClick={() => setSelectedChapter(null)} className="text-primary hover:text-primary hover:bg-primary/5">
+                    <p className="text-slate-600 leading-relaxed">
+                      {selectedChapter.description}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedChapter(null)}
+                      className="text-primary hover:text-primary hover:bg-primary/5"
+                    >
                       <ArrowLeft className="mr-2 h-4 w-4" /> Back to Curriculum
                     </Button>
                   </CardContent>
@@ -185,35 +200,46 @@ const CourseDetailPage = () => {
                       <Lock className="h-5 w-5 shrink-0 mt-0.5" />
                       <div>
                         <p className="font-bold">Private Curriculum Content</p>
-                        <p>Complete your enrollment to unlock video lectures, assignments, and detailed module notes.</p>
+                        <p>
+                          Complete your enrollment to unlock video lectures and
+                          assignments.
+                        </p>
                       </div>
                     </div>
                   )}
-                  
+
                   {course.chapters.length === 0 ? (
                     <div className="text-center py-10 border-2 border-dashed rounded-2xl text-slate-400">
                       Curriculum is being updated. Check back soon.
                     </div>
                   ) : (
                     course.chapters.map((ch, i) => (
-                      <Card 
-                        key={ch.id} 
-                        className={`group transition-all duration-200 border-slate-200 ${isApproved ? 'cursor-pointer hover:border-primary hover:shadow-md' : 'opacity-75'}`}
+                      <Card
+                        key={ch.id}
+                        className={`group transition-all duration-200 border-slate-200 ${isApproved ? "cursor-pointer hover:border-primary hover:shadow-md" : "opacity-75"}`}
                         onClick={() => isApproved && setSelectedChapter(ch)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-center gap-4">
                             <span className="text-xs font-bold text-slate-400 bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
-                              {String(i + 1).padStart(2, '0')}
+                              {String(i + 1).padStart(2, "0")}
                             </span>
                             <div className="flex-1">
                               <h4 className="font-bold text-slate-900 flex items-center gap-2">
                                 {ch.title}
-                                {!isApproved ? <Lock className="h-3.5 w-3.5 text-slate-400" /> : <PlayCircle className="h-3.5 w-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />}
+                                {!isApproved ? (
+                                  <Lock className="h-3.5 w-3.5 text-slate-400" />
+                                ) : (
+                                  <PlayCircle className="h-3.5 w-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                                )}
                               </h4>
-                              <p className="text-xs text-slate-500 line-clamp-1">{ch.description}</p>
+                              <p className="text-xs text-slate-500 line-clamp-1">
+                                {ch.description}
+                              </p>
                             </div>
-                            {isApproved && <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-primary transition-colors" />}
+                            {isApproved && (
+                              <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-primary transition-colors" />
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -228,8 +254,12 @@ const CourseDetailPage = () => {
             <Card className="sticky top-20 overflow-hidden rounded-xl shadow-sm border-primary/20">
               <div className="w-full h-48 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/20 flex items-center justify-center p-8">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary mb-1">{course.board}</div>
-                  <div className="text-lg font-medium text-muted-foreground">{course.standard}</div>
+                  <div className="text-2xl font-bold text-primary mb-1">
+                    {course.board}
+                  </div>
+                  <div className="text-lg font-medium text-muted-foreground">
+                    {course.standard}
+                  </div>
                 </div>
               </div>
               <CardContent className="p-5 space-y-4">
@@ -244,6 +274,9 @@ const CourseDetailPage = () => {
                   </p>
                   <p>
                     <strong>Timing:</strong> {displayTiming}
+                  </p>
+                  <p>
+                    <strong>Modules:</strong> {(course.chapters && course.chapters.length) || 0} Chapters
                   </p>
                 </div>
 

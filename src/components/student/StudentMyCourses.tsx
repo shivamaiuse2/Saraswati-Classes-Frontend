@@ -85,8 +85,8 @@ const StudentMyCourses = () => {
                   <div className="mt-4 space-y-2">
                     {course.chapters.map((ch, idx) => {
                       const chapterNumber = ch.chapterNumber || idx + 1;
-                      const youtubeLink = ch.videoUrl || "";
-                      const testLink = ch.testLink || "";
+                      const youtubeLink = ch.youtubeLink || ch.videoUrl || "";
+                      const testLink = ch.formLink || ch.testLink || "";
 
                       return (
                         <div

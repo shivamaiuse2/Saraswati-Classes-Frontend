@@ -11,18 +11,16 @@ const StudentDashboardOverview = () => {
   const isLoading = authLoading || loadingCourses || loadingTestSeries;
 
   const approvedCourses = courses.filter((c) =>
-    currentStudent?.approvedCourses.includes(c.id)
+    currentStudent?.approvedCourses.includes(c.id),
   );
   const approvedTs = testSeries.filter((t) =>
-    currentStudent?.approvedTestSeries.includes(t.id)
+    currentStudent?.approvedTestSeries.includes(t.id),
   );
 
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl md:text-4xl font-bold">
-          Dashboard
-        </h1>
+        <h1 className="text-3xl md:text-4xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground">
           Quick snapshot of your courses, tests and upcoming work.
         </p>
@@ -52,7 +50,9 @@ const StudentDashboardOverview = () => {
                   <BookOpen className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Active Courses</p>
+                  <p className="text-xs text-muted-foreground">
+                    Active Courses
+                  </p>
                   <p className="text-lg font-semibold">
                     {approvedCourses.length}
                   </p>
@@ -66,9 +66,7 @@ const StudentDashboardOverview = () => {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Test Series</p>
-                  <p className="text-lg font-semibold">
-                    {approvedTs.length}
-                  </p>
+                  <p className="text-lg font-semibold">{approvedTs.length}</p>
                 </div>
               </CardContent>
             </Card>
@@ -115,25 +113,36 @@ const StudentDashboardOverview = () => {
                 // Shimmer for courses
                 <>
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="rounded-md border px-3 py-2 space-y-2">
+                    <div
+                      key={i}
+                      className="rounded-md border px-3 py-2 space-y-2"
+                    >
                       <Skeleton className="h-4 w-32" />
                       <Skeleton className="h-3 w-24" />
                     </div>
                   ))}
                 </>
-              ) : approvedCourses.slice(0, 3).map((c) => (
-                <div
-                  key={c.id}
-                  className="flex items-center justify-between rounded-md border px-3 py-2 text-xs"
-                >
-                  <div>
-                    <p className="font-medium">{c.title}</p>
-                    <p className="text-muted-foreground">
-                      {c.timing} • {c.days}
-                    </p>
+              ) : (
+                approvedCourses.slice(0, 3).map((c) => (
+                  <div
+                    key={c.id}
+                    className="flex items-center justify-between rounded-md border px-3 py-2 text-xs"
+                  >
+                    <div>
+                      <p className="font-semibold">Standard:- {c.standard}</p>
+                      <p className="text-muted-foreground">
+                        Timings:- {c.timing_start} - {c.timing_end}
+                      </p>
+                      <p className="text-muted-foreground">
+                        Subjects:- {c.subjects.join(", ")}
+                      </p>
+                      <p className="text-muted-foreground">
+                        Days:- {c.days.join(", ")}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
               {!isLoading && approvedCourses.length === 0 && (
                 <p className="text-xs text-muted-foreground">
                   No courses assigned yet. Approved courses will appear here.
@@ -155,25 +164,30 @@ const StudentDashboardOverview = () => {
                 // Shimmer for test series
                 <>
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="rounded-md border px-3 py-2 space-y-2">
+                    <div
+                      key={i}
+                      className="rounded-md border px-3 py-2 space-y-2"
+                    >
                       <Skeleton className="h-4 w-40" />
                       <Skeleton className="h-3 w-20" />
                     </div>
                   ))}
                 </>
-              ) : approvedTs.slice(0, 3).map((ts) => (
-                <div
-                  key={ts.id}
-                  className="flex items-center justify-between rounded-md border px-3 py-2 text-xs"
-                >
-                  <div>
-                    <p className="font-medium">{ts.title}</p>
-                    <p className="text-muted-foreground">
-                      {ts.testsCount} tests • {ts.mode}
-                    </p>
+              ) : (
+                approvedTs.slice(0, 3).map((ts) => (
+                  <div
+                    key={ts.id}
+                    className="flex items-center justify-between rounded-md border px-3 py-2 text-xs"
+                  >
+                    <div>
+                      <p className="font-medium">{ts.title}</p>
+                      <p className="text-muted-foreground">
+                        {ts.testsCount} tests • {ts.mode}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
               {!isLoading && approvedTs.length === 0 && (
                 <p className="text-xs text-muted-foreground">
                   No test series assigned yet. Approved series will appear here.
