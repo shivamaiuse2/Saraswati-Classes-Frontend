@@ -215,7 +215,7 @@ const Index = () => {
       >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-8">
           <motion.div className="text-center space-y-2" variants={scrollReveal}>
-            <h2 className="text-2xl font-semibold">Programs We Offer</h2>
+            <h2 className="text-2xl font-semibold">What We Offer</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Structured programs across foundation, science streams and
               competitive exam preparation designed for consistent, year-long
