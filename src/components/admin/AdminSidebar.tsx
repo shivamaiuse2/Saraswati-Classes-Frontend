@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export type AdminTab = "dashboard" | "courses" | "students" | "tests" | "banners" | "results" | "blogs" | "recordings" | "test-scores" | "inquiries";
+export type AdminTab = "dashboard" | "courses" | "students" | "tests" | "banners" | "results" | "blogs" | "recordings" | "test-scores" | "inquiries" | "gallery";
 
 const items: { key: AdminTab; label: string; icon: React.ComponentType<any> }[] =
   [
@@ -26,6 +26,7 @@ const items: { key: AdminTab; label: string; icon: React.ComponentType<any> }[] 
     { key: "courses", label: "Course Management", icon: BookOpen },
     { key: "tests", label: "Test Series Management", icon: ClipboardList },
     { key: "banners", label: "Banner Management", icon: ImageIcon },
+    { key: "gallery", label: "Gallery Management", icon: ImageIcon },
     { key: "results", label: "Result Management", icon: Trophy },
     { key: "blogs", label: "Blog Management", icon: FileText },
     { key: "recordings", label: "Recordings Management", icon: Play },

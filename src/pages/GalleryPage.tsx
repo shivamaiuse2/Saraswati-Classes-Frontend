@@ -1,207 +1,119 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import { X, Image as ImageIcon } from "lucide-react";
 import Layout from "@/components/Layout";
-import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import contentService from "@/services/contentService";
-
-type GalleryCategory = "Classroom Photos" | "Topper Achievements" | "Events";
-
-interface GalleryItem {
-  id: string;
-  category: GalleryCategory;
-  title: string;
-  image: string;
-}
-
-const categories: GalleryCategory[] = [
-  "Classroom Photos",
-  "Topper Achievements",
-  "Events",
-];
+import { GalleryItem } from "@/services/galleryService";
+import { useApp } from "@/context/AppContext";
 
 const GalleryPage = () => {
-  const [activeCategory, setActiveCategory] =
-    useState<GalleryCategory | "All">("All");
-  const [selected, setSelected] = useState<GalleryItem | null>(null);
-  const [items, setItems] = useState<GalleryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const { galleryItems: items, loadingGallery: loading } = useApp();
+  const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
 
-  // Load gallery items from backend
-  useState(() => {
-    const fetchGalleryItems = async () => {
-      try {
-        setLoading(true);
-        const response = await contentService.getGalleryItems(1, 100);
-        if (response.success) {
-          setItems(response.data.map(item => ({
-            id: item.id,
-            category: item.category as GalleryCategory,
-            title: item.title,
-            image: item.image
-          })));
-        } else {
-          throw new Error(response.message || "Failed to load gallery items");
-        }
-      } catch (error: any) {
-        console.error("Error loading gallery items:", error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to load gallery items",
-          variant: "destructive",
-        });
-        // Set empty array as fallback
-        setItems([]);
-      } finally {
-        setLoading(false);
+  // Handle closing lightbox with Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedImage(null);
       }
     };
-
-    fetchGalleryItems();
-  });
-
-  const filtered =
-    activeCategory === "All"
-      ? items
-      : items.filter((i) => i.category === activeCategory);
+    if (selectedImage) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImage]);
 
   return (
     <Layout>
-      <section className="py-12 md:py-16">
-        <div className="space-y-8">
-          <div className="space-y-2">
-            <h1 className="text-3xl md:text-4xl font-bold">
-              Gallery
-            </h1>
-            <p className="text-muted-foreground max-w-2xl">
-              A glimpse into classrooms, achievements and events at Saraswati
-              Classes.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-            <button
-              type="button"
-              onClick={() => setActiveCategory("All")}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                activeCategory === "All"
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              All
-            </button>
-            {categories.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setActiveCategory(c)}
-                className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                  activeCategory === c
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-background text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No gallery items available.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filtered.map((img) => (
-                <Card
-                  key={img.id}
-                  className="group cursor-pointer overflow-hidden rounded-xl shadow-sm transition-shadow hover:shadow-md"
-                  onClick={() => setSelected(img)}
-                >
-                  <CardContent className="p-0 relative">
-                    <img
-                      src={img.image}
-                      alt={img.title}
-                      className="h-32 sm:h-40 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      onError={(e) => {
-                        // Set a fallback image if the image fails to load
-                        (e.target as HTMLImageElement).src = "https://placehold.co/600x400/0ea5e9/ffffff?text=Gallery+Image";
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-70 group-hover:opacity-90 transition-opacity" />
-                    <div className="absolute bottom-2 left-2 right-2">
-                      <p className="text-xs font-medium text-white line-clamp-1">
-                        {img.title}
-                      </p>
-                      <p className="text-[10px] text-white/70">
-                        {img.category}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+      <div className="container mx-auto px-4 py-16 max-w-7xl">
+        <div className="mb-12 text-center md:text-left">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Our Gallery</h1>
+          <p className="text-lg text-gray-600 max-w-2xl">
+            Explore moments, achievements, and events from Saraswati Classes. Experience the vibrant learning environment we provide.
+          </p>
         </div>
 
-        <AnimatePresence>
-          {selected && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-              onClick={() => setSelected(null)}
-            >
-              <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className="relative max-w-4xl w-full max-h-[90vh]"
-                onClick={(e) => e.stopPropagation()}
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-20 bg-gray-50 rounded-2xl">
+            <ImageIcon className="mx-auto h-16 w-16 text-gray-300 mb-4" />
+            <h3 className="text-xl font-medium text-gray-900 mb-2">No Images Yet</h3>
+            <p className="text-gray-500">Check back later for new photos.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 bg-white"
+                onClick={() => setSelectedImage(item)}
               >
-                <button
-                  onClick={() => setSelected(null)}
-                  className="absolute -top-12 right-0 text-white hover:text-gray-300 z-10"
-                >
-                  <X className="h-8 w-8" />
-                </button>
-
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-black/20" />
+                <div className="aspect-[4/3] w-full overflow-hidden">
                   <img
-                    src={selected.image}
-                    alt={selected.title}
-                    className="w-full max-h-[70vh] object-contain"
-                    onError={(e) => {
-                      // Set a fallback image if the image fails to load
-                      (e.target as HTMLImageElement).src = "https://placehold.co/600x400/0ea5e9/ffffff?text=Gallery+Image";
-                    }}
+                    src={item.imageUrl}
+                    alt={item.title || "Gallery image"}
+                    className="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-110"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-x-0 bottom-0 p-4 flex items-center justify-between text-sm text-white">
-                    <div>
-                      <p className="font-semibold flex items-center gap-2">
-                        <ImageIcon className="h-4 w-4" />
-                        {selected.title}
-                      </p>
-                      <p className="text-xs text-white/80">
-                        {selected.category}
-                      </p>
-                    </div>
+                </div>
+
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-6 text-center">
+                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 max-w-full">
+                    {item.title && (
+                      <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">{item.title}</h3>
+                    )}
+                    {item.description && (
+                      <p className="text-gray-200 text-sm line-clamp-3">{item.description}</p>
+                    )}
+                    {!item.title && !item.description && (
+                      <ImageIcon className="h-8 w-8 text-white/50 mx-auto" />
+                    )}
                   </div>
                 </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Lightbox */}
+        {selectedImage && (
+          <div
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 overflow-hidden animate-in fade-in duration-200"
+            onClick={() => setSelectedImage(null)}
+          >
+            <button
+              className="absolute top-4 right-4 md:top-6 md:right-6 text-white/70 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              onClick={() => setSelectedImage(null)}
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <div
+              className="max-w-5xl w-full max-h-[90vh] flex flex-col rounded-xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()} // Prevent close on clicking image container
+            >
+              <div className="relative flex-grow flex items-center justify-center overflow-hidden">
+                <img
+                  src={selectedImage.imageUrl}
+                  alt={selectedImage.title || "Expanded image"}
+                  className="max-w-full max-h-[80vh] object-contain"
+                />
+              </div>
+              {(selectedImage.title || selectedImage.description) && (
+                <div className="bg-black/80 backdrop-blur-md p-6 border-t border-white/10">
+                  {selectedImage.title && (
+                    <h3 className="text-xl font-bold text-white mb-2">{selectedImage.title}</h3>
+                  )}
+                  {selectedImage.description && (
+                    <p className="text-gray-300 text-sm">{selectedImage.description}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </Layout>
   );
 };

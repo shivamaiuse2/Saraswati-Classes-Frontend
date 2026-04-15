@@ -64,8 +64,16 @@ const Footer = () => (
           </h4>
 
           <div className="flex flex-col gap-3 text-sm text-primary-foreground/80">
+            <Link to="/" className="hover:text-white transition">
+              Home
+            </Link>
+
             <Link to="/courses" className="hover:text-white transition">
               Courses
+            </Link>
+
+            <Link to="/recordings" className="hover:text-white transition">
+              Recordings
             </Link>
 
             <Link to="/test-series" className="hover:text-white transition">
@@ -74,6 +82,18 @@ const Footer = () => (
 
             <Link to="/about" className="hover:text-white transition">
               About Us
+            </Link>
+
+            <Link to="/results" className="hover:text-white transition">
+              Results
+            </Link>
+
+            <Link to="/gallery" className="hover:text-white transition">
+              Gallery
+            </Link>
+
+            <Link to="/blog" className="hover:text-white transition">
+              Blog
             </Link>
 
             <Link to="/contact" className="hover:text-white transition">

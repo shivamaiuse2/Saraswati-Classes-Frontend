@@ -1,355 +1,256 @@
-import { useState, useEffect } from "react";
-import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Pencil, Trash2, X, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import ImageUploader from "@/components/ImageUploader";
 import { useToast } from "@/hooks/use-toast";
-import contentService from "@/services/contentService";
-
-interface GalleryRow {
-  id: string;
-  category: string;
-  title: string;
-  imageUrl: string;
-}
+import galleryService, { GalleryItem } from "@/services/galleryService";
 
 const AdminGalleryManagement = () => {
-  const [rows, setRows] = useState<GalleryRow[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<GalleryRow | null>(null);
+  const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editItem, setEditItem] = useState<GalleryItem | null>(null);
+  
+  // Form State
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchGalleryItems = async () => {
-      try {
-        setLoading(true);
-        const response = await contentService.getAdminGalleryItems(1, 100);
-        if (response.success) {
-          setRows(response.data.map(item => ({
-            id: item.id,
-            category: item.category,
-            title: item.title,
-            imageUrl: item.image
-          })));
-        } else {
-          throw new Error(response.message || "Failed to load gallery items");
-        }
-      } catch (error: any) {
-        console.error("Error loading gallery items:", error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to load gallery items",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchGalleryItems();
-  }, []);
-
-  const openAdd = () => {
-    setEditing({
-      id: "",
-      category: "",
-      title: "",
-      imageUrl: "",
-    });
-    setDialogOpen(true);
-  };
-
-  const openEdit = (row: GalleryRow) => {
-    setEditing(row);
-    setDialogOpen(true);
-  };
-
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
+  const fetchGalleryItems = async () => {
     try {
-      await contentService.deleteGalleryItem(id);
-      setRows((prev) => prev.filter((r) => r.id !== id));
-      toast({
-        title: "Success",
-        description: "Gallery item deleted successfully",
-      });
+      setLoading(true);
+      const res = await galleryService.getAllGalleryItems();
+      if (res.success) {
+        setItems(res.data);
+      }
     } catch (error: any) {
-      console.error("Error deleting gallery item:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to delete gallery item",
-        variant: "destructive",
+        description: error.response?.data?.message || "Failed to fetch gallery items",
+        variant: "destructive"
       });
     } finally {
-      setDeletingId(null);
+      setLoading(false);
     }
   };
 
-  const handleImageSelect = (imageUrl: string) => {
-    setEditing((prev) => (prev ? { ...prev, imageUrl } : null));
+  useEffect(() => {
+    fetchGalleryItems();
+  }, []);
+
+  const openAddModal = () => {
+    setEditItem(null);
+    setTitle("");
+    setDescription("");
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setIsModalOpen(true);
   };
 
-  const handleSave = async () => {
-    if (!editing) return;
-    if (!editing.title.trim() || !editing.imageUrl.trim()) {
+  const openEditModal = (item: GalleryItem) => {
+    setEditItem(item);
+    setTitle(item.title || "");
+    setDescription(item.description || "");
+    setSelectedFile(null);
+    setPreviewUrl(item.imageUrl);
+    setIsModalOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editItem && !selectedFile) {
       toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
+        title: "Validation Error",
+        description: "Image file is required for new gallery items",
+        variant: "destructive"
       });
       return;
     }
 
     try {
-      if (editing.id) {
-        const response = await contentService.updateGalleryItem(editing.id, {
-          title: editing.title,
-          image: editing.imageUrl,
-          category: editing.category,
-        });
-        
-        if (response.success) {
-          setRows(prev => prev.map(r => r.id === editing.id ? {
-            id: response.data.id,
-            title: response.data.title,
-            category: response.data.category,
-            imageUrl: response.data.image
-          } : r));
-          toast({
-            title: "Success",
-            description: "Gallery item updated successfully",
-          });
-        } else {
-          throw new Error(response.message || "Failed to update gallery item");
-        }
+      setUploading(true);
+      const formData = new FormData();
+      if (title.trim()) formData.append("title", title);
+      if (description.trim()) formData.append("description", description);
+      if (selectedFile) formData.append("image", selectedFile);
+
+      if (editItem) {
+        await galleryService.updateGalleryItem(editItem.id, formData);
+        toast({ title: "Success", description: "Gallery item updated successfully" });
       } else {
-        const response = await contentService.createGalleryItem({
-          title: editing.title,
-          image: editing.imageUrl,
-          category: editing.category,
-        });
-        
-        if (response.success) {
-          setRows(prev => [...prev, {
-            id: response.data.id,
-            title: response.data.title,
-            category: response.data.category,
-            imageUrl: response.data.image
-          }]);
-          toast({
-            title: "Success",
-            description: "Gallery item created successfully",
-          });
-        } else {
-          throw new Error(response.message || "Failed to create gallery item");
-        }
+        await galleryService.createGalleryItem(formData);
+        toast({ title: "Success", description: "Gallery item added successfully" });
       }
-      
-      setDialogOpen(false);
-      setEditing(null);
+      setIsModalOpen(false);
+      fetchGalleryItems();
     } catch (error: any) {
-      console.error("Error saving gallery item:", error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to save gallery item",
-        variant: "destructive",
+        title: "Upload Failed",
+        description: error.response?.data?.message || "Something went wrong",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this image?")) return;
+    try {
+      await galleryService.deleteGalleryItem(id);
+      toast({ title: "Success", description: "Item deleted successfully" });
+      fetchGalleryItems();
+    } catch (error: any) {
+      toast({
+        title: "Delete Failed",
+        description: error.response?.data?.message || "Something went wrong",
+        variant: "destructive"
       });
     }
   };
 
-  const shortUrl = (url: string) =>
-    url.length > 40 ? `${url.slice(0, 37)}...` : url;
-
-  // Shimmer row component
-  const TableShimmerRow = () => (
-    <TableRow>
-      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-      <TableCell><Skeleton className="h-3 w-40" /></TableCell>
-      <TableCell className="text-right">
-        <div className="flex justify-end gap-2">
-          <Skeleton className="h-7 w-7 rounded" />
-          <Skeleton className="h-7 w-7 rounded" />
-        </div>
-      </TableCell>
-    </TableRow>
-  );
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex justify-between items-center bg-card p-4 rounded-xl shadow-sm border border-border">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold mb-1">
-            Gallery Management
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Manage images for Classroom Photos, Topper Achievements and Events.
-            Upload images directly or paste a URL.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Gallery Management</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage high quality images for the gallery page.</p>
         </div>
-        <Button size="sm" className="gap-1" onClick={openAdd}>
+        <Button onClick={openAddModal} className="gap-2">
           <Plus className="h-4 w-4" />
           Add Image
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
-          {loading ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Image URL</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <TableShimmerRow key={i} />
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Image</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell className="font-medium">{row.title}</TableCell>
-                    <TableCell>{row.category}</TableCell>
-                    <TableCell>
-                      <img 
-                        src={row.imageUrl} 
-                        alt={row.title}
-                        className="h-10 w-16 rounded object-cover border"
-                      />
-                    </TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-7 w-7"
-                        onClick={() => openEdit(row)}
-                      >
-                        <Pencil className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        className="h-7 w-7"
-                        onClick={() => handleDelete(row.id)}
-                        disabled={deletingId === row.id}
-                      >
-                        {deletingId === row.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3 w-3" />
-                        )}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {rows.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className="py-6 text-center text-xs text-muted-foreground"
-                    >
-                      No gallery items yet. Use &quot;Add Image&quot; to create
-                      new entries.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+      {loading ? (
+        <div className="flex justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      ) : items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 bg-card rounded-xl border border-dashed">
+          <ImageIcon className="h-16 w-16 text-muted-foreground opacity-20 mb-4" />
+          <p className="text-muted-foreground">No gallery items found.</p>
+          <Button variant="outline" className="mt-4" onClick={openAddModal}>Upload First Image</Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {items.map((item) => (
+            <Card key={item.id} className="overflow-hidden group">
+              <CardContent className="p-0 relative aspect-video">
+                <img 
+                  src={item.imageUrl} 
+                  alt={item.title || "Gallery image"} 
+                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
+                  <div className="flex justify-end gap-2">
+                    <Button size="icon" variant="secondary" className="h-8 w-8" onClick={() => openEditModal(item)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDelete(item.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div>
+                    {item.title && <p className="text-white font-medium line-clamp-1">{item.title}</p>}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent aria-describedby={undefined} className="max-h-[85vh] overflow-hidden flex flex-col">
+      {/* Upload/Edit Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="text-sm">
-              {editing?.id ? "Edit Gallery Item" : "Add Gallery Item"}
-            </DialogTitle>
+            <DialogTitle>{editItem ? "Edit Gallery Item" : "Upload New Image"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 mt-2 overflow-y-auto pr-3">
-            <div className="space-y-1">
-              <Label htmlFor="gallery-title-input">Title</Label>
-              <Input
-                id="gallery-title-input"
-                value={editing?.title || ""}
-                onChange={(e) =>
-                  setEditing((prev) => (prev ? { ...prev, title: e.target.value } : null))
-                }
-                placeholder="Enter title for the gallery item"
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2 relative">
+              <Label>Image (Original Quality) {editItem ? "(Optional to keep existing)" : "*"}</Label>
+              <div 
+                className={`border-2 border-dashed rounded-lg aspect-video flex flex-col items-center justify-center overflow-hidden relative cursor-pointer ${previewUrl ? 'border-primary' : 'border-muted-foreground/30 hover:border-primary/50 transition-colors'}`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {previewUrl ? (
+                  <>
+                    <img src={previewUrl} alt="Preview" className="w-full h-full object-contain bg-black/5" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <p className="text-white font-medium flex items-center gap-2"><Plus className="h-4 w-4"/> Change Image</p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground p-4 text-center">
+                    <ImageIcon className="h-8 w-8 opacity-50" />
+                    <p className="text-sm font-medium">Click to select image</p>
+                    <p className="text-xs opacity-70">JPG, PNG, WEBP allowed (High Quality)</p>
+                  </div>
+                )}
+              </div>
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                className="hidden" 
+                accept="image/*"
+                onChange={handleFileChange}
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="gallery-category-input">Category</Label>
-              <Input
-                id="gallery-category-input"
-                value={editing?.category || ""}
-                onChange={(e) =>
-                  setEditing((prev) => (prev ? { ...prev, category: e.target.value } : null))
-                }
-                placeholder="Enter category (e.g. Classroom Photos)"
-              />
-            </div>
-            
-            {/* Image Uploader */}
+
             <div className="space-y-2">
-              <Label>Image</Label>
-              <ImageUploader
-                onImageSelect={handleImageSelect}
-                currentImage={editing?.imageUrl || ""}
-                folder="gallery"
+              <Label htmlFor="title">Title (Optional)</Label>
+              <Input 
+                id="title" 
+                placeholder="E.g., Batch 2024 Farewell" 
+                value={title} 
+                onChange={(e) => setTitle(e.target.value)} 
               />
             </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setDialogOpen(false);
-                setEditing(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button size="sm" onClick={handleSave} disabled={!editing?.imageUrl}>
-              {editing?.id ? "Update" : "Create"}
-            </Button>
-          </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Short Description (Optional)</Label>
+              <Textarea 
+                id="description" 
+                placeholder="A memorable day with all the students..." 
+                value={description} 
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <DialogFooter className="pt-4 mt-2 border-t">
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} disabled={uploading}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={uploading}>
+                {uploading ? (editItem ? "Updating..." : "Uploading...") : (editItem ? "Update Image" : "Upload Image")}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

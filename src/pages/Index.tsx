@@ -20,6 +20,7 @@ import contentService from "@/services/contentService";
 import StudentSlider from "@/components/StudentSlider";
 import PopupBanner from "@/components/PopupBanner";
 import HomeBannerCarousel from "@/components/banner/HomeBannerCarousel";
+import HomeGallery from "@/components/HomeGallery";
 import useEmblaCarousel from "embla-carousel-react";
 import { testimonials as staticTestimonials } from "@/data/testimonials";
 
@@ -688,6 +689,7 @@ const Index = () => {
       </motion.section>
 
       {/* CTA */}
+      <HomeGallery />
 
       {/* Map section above footer */}
       <motion.section

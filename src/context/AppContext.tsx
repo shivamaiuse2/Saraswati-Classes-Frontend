@@ -12,6 +12,7 @@ import bannerService from "@/services/bannerService";
 import contentService from "@/services/contentService";
 import enrollmentService from "@/services/enrollmentService";
 import contactService from "@/services/contactService";
+import galleryService, { GalleryItem } from "@/services/galleryService";
 import { useAuth } from "@/context/AuthContext";
 
 // Import mock data (only for default values, not for actual app functionality)
@@ -237,6 +238,9 @@ interface AppContextType {
   testimonials: any[];
   loadingTestimonials: boolean;
 
+  galleryItems: GalleryItem[];
+  loadingGallery: boolean;
+
   networkError: string | null;
   clearNetworkError: () => void;
 }
@@ -274,6 +278,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [loadingResults, setLoadingResults] = useState(true);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [loadingGallery, setLoadingGallery] = useState(true);
   const [networkError, setNetworkError] = useState<string | null>(null);
 
   // Helper to check if error is a network error
@@ -414,6 +420,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
       }).catch(err => console.error("Error loading testimonials:", err))
       .finally(() => setLoadingTestimonials(false));
+
+      // 7. Gallery
+      galleryService.getAllGalleryItems().then(res => {
+        if (res.success && res.data) {
+          setGalleryItems(res.data);
+        }
+      }).catch(err => console.error("Error loading gallery:", err))
+      .finally(() => setLoadingGallery(false));
     };
 
     loadPublicData();
@@ -705,6 +719,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         loadingBlogs,
         testimonials,
         loadingTestimonials,
+        galleryItems,
+        loadingGallery,
         loadCourses,
         loadTestSeries,
         networkError,
