@@ -51,8 +51,7 @@ const TestSeriesDetailPage = () => {
       </Layout>
     );
 
-  const isApproved =
-    !!(currentStudent && ts && currentStudent.approvedTestSeries.includes(ts.id));
+  const isApproved = true; // Always approved to remove login requirement for Test Series module
 
   return (
     <Layout>
@@ -139,11 +138,11 @@ const TestSeriesDetailPage = () => {
                           <div className="flex-1">
                             <h4 className="font-bold text-slate-900 flex items-center gap-2">
                               {test.title}
-                              {!isApproved ? <Lock className="h-3.5 w-3.5 text-slate-400" /> : <PlayCircle className="h-3.5 w-3.5 text-primary" />}
+                              <PlayCircle className="h-3.5 w-3.5 text-primary" />
                             </h4>
                             <p className="text-xs text-muted-foreground line-clamp-1">{test.description || "No description available"}</p>
                           </div>
-                          {isApproved && test.testLink && (
+                          {test.testLink && (
                             <Button asChild variant="ghost" size="sm" className="h-8 w-8 p-0">
                               <a href={test.testLink} target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="h-4 w-4 text-primary" />
@@ -176,14 +175,12 @@ const TestSeriesDetailPage = () => {
                   {ts.price}
                 </p>
 
-                {!isApproved && (
                   <Button
                     className="w-full"
                     onClick={() => setEnrollOpen(true)}
                   >
                     Enroll Now
                   </Button>
-                )}
               </CardContent>
             </Card>
           </div>
