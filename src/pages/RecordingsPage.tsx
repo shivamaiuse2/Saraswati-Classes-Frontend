@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Play, Search, Filter, Video, Clock, Bookmark } from "lucide-react";
+import { Play, Search, Filter, Video, Clock, Bookmark, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,9 +12,20 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/components/ui/select";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
 import recordingService, { Recording } from "@/services/recordingService";
 import courseService from "@/services/courseService";
+import contactService from "@/services/contactService";
 import type { Course } from "@/types/course";
 
 const fadeIn = {
@@ -36,6 +47,58 @@ const RecordingsPage = () => {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCourse, setSelectedCourse] = useState("all");
+
+    // Popup Form State
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
+    const [email, setEmail] = useState("");
+    const [message, setMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        // Show popup shortly after component mounts
+        const timer = setTimeout(() => {
+            setIsPopupOpen(true);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    const handleInquirySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        setIsSubmitting(true);
+
+        try {
+            const formData = { name, email, phone, message };
+            const response = await contactService.submitPublicInquiry(formData);
+
+            if (response.success) {
+                toast({
+                    title: "Inquiry Submitted!",
+                    description: "We've received your inquiry and will contact you soon.",
+                });
+                setName("");
+                setPhone("");
+                setEmail("");
+                setMessage("");
+                setIsPopupOpen(false);
+            } else {
+                throw new Error(response.message || "Failed to submit inquiry");
+            }
+        } catch (error: any) {
+            console.error("Error submitting inquiry form:", error);
+            toast({
+                title: "Error",
+                description: error.message || "There was an error submitting your inquiry. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -240,6 +303,88 @@ const RecordingsPage = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Inquiry Popup Dialog */}
+            <Dialog open={isPopupOpen} onOpenChange={setIsPopupOpen}>
+                <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-semibold text-[#0F172A]">Inquiry / Appointment Form</DialogTitle>
+                        <DialogDescription>
+                            Please fill out the form below to get more details or schedule an appointment.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <form onSubmit={handleInquirySubmit} className="space-y-4 mt-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Full Name</Label>
+                            <Input
+                                id="name"
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Enter your full name"
+                                required
+                                disabled={isSubmitting}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Mobile No.</Label>
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    placeholder="Enter phone number"
+                                    required
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Enter your email"
+                                    required
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="message">Message</Label>
+                            <Textarea
+                                id="message"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                placeholder="Write your inquiry"
+                                required
+                                disabled={isSubmitting}
+                                rows={4}
+                            />
+                        </div>
+
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            {isSubmitting ? (
+                                <>
+                                    <Send className="mr-2 h-4 w-4 animate-pulse" />
+                                    Sending...
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Submit Inquiry
+                                </>
+                            )}
+                        </Button>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </Layout>
     );
 };

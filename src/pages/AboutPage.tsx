@@ -27,55 +27,55 @@ const AboutPage = () => {
     <Layout>
       <section className="max-w-[1100px] mx-auto px-4 py-10 space-y-12">
 
-{/* ABOUT */}
-<motion.div variants={fadeUp} initial="hidden" whileInView="visible">
-  <Card className="bg-gradient-to-br from-blue-50 to-white border-0 shadow-md">
-    <CardContent className="p-6 md:p-8">
-      
-      <div className="grid md:grid-cols-2 gap-8 items-center">
+        {/* ABOUT */}
+        <motion.div variants={fadeUp} initial="hidden" whileInView="visible">
+          <Card className="bg-gradient-to-br from-blue-50 to-white border-0 shadow-md">
+            <CardContent className="p-6 md:p-8">
 
-        {/* TEXT */}
-        <div className="space-y-5 max-w-[520px] mx-auto md:mx-0 text-center md:text-left">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
 
-          <h1 className="text-3xl md:text-4xl font-bold">
-            About Saraswati Classes
-          </h1>
+                {/* TEXT */}
+                <div className="space-y-5 max-w-[520px] mx-auto md:mx-0 text-center md:text-left">
 
-          <div className="space-y-4 text-base text-slate-600 leading-relaxed">
+                  <h1 className="text-3xl md:text-4xl font-bold">
+                    About Saraswati Classes
+                  </h1>
 
-            <p>
-              A <span className={highlight}>focused coaching institute</span>{" "}
-              building strong academic foundations in Mathematics & Science.
-            </p>
+                  <div className="space-y-4 text-base text-slate-600 leading-relaxed">
 
-            <p>
-              With <span className="text-blue-600 font-semibold">24+ years</span>,
-              we help students develop clarity, confidence and problem-solving skills.
-            </p>
+                    <p>
+                      A <span className={highlight}>focused coaching institute</span>{" "}
+                      building strong academic foundations in Mathematics & Science.
+                    </p>
 
-            <p>
-              Preparation for{" "}
-              <span className={highlight}>Boards, CET & JEE</span> — simple,
-              structured and result-driven.
-            </p>
+                    <p>
+                      With <span className="text-blue-600 font-semibold">24+ years</span>,
+                      we help students develop clarity, confidence and problem-solving skills.
+                    </p>
 
-          </div>
+                    <p>
+                      Preparation for{" "}
+                      <span className={highlight}>Boards, CET & JEE</span> — simple,
+                      structured and result-driven.
+                    </p>
 
-        </div>
+                  </div>
 
-        {/* IMAGE */}
-        <div className="flex justify-center md:justify-end">
-          <img
-            src={saraswatiImg}
-            className="w-[65%] max-w-[260px] md:max-w-[300px] h-auto object-contain rounded-2xl shadow-lg"
-          />
-        </div>
+                </div>
 
-      </div>
+                {/* IMAGE */}
+                <div className="flex justify-center md:justify-end">
+                  <img
+                    src={saraswatiImg}
+                    className="w-[65%] max-w-[260px] md:max-w-[300px] h-auto object-contain rounded-2xl shadow-lg"
+                  />
+                </div>
 
-    </CardContent>
-  </Card>
-</motion.div>
+              </div>
+
+            </CardContent>
+          </Card>
+        </motion.div>
 
 
         {/* FOUNDER */}
@@ -188,207 +188,207 @@ const AboutPage = () => {
           </Card>
         </motion.div>
 
-{/* MENTORS */}
-<motion.div variants={fadeUp} initial="hidden" whileInView="visible">
-  <Card className="bg-gradient-to-br from-indigo-50 to-white border-0 shadow-md">
-    <CardContent className="p-8 md:p-10 space-y-14">
+        {/* MENTORS */}
+        <motion.div variants={fadeUp} initial="hidden" whileInView="visible">
+          <Card className="bg-gradient-to-br from-indigo-50 to-white border-0 shadow-md">
+            <CardContent className="p-8 md:p-10 space-y-14">
 
-      <h2 className="text-4xl text-center font-bold">
-        Mentors
-      </h2>
+              <h2 className="text-4xl text-center font-bold">
+                Mentors
+              </h2>
 
-      {/* 1 */}
-      <div className="grid md:grid-cols-2 gap-10 items-center">
+              {/* 1 */}
+              <div className="grid md:grid-cols-2 gap-10 items-center">
 
-        <div className="flex justify-center">
-          <img
-            src={shubhaImg}
-            className="w-[280px] md:w-[320px] rounded-2xl shadow-xl"
-          />
-        </div>
+                <div className="flex justify-center">
+                  <img
+                    src={shubhaImg}
+                    className="w-[280px] md:w-[320px] rounded-2xl shadow-xl"
+                  />
+                </div>
 
-        <div className="space-y-5">
-          <h3 className="text-2xl font-semibold text-slate-900">
-            Mrs. Shubha Bhamburkar
-          </h3>
+                <div className="space-y-5">
+                  <h3 className="text-2xl font-semibold text-slate-900">
+                    Mrs. Shubha Bhamburkar
+                  </h3>
 
-          <p className="text-base text-slate-600">
-            <span className="font-medium text-indigo-600 text-lg">
-              M.Sc Mathematics
-            </span>
-          </p>
+                  <p className="text-base text-slate-600">
+                    <span className="font-medium text-indigo-600 text-lg">
+                      M.sc Mathematics
+                    </span>
+                  </p>
 
-          <p className="text-base text-slate-600">
-            <span className="font-semibold text-slate-900 text-lg">
-              24 years Experience
-            </span>
-          </p>
-        </div>
+                  <p className="text-base text-slate-600">
+                    <span className="font-semibold text-slate-900 text-lg">
+                      24 years Experience
+                    </span>
+                  </p>
+                </div>
 
-      </div>
-
-
-      {/* 2 */}
-      <div className="grid md:grid-cols-2 gap-10 items-center">
-
-        <div className="space-y-5 md:order-1 flex flex-col justify-center md:items-end text-left md:text-right max-w-[450px] mx-auto md:mx-0">
-
-          <h3 className="text-2xl font-semibold text-slate-900">
-            Mrs. Pradnya Joshi
-          </h3>
-
-          <p className="text-base text-slate-600">
-            <span className="font-medium text-indigo-600 text-lg">
-              8th 9th 10th Mathematics & Science
-            </span>
-          </p>
-
-          <p className="text-base text-slate-600">
-            <span className="font-semibold text-slate-900 text-lg">
-              10 years Experience
-            </span>
-          </p>
-
-        </div>
-
-        <div className="flex justify-center md:order-2">
-          <img
-            src={pradnyaImg}
-            className="w-[280px] md:w-[320px] rounded-2xl shadow-xl"
-          />
-        </div>
-
-      </div>
+              </div>
 
 
-      {/* 3 */}
-      <div className="grid md:grid-cols-2 gap-10 items-center">
+              {/* 2 */}
+              <div className="grid md:grid-cols-2 gap-10 items-center">
 
-        <div className="flex justify-center">
-          <img
-            src={SuchitaImg}
-            className="w-[280px] md:w-[320px] rounded-2xl shadow-xl"
-          />
-        </div>
+                <div className="space-y-5 md:order-1 flex flex-col justify-center md:items-end text-left md:text-right max-w-[450px] mx-auto md:mx-0">
 
-        <div className="space-y-5">
-          <h3 className="text-2xl font-semibold text-slate-900">
-            Mrs. Suchita Gandhi
-          </h3>
+                  <h3 className="text-2xl font-semibold text-slate-900">
+                    Mrs. Pradnya Joshi
+                  </h3>
 
-          <p className="text-base text-slate-600">
-            <span className="font-medium text-indigo-600 text-lg">
-              M.Sc Organic Chemistry • B.Ed
-            </span>
-          </p>
+                  <p className="text-base text-slate-600">
+                    <span className="font-medium text-indigo-600 text-lg">
+                      8th 9th 10th Mathematics & Science
+                    </span>
+                  </p>
 
-          <p className="text-base text-slate-600">
-            <span className="font-medium text-indigo-600 text-lg">
-              11th & 12th Chemistry
-            </span>
-          </p>
+                  <p className="text-base text-slate-600">
+                    <span className="font-semibold text-slate-900 text-lg">
+                      10 years Experience
+                    </span>
+                  </p>
 
-          <p className="text-base text-slate-600">
-            <span className="font-semibold text-slate-900 text-lg">
-              24 years Experience
-            </span>
-          </p>
+                </div>
 
-        </div>
+                <div className="flex justify-center md:order-2">
+                  <img
+                    src={pradnyaImg}
+                    className="w-[280px] md:w-[320px] rounded-2xl shadow-xl"
+                  />
+                </div>
 
-      </div>
-
-    </CardContent>
-  </Card>
-</motion.div>
-
-{/* TEACHERS */}
-<motion.div variants={fadeUp} initial="hidden" whileInView="visible">
-  <Card className="bg-slate-50 border-0 shadow-md">
-    <CardContent className="p-8 md:p-10">
-
-      <h2 className="text-4xl text-center font-bold mb-10">
-        Our Teachers
-      </h2>
-
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-
-        {/* Teacher 1 */}
-        <Card className="bg-gradient-to-br from-blue-50 to-white border-0 shadow-md hover:shadow-lg transition">
-          <CardContent className="p-7 space-y-4">
-
-            <h3 className="font-semibold text-xl text-slate-900">
-              Mrs. Sucheta Gandhi
-            </h3>
-
-            <p className="text-base text-slate-600">
-              <span className="font-medium text-blue-600">
-                11th & 12th Chemistry
-              </span>
-            </p>
-
-            <p className="text-base text-slate-600">
-              <span className="font-semibold text-slate-900">
-                24 years Experience
-              </span>
-            </p>
-
-          </CardContent>
-        </Card>
+              </div>
 
 
-        {/* Teacher 2 */}
-        <Card className="bg-gradient-to-br from-purple-50 to-white border-0 shadow-md hover:shadow-lg transition">
-          <CardContent className="p-7 space-y-4">
+              {/* 3 */}
+              <div className="grid md:grid-cols-2 gap-10 items-center">
 
-            <h3 className="font-semibold text-xl text-slate-900">
-              Mr. Jagtap Sir
-            </h3>
+                <div className="flex justify-center">
+                  <img
+                    src={SuchitaImg}
+                    className="w-[280px] md:w-[320px] rounded-2xl shadow-xl"
+                  />
+                </div>
 
-            <p className="text-base text-slate-600">
-              <span className="font-medium text-purple-600">
-                11th & 12th Physics
-              </span>
-            </p>
+                <div className="space-y-5">
+                  <h3 className="text-2xl font-semibold text-slate-900">
+                    Mrs. Suchita Gandhi
+                  </h3>
 
-            <p className="text-base text-slate-600">
-              <span className="font-semibold text-slate-900">
-                24 years Experience
-              </span>
-            </p>
+                  <p className="text-base text-slate-600">
+                    <span className="font-medium text-indigo-600 text-lg">
+                      M.Sc Organic Chemistry • B.Ed
+                    </span>
+                  </p>
 
-          </CardContent>
-        </Card>
+                  <p className="text-base text-slate-600">
+                    <span className="font-medium text-indigo-600 text-lg">
+                      11th & 12th Chemistry
+                    </span>
+                  </p>
+
+                  <p className="text-base text-slate-600">
+                    <span className="font-semibold text-slate-900 text-lg">
+                      24 years Experience
+                    </span>
+                  </p>
+
+                </div>
+
+              </div>
+
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* TEACHERS */}
+        <motion.div variants={fadeUp} initial="hidden" whileInView="visible">
+          <Card className="bg-slate-50 border-0 shadow-md">
+            <CardContent className="p-8 md:p-10">
+
+              <h2 className="text-4xl text-center font-bold mb-10">
+                Our Teachers
+              </h2>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                {/* Teacher 1 */}
+                <Card className="bg-gradient-to-br from-blue-50 to-white border-0 shadow-md hover:shadow-lg transition">
+                  <CardContent className="p-7 space-y-4">
+
+                    <h3 className="font-semibold text-xl text-slate-900">
+                      Mrs. Sucheta Gandhi
+                    </h3>
+
+                    <p className="text-base text-slate-600">
+                      <span className="font-medium text-blue-600">
+                        11th & 12th Chemistry
+                      </span>
+                    </p>
+
+                    <p className="text-base text-slate-600">
+                      <span className="font-semibold text-slate-900">
+                        24 years Experience
+                      </span>
+                    </p>
+
+                  </CardContent>
+                </Card>
 
 
-        {/* Teacher 3 */}
-        <Card className="bg-gradient-to-br from-yellow-50 to-white border-0 shadow-md hover:shadow-lg transition">
-          <CardContent className="p-7 space-y-4">
+                {/* Teacher 2 */}
+                <Card className="bg-gradient-to-br from-purple-50 to-white border-0 shadow-md hover:shadow-lg transition">
+                  <CardContent className="p-7 space-y-4">
 
-            <h3 className="font-semibold text-xl text-slate-900">
-              Mrs. Pradnya Joshi
-            </h3>
+                    <h3 className="font-semibold text-xl text-slate-900">
+                      Mr. Jagtap Sir
+                    </h3>
 
-            <p className="text-base text-slate-600">
-              <span className="font-medium text-yellow-600">
-                8th–10th SSC Mathematics & Science
-              </span>
-            </p>
+                    <p className="text-base text-slate-600">
+                      <span className="font-medium text-purple-600">
+                        11th & 12th Physics
+                      </span>
+                    </p>
 
-            <p className="text-base text-slate-600">
-              <span className="font-semibold text-slate-900">
-                10 years Experience
-              </span>
-            </p>
+                    <p className="text-base text-slate-600">
+                      <span className="font-semibold text-slate-900">
+                        24 years Experience
+                      </span>
+                    </p>
 
-          </CardContent>
-        </Card>
+                  </CardContent>
+                </Card>
 
-      </div>
 
-    </CardContent>
-  </Card>
-</motion.div>
+                {/* Teacher 3 */}
+                <Card className="bg-gradient-to-br from-yellow-50 to-white border-0 shadow-md hover:shadow-lg transition">
+                  <CardContent className="p-7 space-y-4">
+
+                    <h3 className="font-semibold text-xl text-slate-900">
+                      Mrs. Pradnya Joshi
+                    </h3>
+
+                    <p className="text-base text-slate-600">
+                      <span className="font-medium text-yellow-600">
+                        8th–10th SSC Mathematics & Science
+                      </span>
+                    </p>
+
+                    <p className="text-base text-slate-600">
+                      <span className="font-semibold text-slate-900">
+                        10 years Experience
+                      </span>
+                    </p>
+
+                  </CardContent>
+                </Card>
+
+              </div>
+
+            </CardContent>
+          </Card>
+        </motion.div>
 
       </section>
     </Layout>

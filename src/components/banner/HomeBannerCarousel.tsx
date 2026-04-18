@@ -57,18 +57,18 @@ const HomeBannerCarousel = () => {
   };
 
   return (
-    <section 
+    <section
       className="py-10 md:py-16 overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="container mx-auto px-4 relative">
-        
+
         {/* Main Banner Container */}
         <div className="relative h-[400px] md:h-[500px] w-full rounded-[2rem] overflow-hidden shadow-2xl group">
-          
+
           {/* Background Image with Overlay */}
-          <div 
+          <div
             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 scale-105 group-hover:scale-100"
             style={{ backgroundImage: `url(${currentBanner.imageUrl})` }}
           >
@@ -111,9 +111,8 @@ const HomeBannerCarousel = () => {
                 <button
                   key={i}
                   onClick={() => setIndex(i)}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${
-                    index === i ? "w-8 bg-primary" : "w-2 bg-white/40"
-                  }`}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${index === i ? "w-8 bg-primary" : "w-2 bg-white/40"
+                    }`}
                 />
               ))}
             </div>

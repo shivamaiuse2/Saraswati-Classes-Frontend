@@ -8,6 +8,16 @@ const BlogDetailPage = () => {
 
   const blog = blogs.find(b => b.id === id);
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+
+    const day = date.getDate();
+    const month = date.toLocaleString('en-GB', { month: 'long' });
+    const year = date.getFullYear();
+
+    return `${day} ${month} ${year}`;
+  };
+
   if (loadingBlogs) {
     return (
       <Layout>
@@ -50,7 +60,7 @@ const BlogDetailPage = () => {
 
           {/* Blog Date */}
           <p className="text-muted-foreground mb-8">
-            {blog.date}
+            {formatDate(blog.date)}
           </p>
 
           {/* Blog Content */}

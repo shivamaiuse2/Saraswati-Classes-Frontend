@@ -558,14 +558,6 @@ const Index = () => {
 
                       {/* Buttons */}
                       <div className="flex gap-2 mt-auto">
-                        {/* <Button
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => openEnroll(ts.title)}
-                        >
-                          Enroll Now
-                        </Button> */}
-
                         <Link to={`/test-series/${ts.id}`} className="flex-1">
                           <Button
                             size="sm"

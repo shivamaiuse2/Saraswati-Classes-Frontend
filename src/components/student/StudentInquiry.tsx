@@ -115,7 +115,7 @@ const StudentInquiry = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="inquiry-phone">Phone *</Label>
+              <Label htmlFor="inquiry-phone">Mobile No. *</Label>
               <Input
                 id="inquiry-phone"
                 type="tel"

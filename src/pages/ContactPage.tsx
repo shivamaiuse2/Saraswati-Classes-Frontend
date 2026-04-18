@@ -63,7 +63,7 @@ const ContactPage = () => {
   const contactDetails = [
     {
       icon: Phone,
-      label: "Phone",
+      label: "Mobile No.",
       value: "9421018326, 9420464332",
     },
     {
@@ -174,7 +174,7 @@ const ContactPage = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Phone</Label>
+                      <Label htmlFor="phone">Mobile No.</Label>
                       <Input
                         id="phone"
                         type="tel"

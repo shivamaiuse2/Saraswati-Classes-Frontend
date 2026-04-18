@@ -5,6 +5,16 @@ import { Link } from "react-router-dom";
 const Blog = () => {
   const { blogs, loadingBlogs } = useApp();
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+
+    const day = date.getDate();
+    const month = date.toLocaleString('en-GB', { month: 'long' });
+    const year = date.getFullYear();
+
+    return `${day} ${month} ${year}`;
+  };
+
   return (
     <Layout>
       <section className="py-16 md:py-20 bg-background">
@@ -42,7 +52,7 @@ const Blog = () => {
                   />
                   <div className="p-6 flex flex-col flex-grow">
                     <h3 className="font-semibold text-lg text-[#0F172A] mb-2">{post.title}</h3>
-                    <p className="text-sm text-muted-foreground flex-grow">{post.date}</p>
+                    <p className="text-sm text-muted-foreground flex-grow">{formatDate(post.date)}</p>
                     <div className="mt-4 text-sm font-medium text-blue-600 hover:underline">
                       Read Article →
                     </div>
@@ -50,9 +60,9 @@ const Blog = () => {
                 </Link>
               ))
             ) : (
-                <div className="col-span-full py-12 text-center text-muted-foreground">
-                  No blog posts available at the moment.
-                </div>
+              <div className="col-span-full py-12 text-center text-muted-foreground">
+                No blog posts available at the moment.
+              </div>
             )}
           </div>
         </div>

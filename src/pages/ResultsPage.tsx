@@ -41,9 +41,8 @@ const ResultsPage = () => {
               results.map((t, idx) => (
                 <Card
                   key={idx}
-                  className={`${
-                    cardColors[idx % cardColors.length]
-                  } rounded-xl border-none shadow-sm hover:shadow-lg transition flex flex-col items-center text-center p-6`}
+                  className={`${cardColors[idx % cardColors.length]
+                    } rounded-xl border-none shadow-sm hover:shadow-lg transition flex flex-col items-center text-center p-6`}
                 >
 
                   {/* Image */}
