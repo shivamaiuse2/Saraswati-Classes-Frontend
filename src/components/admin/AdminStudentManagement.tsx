@@ -33,8 +33,7 @@ import studentService from "@/services/studentService";
 import { useApp } from "@/context/AppContext";
 
 const standards = [
-  "1st", "2nd", "3rd", "4th", "5th", "6th",
-  "7th", "8th", "9th", "10th", "11th", "12th",
+  "8th", "9th", "10th", "11th", "12th",
 ] as const;
 
 type StandardOption = (typeof standards)[number];

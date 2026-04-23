@@ -94,6 +94,9 @@ const AboutPage = () => {
                   <p className="text-lg font-semibold">
                     Mrs. Shubha Bhamburkar
                   </p>
+                  <p className="text-md font-semibold text-gray-500">
+                    M.Sc Mathematics
+                  </p>
 
                   <p className="text-base text-slate-600">
                     <span className="text-blue-600 font-semibold">24+ years experience</span>{" "}
@@ -214,7 +217,7 @@ const AboutPage = () => {
 
                   <p className="text-base text-slate-600">
                     <span className="font-medium text-indigo-600 text-lg">
-                      M.sc Mathematics
+                      M.Sc Mathematics
                     </span>
                   </p>
 

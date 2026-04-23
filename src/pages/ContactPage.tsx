@@ -51,7 +51,9 @@ const ContactPage = () => {
       console.error("Error submitting inquiry form:", error);
       toast({
         title: "Error",
-        description: error.message || "There was an error submitting your inquiry. Please try again.",
+        description:
+          error.message ||
+          "There was an error submitting your inquiry. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -89,7 +91,6 @@ const ContactPage = () => {
     <Layout>
       <section className="py-20">
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-14">
-
           {/* Heading */}
           <div className="text-center space-y-3">
             <h1 className="text-3xl md:text-4xl font-semibold text-[#0F172A]">
@@ -101,29 +102,24 @@ const ContactPage = () => {
             </p>
           </div>
 
+          <div className="sticky top-0 z-50 flex justify-center bg-white py-2">
+            <div
+              onClick={() =>
+                window.open("https://forms.gle/Nq3MkRZw5zNiF6rj8", "_blank")
+              }
+              className="cursor-pointer px-4 py-2 rounded-full bg-red-500 text-white text-sm animate-pulse"
+            >
+              🎓 Admission Open – Fill Form
+            </div>
+          </div>
+
           {/* Contact + Form */}
           <div className="grid lg:grid-cols-2 gap-12 items-start">
-
             {/* Contact Info */}
             <div className="space-y-4">
-
               {contactDetails.map((item) => {
                 const Icon = item.icon;
                 return (
-                  // <Card key={item.label} className="rounded-xl shadow-sm">
-                  //   <CardContent className="p-5 flex items-center gap-4">
-
-                  //     <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
-                  //       <Icon className="h-5 w-5 text-primary" />
-                  //     </div>
-
-                  //     <div>
-                  //       <p className="font-medium text-sm">{item.label}</p>
-                  //       <p className="text-muted-foreground">{item.value}</p>
-                  //     </div>
-
-                  //   </CardContent>
-                  // </Card>
                   <Card
                     key={item.label}
                     className="rounded-xl border hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
@@ -146,19 +142,16 @@ const ContactPage = () => {
                   </Card>
                 );
               })}
-
             </div>
 
             {/* Contact Form */}
             <Card className="rounded-xl border hover:shadow-lg transition-all duration-300">
               <CardContent className="p-6 space-y-5">
-
                 <h2 className="text-lg font-semibold text-[#0F172A]">
                   Inquiry / Appointment Form
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
                     <Input
@@ -171,7 +164,6 @@ const ContactPage = () => {
                       disabled={isLoading}
                     />
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="phone">Mobile No.</Label>
@@ -199,7 +191,6 @@ const ContactPage = () => {
                       />
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="message">Message</Label>
                     <Textarea
@@ -212,7 +203,6 @@ const ContactPage = () => {
                       rows={4}
                     />
                   </div>
-
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
@@ -226,11 +216,9 @@ const ContactPage = () => {
                       </>
                     )}
                   </Button>
-
                 </form>
               </CardContent>
             </Card>
-
           </div>
 
           {/* Google Map */}
@@ -248,7 +236,6 @@ const ContactPage = () => {
               />
             </div>
           </div>
-
         </div>
       </section>
     </Layout>

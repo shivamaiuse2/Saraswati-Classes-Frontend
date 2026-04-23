@@ -121,7 +121,7 @@ const Index = () => {
         }}
       >
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 items-center pt-16">
             {/* LEFT SIDE */}
             <motion.div
               initial={{ opacity: 0, y: 25 }}
@@ -169,13 +169,6 @@ const Index = () => {
             >
               {/* Glow Background */}
               <div className="absolute w-[420px] h-[420px] bg-[#2EA7FF]/20 rounded-full blur-3xl"></div>
-
-              {/* Student Image */}
-              <img
-                src={heroImage}
-                alt="Student"
-                className="relative z-10 w-[400px] md:w-[440px] object-contain"
-              />
 
               {/* Card 1 */}
               <div className="absolute z-20 top-6 left-0 bg-white/95 backdrop-blur-md rounded-xl shadow-lg px-4 py-2 text-sm font-semibold text-slate-700 border border-slate-200 animate-float">
@@ -742,5 +735,3 @@ const Index = () => {
 };
 
 export default Index;
-
-
