@@ -163,7 +163,7 @@ const AdminGalleryManagement = () => {
                 <img 
                   src={item.imageUrl} 
                   alt={item.title || "Gallery image"} 
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  className="w-full h-full object-contain transition-transform group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
                   <div className="flex justify-end gap-2">

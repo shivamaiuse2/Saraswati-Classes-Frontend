@@ -129,10 +129,10 @@ const Index = () => {
               transition={{ duration: 0.5 }}
             >
               {/* Headline */}
-              <h1 className="text-[clamp(28px,5vw,48px)] font-semibold leading-tight text-[#1E293B] mb-4 max-w-[650px]">
-                A Focused Coaching Institute For{" "}
-                <span className="text-[#3BA3F5] font-semibold">
-                  Academic Excellence
+              <h1 className="text-[clamp(28px,5vw,48px)] font-bold leading-tight text-[#1E293B] mb-4 max-w-[650px]">
+                TRUSTED BY PARENTS{" "}
+                <span className="text-[#3BA3F5] font-bold">
+                  PROVEN BY RESULTS
                 </span>
               </h1>
 
