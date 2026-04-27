@@ -290,7 +290,7 @@ const CourseDetailPage = () => {
                     className="w-full"
                     onClick={() => setEnrollOpen(true)}
                   >
-                    Enquire Now
+                    Enroll Now
                   </Button>
                 )}
               </CardContent>
