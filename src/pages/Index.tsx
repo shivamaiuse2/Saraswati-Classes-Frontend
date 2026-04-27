@@ -170,6 +170,13 @@ const Index = () => {
               {/* Glow Background */}
               <div className="absolute w-[420px] h-[420px] bg-[#2EA7FF]/20 rounded-full blur-3xl"></div>
 
+               {/* Student Image */}
+              <img
+                src={heroImage}
+                alt="Student"
+                className="relative z-10 w-[400px] md:w-[440px] object-contain"
+              />
+
               {/* Card 1 */}
               <div className="absolute z-20 top-6 left-0 bg-white/95 backdrop-blur-md rounded-xl shadow-lg px-4 py-2 text-sm font-semibold text-slate-700 border border-slate-200 animate-float">
                 📚 5+ Courses
