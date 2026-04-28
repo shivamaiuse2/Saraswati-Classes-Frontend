@@ -82,7 +82,7 @@ const TestSeriesPage = () => {
                           className="flex-1"
                           onClick={() => openEnroll(ts.title)}
                         >
-                          Enroll Now
+                          Enquire Now
                         </Button>
 
                         <Link to={`/test-series/${ts.id}`} className="flex-1">
