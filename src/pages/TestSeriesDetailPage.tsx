@@ -126,8 +126,8 @@ const TestSeriesDetailPage = () => {
                   </div>
                 ) : (
                   ts.tests.map((test: any, i: number) => (
-                    <Card 
-                      key={test.id || i} 
+                    <Card
+                      key={test.id || i}
                       className={`group transition-all duration-200 border-slate-200 ${isApproved ? 'hover:border-primary hover:shadow-md' : 'opacity-75'}`}
                     >
                       <CardContent className="p-4">
@@ -158,7 +158,7 @@ const TestSeriesDetailPage = () => {
             </div>
           </div>
 
-            <div>
+          <div>
             <Card className="sticky top-20 overflow-hidden rounded-xl shadow-sm">
               <img
                 src={ts.image}
@@ -175,12 +175,12 @@ const TestSeriesDetailPage = () => {
                   {ts.price}
                 </p>
 
-                  <Button
-                    className="w-full"
-                    onClick={() => setEnrollOpen(true)}
-                  >
-                    Enroll Now
-                  </Button>
+                <Button
+                  className="w-full"
+                  onClick={() => setEnrollOpen(true)}
+                >
+                  Enroll Now
+                </Button>
               </CardContent>
             </Card>
           </div>

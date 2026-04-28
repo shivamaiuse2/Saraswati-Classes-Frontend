@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/Layout";
-import EnrollmentModal from "@/components/EnrollmentModal";
+import InquiryModal from "@/components/InquiryModal";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 
@@ -104,9 +104,9 @@ const TestSeriesPage = () => {
         </div>
       </section>
 
-      <EnrollmentModal
+      <InquiryModal
         open={enrollOpen}
-        onClose={() => setEnrollOpen(false)}
+        onOpenChange={setEnrollOpen}
         courseOrSeries={enrollTarget}
       />
     </Layout>

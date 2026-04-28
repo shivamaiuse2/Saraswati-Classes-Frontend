@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Clock, Calendar, BookOpen, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
-import EnrollmentModal from "@/components/EnrollmentModal";
+import InquiryModal from "@/components/InquiryModal";
 import { useApp } from "@/context/AppContext";
 
 const staggerContainer = {
@@ -206,9 +206,9 @@ const CoursesPage = () => {
         </div>
       </section>
 
-      <EnrollmentModal
+      <InquiryModal
         open={enrollOpen}
-        onClose={() => setEnrollOpen(false)}
+        onOpenChange={setEnrollOpen}
         courseOrSeries={enrollTarget}
       />
     </Layout>
